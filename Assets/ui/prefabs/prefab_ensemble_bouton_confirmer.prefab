@@ -300,7 +300,7 @@ MonoBehaviour:
   hoverCorrode: {fileID: 21300000, guid: 4cc7e74d5b03d49dfa1f5cbf28265201, type: 3}
   appuyerCorrode: {fileID: 21300000, guid: 56c1831aa176d4077a3d5dd7444e8668, type: 3}
   selectCorrode: {fileID: 21300000, guid: 6e42df71cc85b48f58b9fe2f28ae4c70, type: 3}
-  seuilCorrosion: 0.75
+  seuilCorrosion: 0.6
 --- !u!1 &8456525934989449556
 GameObject:
   m_ObjectHideFlags: 0
