@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections.Generic;
 
+
 public class gestionsTransitions : MonoBehaviour
 {
     [Header("Cameras virtuelles")]
@@ -13,6 +14,10 @@ public class gestionsTransitions : MonoBehaviour
     [SerializeField] private GameObject canvasMenu;
     [SerializeField] private GameObject canvasOptions;
     [SerializeField] private GameObject canvasCredits;
+
+    [Header("Canvas HUD")]
+    [SerializeField] private GameObject canvasHud;
+    [SerializeField] private CanvasGroup groupeHud;
 
     [Header("Canvas Onglets")]
     [SerializeField] private GameObject canvasOngletsOptions;
@@ -70,6 +75,7 @@ public class gestionsTransitions : MonoBehaviour
         canvasOptions.SetActive(false);
         canvasCredits.SetActive(false);
         canvasOngletsOptions.SetActive(false);
+        canvasHud.SetActive(false);
 
         if (brouillard1 != null)
         {
@@ -239,6 +245,15 @@ public class gestionsTransitions : MonoBehaviour
         Invoke(nameof(DesactiverOptionsCredits), 2.5f);
     }
 
+    public void OnQuitter()
+    {
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
     private void AfficherOptions()
     {
         canvasOptions.SetActive(true);
@@ -257,14 +272,12 @@ public class gestionsTransitions : MonoBehaviour
     {
         float v = vitesseCustom > 0 ? vitesseCustom : vitesseFade;
 
-        // Retirer des fade out si present
         for (int i = groupesEnFadeOut.Count - 1; i >= 0; i--)
         {
             if (groupesEnFadeOut[i].groupe == groupe)
                 groupesEnFadeOut.RemoveAt(i);
         }
 
-        // Verifier si deja en fade in
         bool dejaPresent = false;
         for (int i = 0; i < groupesEnFadeIn.Count; i++)
         {
@@ -292,14 +305,12 @@ public class gestionsTransitions : MonoBehaviour
     {
         float v = vitesseCustom > 0 ? vitesseCustom : vitesseFade;
 
-        // Retirer des fade in si present
         for (int i = groupesEnFadeIn.Count - 1; i >= 0; i--)
         {
             if (groupesEnFadeIn[i].groupe == groupe)
                 groupesEnFadeIn.RemoveAt(i);
         }
 
-        // Verifier si deja en fade out
         bool dejaPresent = false;
         for (int i = 0; i < groupesEnFadeOut.Count; i++)
         {
@@ -326,6 +337,14 @@ public class gestionsTransitions : MonoBehaviour
     private void DesactiverMenu()
     {
         canvasMenu.SetActive(false);
+
+        canvasHud.SetActive(true);
+        groupeHud.alpha = 0f;
+        FadeIn(groupeHud);
+
+        // Activer les inputs de jeu
+        GetComponent<gestionInputsJeu>().ActiverInputs();
+
         estEnTransition = false;
     }
 
