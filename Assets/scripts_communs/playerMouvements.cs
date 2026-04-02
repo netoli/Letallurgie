@@ -24,24 +24,25 @@ void Start()
 }
 
     void Update()
-    {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+{
+    float x = Input.GetAxis("Horizontal");
+    float z = Input.GetAxis("Vertical");
 
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
+    float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
 
-        Vector3 move = transform.right * x + transform.forward * z;
-        controller.Move(move * currentSpeed * Time.deltaTime);
+    // Gravité
+    if (controller.isGrounded && velocity.y < 0)
+        velocity.y = -2f;
 
-        // Gravité
-        if (controller.isGrounded && velocity.y < 0)
-            velocity.y = -2f;
+    velocity.y += gravity * Time.deltaTime;
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+    // Un seul Move qui combine déplacement + gravité
+    Vector3 move = (transform.right * x + transform.forward * z) * currentSpeed;
+    move.y = velocity.y;
+    controller.Move(move * Time.deltaTime);
 
-        // Animations
-        float moveAmount = new Vector2(x, z).magnitude;
-        animator.SetBool("isWalking", moveAmount > 0.1f);
-    }
+    // Animations
+    float moveAmount = new Vector2(x, z).magnitude;
+    animator.SetBool("isWalking", moveAmount > 0.1f);
+}
 }

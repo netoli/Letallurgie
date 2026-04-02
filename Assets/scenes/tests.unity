@@ -165,7 +165,6 @@ GameObject:
   - component: {fileID: 413319408}
   - component: {fileID: 413319407}
   - component: {fileID: 413319411}
-  - component: {fileID: 413319410}
   m_Layer: 16
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -247,21 +246,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 631076845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &413319410
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 413319406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::mouseLook
-  mouseSensitivity: 100
-  playerBody: {fileID: 607609564}
-  cameraHolder: {fileID: 0}
 --- !u!114 &413319411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,8 +320,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ea6df5c4393ea64b88ef8819980d696, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  speed: 2
-  sprintSpeed: 5
+  speed: 1
+  sprintSpeed: 1
   gravity: -9.81
 --- !u!143 &607609563
 CharacterController:
@@ -377,9 +361,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 631076845}
   - {fileID: 1202660837}
   - {fileID: 902974059}
-  - {fileID: 631076845}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &631076844
@@ -407,7 +391,7 @@ Transform:
   m_GameObject: {fileID: 631076844}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.2, z: 0.05}
+  m_LocalPosition: {x: 0, y: 3, z: 0.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -879,14 +863,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: ed0fccbcc43b2724585170b96c27c49d, type: 2}
     - target: {fileID: 5866666021909216657, guid: 72a3500fb47a3314bb95de25fb6893c1, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'mixamorig1:Hips'\n\tTransform 'mixamorig1:LeftHandThumb1'\n\tTransform
-        'mixamorig1:LeftHandPinky2'\n\tTransform 'mixamorig1:RightHand'\n\tTransform
-        'mixamorig1:LeftHandMiddle2'\n\tTransform 'mixamorig1:RightFoot'\n\tTransform
-        'mixamorig1:Spine1'\n\tTransform 'mixamorig1:RightLeg'\n\tTransform 'mixamorig1:RightHandMiddle2'\n\tTransform
-        'mixamorig1:Hips'\n\tand more ...\n\tFrom animation clip 'idle'\n\tFrom animation
-        clip 'walking'"
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6380008277799756434, guid: 72a3500fb47a3314bb95de25fb6893c1, type: 3}
       propertyPath: m_Layer
@@ -1043,6 +1020,158 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1206444626}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1241209386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1241209391}
+  - component: {fileID: 1241209390}
+  - component: {fileID: 1241209389}
+  - component: {fileID: 1241209388}
+  - component: {fileID: 1241209387}
+  m_Layer: 0
+  m_Name: Camera_1p
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1241209387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241209386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::mouseLook
+  mouseSensitivity: 100
+  playerBody: {fileID: 607609564}
+--- !u!114 &1241209388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241209386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
+--- !u!81 &1241209389
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241209386}
+  m_Enabled: 1
+--- !u!20 &1241209390
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241209386}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &1241209391
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241209386}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.032789655, y: 0.661984, z: -0.029033227, w: 0.7482373}
+  m_LocalPosition: {x: 0, y: 0, z: 2.0722706}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1541844394
 GameObject:
   m_ObjectHideFlags: 0
@@ -1694,3 +1823,4 @@ SceneRoots:
   - {fileID: 607609564}
   - {fileID: 281530410}
   - {fileID: 795282404}
+  - {fileID: 1241209391}
