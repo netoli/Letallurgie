@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections.Generic;
 
@@ -30,6 +31,9 @@ public class gestionsTransitions : MonoBehaviour
     [SerializeField] private CanvasGroup groupeOptions;
     [SerializeField] private CanvasGroup groupeCredits;
 
+    [Header("Bouton Continuer")]
+    [SerializeField] private GameObject btnContinuer;
+
     [Header("Brouillard Menu")]
     [SerializeField] private Transform brouillard1;
     [SerializeField] private float positionYDepart1;
@@ -60,6 +64,9 @@ public class gestionsTransitions : MonoBehaviour
     private bool estEnTransition = false;
     private float positionYCible1;
     private float positionYCible2;
+    private bool dansOptionsDepuisMenu = false;
+    private bool dansCreditsDepuisMenu = false;
+    private bool attenteRetour = false;
 
     void Start()
     {
@@ -77,6 +84,8 @@ public class gestionsTransitions : MonoBehaviour
         canvasOngletsOptions.SetActive(false);
         canvasHud.SetActive(false);
 
+        MettreAJourBoutonContinuer();
+
         if (brouillard1 != null)
         {
             Vector3 pos = brouillard1.position;
@@ -92,6 +101,12 @@ public class gestionsTransitions : MonoBehaviour
             brouillard2.gameObject.SetActive(false);
             positionYCible2 = positionYDepart2;
         }
+    }
+
+    public void MettreAJourBoutonContinuer()
+    {
+        if (btnContinuer != null)
+            btnContinuer.SetActive(gestionPartie.Instance.SauvegardeExiste());
     }
 
     private void DemarrerMonteeBrouillard1()
@@ -126,6 +141,16 @@ public class gestionsTransitions : MonoBehaviour
 
     void Update()
     {
+        if (Keyboard.current != null
+            && Keyboard.current.escapeKey.wasPressedThisFrame
+            && !estEnTransition
+            && !attenteRetour
+            && (dansOptionsDepuisMenu || dansCreditsDepuisMenu))
+        {
+            attenteRetour = true;
+            Invoke(nameof(ExecuterRetour), 0.15f);
+        }
+
         for (int i = groupesEnFadeIn.Count - 1; i >= 0; i--)
         {
             var info = groupesEnFadeIn[i];
@@ -171,10 +196,18 @@ public class gestionsTransitions : MonoBehaviour
         }
     }
 
+    private void ExecuterRetour()
+    {
+        attenteRetour = false;
+        OnRetour();
+    }
+
     public void OnNouvellePartie()
     {
         if (estEnTransition) return;
         estEnTransition = true;
+
+        gestionPartie.Instance.InitialiserNouvellePartie();
 
         FadeOut(groupeMenu);
         vcamJeu.Priority = 50;
@@ -188,6 +221,16 @@ public class gestionsTransitions : MonoBehaviour
         if (estEnTransition) return;
         estEnTransition = true;
 
+        gestionPartie.DonneesSauvegarde donnees =
+            gestionPartie.Instance.ChargerDerniereSauvegarde();
+
+        if (donnees != null)
+        {
+            gestionPartie.Instance.ChargerPartieEnCours(donnees);
+            Debug.Log("Chargement de: " + donnees.nomSauvegarde
+                + " | Scene: " + donnees.nomScene);
+        }
+
         FadeOut(groupeMenu);
         vcamJeu.Priority = 50;
         positionYCible1 = positionYDepart1;
@@ -199,6 +242,8 @@ public class gestionsTransitions : MonoBehaviour
     {
         if (estEnTransition) return;
         estEnTransition = true;
+
+        dansOptionsDepuisMenu = true;
 
         FadeOut(groupeMenu);
         vcamOptionsCredits.Priority = 40;
@@ -214,6 +259,8 @@ public class gestionsTransitions : MonoBehaviour
         if (estEnTransition) return;
         estEnTransition = true;
 
+        dansCreditsDepuisMenu = true;
+
         FadeOut(groupeMenu);
         vcamOptionsCredits.Priority = 40;
 
@@ -226,6 +273,9 @@ public class gestionsTransitions : MonoBehaviour
     {
         if (estEnTransition) return;
         estEnTransition = true;
+
+        dansOptionsDepuisMenu = false;
+        dansCreditsDepuisMenu = false;
 
         if (canvasOptions.activeSelf)
             FadeOut(groupeOptions);
@@ -243,6 +293,32 @@ public class gestionsTransitions : MonoBehaviour
         positionYCible2 = positionYDepart2;
 
         Invoke(nameof(DesactiverOptionsCredits), 2.5f);
+    }
+
+    public void RetourEnJeuDepuisChargement()
+    {
+        canvasOptions.SetActive(false);
+        canvasCredits.SetActive(false);
+        canvasOngletsOptions.SetActive(false);
+        canvasMenu.SetActive(false);
+
+        vcamMenu.Priority = 10;
+        vcamOptionsCredits.Priority = 10;
+        vcamJeu.Priority = 50;
+
+        dansOptionsDepuisMenu = false;
+        dansCreditsDepuisMenu = false;
+        estEnTransition = false;
+        attenteRetour = false;
+
+        if (brouillard2 != null)
+        {
+            positionYCible2 = positionYDepart2;
+            brouillard2.gameObject.SetActive(false);
+        }
+
+        groupesEnFadeIn.Clear();
+        groupesEnFadeOut.Clear();
     }
 
     public void OnQuitter()
@@ -342,7 +418,6 @@ public class gestionsTransitions : MonoBehaviour
         groupeHud.alpha = 0f;
         FadeIn(groupeHud);
 
-        // Activer les inputs de jeu
         GetComponent<gestionInputsJeu>().ActiverInputs();
 
         estEnTransition = false;
