@@ -80,6 +80,17 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
         }
     }
 
+    private float ObtenirVolumeBouton()
+    {
+        gestionOptionsAudio options =
+            FindFirstObjectByType<gestionOptionsAudio>();
+
+        if (options != null)
+            return options.ObtenirVolumeBouton();
+
+        return 1f;
+    }
+
     void Update()
     {
         transform.localScale = Vector3.Lerp(
@@ -105,8 +116,9 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
                 effetClic.Emit(nombreParticulesBurst);
             }
 
-            if (sonTouche != null && sourceAudio != null)
-                sourceAudio.PlayOneShot(sonTouche, volumeTouche);
+            float volume = ObtenirVolumeBouton();
+            if (sonTouche != null && sourceAudio != null && volume > 0f)
+                sourceAudio.PlayOneShot(sonTouche, volumeTouche * volume);
         }
     }
 }

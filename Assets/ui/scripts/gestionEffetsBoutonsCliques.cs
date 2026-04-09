@@ -67,6 +67,17 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
         }
     }
 
+    private float ObtenirVolumeBouton()
+    {
+        gestionOptionsAudio options =
+            FindFirstObjectByType<gestionOptionsAudio>();
+
+        if (options != null)
+            return options.ObtenirVolumeBouton();
+
+        return 1f;
+    }
+
     void Update()
     {
         Vector3 echelleCible = estSurvole ?
@@ -87,8 +98,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
             effetSurvol.Play();
         }
 
-        if (sonSurvol != null && sourceAudio != null)
-            sourceAudio.PlayOneShot(sonSurvol, volumeSurvol);
+        float volume = ObtenirVolumeBouton();
+        if (sonSurvol != null && sourceAudio != null && volume > 0f)
+            sourceAudio.PlayOneShot(sonSurvol, volumeSurvol * volume);
     }
 
     public void OnPointerExit(PointerEventData donneesEvenement)
@@ -118,8 +130,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
             effetClic.Emit(nombreParticulesBurst);
         }
 
-        if (sonClic != null && sourceAudio != null)
-            sourceAudio.PlayOneShot(sonClic, volumeClic);
+        float volume = ObtenirVolumeBouton();
+        if (sonClic != null && sourceAudio != null && volume > 0f)
+            sourceAudio.PlayOneShot(sonClic, volumeClic * volume);
     }
 
     public void ArreterEffetClic()

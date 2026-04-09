@@ -4,8 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - bouton_clique
-  - bouton_clavier
+  - texte_ui
+  - texte_bouton
+  - texte_glitch
   layers:
   - Default
   - TransparentFX

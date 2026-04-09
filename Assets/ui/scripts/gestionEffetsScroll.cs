@@ -30,7 +30,6 @@ public class gestionEffetsScroll : MonoBehaviour
         }
 
         sourceAudio.clip = sonScroll;
-        sourceAudio.volume = volumeScroll;
 
         if (finSon <= 0f && sonScroll != null)
             finSon = sonScroll.length;
@@ -42,6 +41,17 @@ public class gestionEffetsScroll : MonoBehaviour
         }
     }
 
+    private float ObtenirVolumeScroll()
+    {
+        gestionOptionsAudio options =
+            FindFirstObjectByType<gestionOptionsAudio>();
+
+        if (options != null)
+            return options.ObtenirVolumeScroll();
+
+        return 1f;
+    }
+
     private void OnScroll(Vector2 position)
     {
         float distance = Vector2.Distance(position, dernierePosition);
@@ -49,19 +59,23 @@ public class gestionEffetsScroll : MonoBehaviour
         if (distance > 0.01f
             && Time.unscaledTime - dernierTempsJoue > delaiEntreDeuxSons)
         {
-            JouerSonDecoupe();
+            float volume = ObtenirVolumeScroll();
+            if (volume > 0f)
+                JouerSonDecoupe(volume);
+
             dernierTempsJoue = Time.unscaledTime;
         }
 
         dernierePosition = position;
     }
 
-    private void JouerSonDecoupe()
+    private void JouerSonDecoupe(float volumeOption)
     {
         if (sonScroll == null || sourceAudio == null) return;
 
         sourceAudio.Stop();
         sourceAudio.clip = sonScroll;
+        sourceAudio.volume = volumeScroll * volumeOption;
         sourceAudio.time = debutSon;
         sourceAudio.Play();
 
