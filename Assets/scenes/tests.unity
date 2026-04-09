@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 413319408}
   - component: {fileID: 413319407}
   - component: {fileID: 413319411}
+  - component: {fileID: 413319412}
   m_Layer: 16
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -290,6 +291,20 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &413319412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413319406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::mouseLook
+  mouseSensitivity: 130
+  playerBody: {fileID: 607609564}
 --- !u!1 &607609561
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +335,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ea6df5c4393ea64b88ef8819980d696, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  speed: 1
+  speed: 3
   sprintSpeed: 1
   gravity: -9.81
 --- !u!143 &607609563
@@ -865,6 +880,10 @@ PrefabInstance:
       propertyPath: m_WarningMessage
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 72a3500fb47a3314bb95de25fb6893c1, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6380008277799756434, guid: 72a3500fb47a3314bb95de25fb6893c1, type: 3}
       propertyPath: m_Layer
       value: 16
@@ -1032,28 +1051,13 @@ GameObject:
   - component: {fileID: 1241209390}
   - component: {fileID: 1241209389}
   - component: {fileID: 1241209388}
-  - component: {fileID: 1241209387}
   m_Layer: 0
   m_Name: Camera_1p
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1241209387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1241209386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::mouseLook
-  mouseSensitivity: 100
-  playerBody: {fileID: 607609564}
+  m_IsActive: 0
 --- !u!114 &1241209388
 MonoBehaviour:
   m_ObjectHideFlags: 0
