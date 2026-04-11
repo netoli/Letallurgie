@@ -1,7 +1,6 @@
 // ============================================================
 // JournalSlotUI.cs
 // ------------------------------------------------------------
-// Projet      : Létallurgie
 // Auteur      : Fanny Fortier
 // Date        : 28/03/2026
 // ------------------------------------------------------------
@@ -13,7 +12,8 @@
 //   indice
 // ------------------------------------------------------------
 // Dépendances :
-//   - 
+//   - JournalDetailPanneau.cs : appelle OuvrirPanneauDetail() et FermerPanneauDetail()
+//   - JournalManager.cs : appelle InitialiserSlot()
 // ============================================================
 
 
@@ -32,6 +32,11 @@ public class JournalSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public TMP_Text textTitreIndice;
     public TMP_Text textDescriptionIndice;
     public TMP_Text textInsightIndice;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource sourceAudio;
+    [SerializeField] private AudioClip sonHover;
+    [SerializeField] private AudioClip sonClic;
 
     [Header("Données de l'indice")]
     private string _description;
@@ -55,6 +60,8 @@ public class JournalSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     // Détection du hover
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (sonHover != null && sourceAudio != null && !sourceAudio.isPlaying)
+            sourceAudio.PlayOneShot(sonHover);
         JournalDetailPanneau.Instance.OuvrirPanneauDetail(imageIndice.sprite, textTitreIndice.text, _description, _insight);
     }
 
@@ -68,6 +75,9 @@ public class JournalSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     // Détection du clic pour toggle le panneau de détail
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (sonClic != null && sourceAudio != null && !sourceAudio.isPlaying)
+            sourceAudio.PlayOneShot(sonClic);
+
         _panneauOuvert = !_panneauOuvert;
 
         if (_panneauOuvert)

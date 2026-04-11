@@ -6,6 +6,7 @@ TagManager:
   tags:
   - bouton_clique
   - bouton_clavier
+  - indice
   layers:
   - Default
   - TransparentFX

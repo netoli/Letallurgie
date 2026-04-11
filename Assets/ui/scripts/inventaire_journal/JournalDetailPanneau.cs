@@ -6,8 +6,8 @@
 // ------------------------------------------------------------
 // Description :
 //   Gère le panneau de détail gauche du journal. Attaché sur
-//   indices_agrandis. Affiche ou cache le panneau selon les
-//   interactions du slot sélectionné. Inclut aussi un effet sonore 
+//   indices_agrandis. Affiche ou cache le panneau (et son effet
+//   sonore, fade in fade out) selon les interactions du slot sélectionné. 
 // ------------------------------------------------------------
 // Dépendances :
 //   - JournalSlotUI.cs : appelle OuvrirPanneauDetail() et FermerPanneauDetail()
