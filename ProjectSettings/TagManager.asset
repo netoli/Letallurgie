@@ -8,6 +8,9 @@ TagManager:
   - texte_bouton
   - texte_glitch
   - corrosion_ui
+  - bouton_clique
+  - bouton_clavier
+  - indice
   layers:
   - Default
   - TransparentFX
@@ -15,17 +18,17 @@ TagManager:
   - 
   - Water
   - UI
+  - Container-UI
+  - Content-UI
+  - 
+  - 
+  - ground
   - 
   - 
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - player
   - 
   - 
   - 
