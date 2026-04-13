@@ -587,26 +587,22 @@ public class gestionInputsJeu : MonoBehaviour
 
     private void OuvrirInventaire()
     {
-        etatAvantInventaire = etatActuel;
         etatActuel = EtatJeu.DansInventaire;
 
+        if (Time.timeScale == 0f)
+            Time.timeScale = 1f;
+
+        MontrerContenuHud();
         ensembleMenuInventaire.SetActive(true);
+
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
     }
 
     private void FermerInventaire()
     {
         ensembleMenuInventaire.SetActive(false);
-
-        if (etatAvantInventaire == EtatJeu.EnPause)
-        {
-            etatActuel = EtatJeu.EnPause;
-            StartCoroutine(
-                AfficherMenuPauseApresDelai(delaiEffets + 0.05f));
-        }
-        else
-        {
-            etatActuel = EtatJeu.EnJeu;
-        }
+        etatActuel = EtatJeu.EnJeu;
     }
 
     // ===== CREDITS =====
