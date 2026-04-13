@@ -7,26 +7,18 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
     [SerializeField] private Key touche;
 
     [Header("Effets")]
-    [SerializeField] private ParticleSystem effetSurvol;
-    [SerializeField] private ParticleSystem effetClic;
-    [SerializeField] private float intensiteClic;
+    [SerializeField] private ParticleSystem effetAppuie;
     [SerializeField] private int nombreParticulesBurst;
-
-    [Header("Grossissement")]
-    [SerializeField] private float echelleClic;
-    [SerializeField] private float vitesseRetour;
 
     [Header("Sons")]
     [SerializeField] private AudioClip sonTouche;
     [SerializeField] private float volumeTouche;
 
-    private Vector3 echelleOriginale;
     private CanvasGroup monCanvasGroup;
     private AudioSource sourceAudio;
 
     void Start()
     {
-        echelleOriginale = transform.localScale;
         TrouverCanvasGroup();
         ConfigurerAudio();
         ConfigurerParticules();
@@ -34,8 +26,6 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
 
     void OnEnable()
     {
-        if (echelleOriginale == Vector3.zero)
-            echelleOriginale = transform.localScale;
         TrouverCanvasGroup();
         ConfigurerParticules();
     }
@@ -68,14 +58,9 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
 
     private void ConfigurerParticules()
     {
-        if (effetSurvol != null)
+        if (effetAppuie != null)
         {
-            var main = effetSurvol.main;
-            main.useUnscaledTime = true;
-        }
-        if (effetClic != null)
-        {
-            var main = effetClic.main;
+            var main = effetAppuie.main;
             main.useUnscaledTime = true;
         }
     }
@@ -84,21 +69,14 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
     {
         gestionOptionsAudio options =
             FindFirstObjectByType<gestionOptionsAudio>();
-
         if (options != null)
             return options.ObtenirVolumeBouton();
-
         return 1f;
     }
 
     void Update()
     {
-        transform.localScale = Vector3.Lerp(
-            transform.localScale, echelleOriginale,
-            Time.unscaledDeltaTime * vitesseRetour);
-
         if (Keyboard.current == null) return;
-
         if (Keyboard.current[touche].wasPressedThisFrame)
         {
             if (monCanvasGroup != null
@@ -106,14 +84,10 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
                     || monCanvasGroup.alpha < 0.1f))
                 return;
 
-            transform.localScale = echelleOriginale * echelleClic;
-
-            if (effetClic != null)
+            if (effetAppuie != null)
             {
-                var emission = effetClic.emission;
-                emission.rateOverTime = intensiteClic;
-                effetClic.Play();
-                effetClic.Emit(nombreParticulesBurst);
+                effetAppuie.Play();
+                effetAppuie.Emit(nombreParticulesBurst);
             }
 
             float volume = ObtenirVolumeBouton();

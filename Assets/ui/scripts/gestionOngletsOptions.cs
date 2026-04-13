@@ -10,43 +10,50 @@ public class gestionOngletsOptions : MonoBehaviour
     [SerializeField] private GameObject contenuAccessibilite;
 
     private GameObject contenuActif;
+    private string nomOngletActif = "sauvegarde";
 
     void OnEnable()
     {
-        AfficherContenu(contenuSauvegarde);
+        AfficherContenu(contenuSauvegarde, "sauvegarde");
     }
 
     public void OnSauvegarde()
     {
-        AfficherContenu(contenuSauvegarde);
+        AfficherContenu(contenuSauvegarde, "sauvegarde");
     }
 
     public void OnControle()
     {
-        AfficherContenu(contenuControle);
+        AfficherContenu(contenuControle, "controle");
     }
 
     public void OnAudio()
     {
-        AfficherContenu(contenuAudio);
+        AfficherContenu(contenuAudio, "audio");
     }
 
     public void OnGraphique()
     {
-        AfficherContenu(contenuGraphique);
+        AfficherContenu(contenuGraphique, "graphique");
     }
 
     public void OnAccessibilite()
     {
-        AfficherContenu(contenuAccessibilite);
+        AfficherContenu(contenuAccessibilite, "accessibilite");
     }
 
-    private void AfficherContenu(GameObject contenu)
+    public string ObtenirOngletActif()
+    {
+        return nomOngletActif;
+    }
+
+    private void AfficherContenu(GameObject contenu, string nom)
     {
         if (contenuActif != null)
             contenuActif.SetActive(false);
 
         contenu.SetActive(true);
         contenuActif = contenu;
+        nomOngletActif = nom;
     }
 }

@@ -23,7 +23,6 @@ public class gestionOptionsAccessibilite : MonoBehaviour
     [Header("Corrosion - Indicateur Simplifie")]
     [SerializeField] private Toggle toggleIndicateurCorrosion;
     [SerializeField] private GameObject indicateurCorrosionSimplifie;
-    [SerializeField] private GameObject jaugeCorrosionNormale;
 
     [Header("Corrosion - Vitesse")]
     [SerializeField] private TMP_Dropdown dropdownVitesseCorrosion;
@@ -32,7 +31,7 @@ public class gestionOptionsAccessibilite : MonoBehaviour
     [SerializeField] private Toggle toggleDescriptionAudio;
 
     private readonly float[] multiplicateursTaille =
-        { 0.75f, 1f, 1.35f };
+        { 0.75f, 1f, 1.2f };
 
     private readonly Color[] couleursSousTitre =
     {
@@ -46,6 +45,11 @@ public class gestionOptionsAccessibilite : MonoBehaviour
     private Dictionary<TMP_Text, float> taillesOriginales =
         new Dictionary<TMP_Text, float>();
 
+    private List<GameObject> elementsCorrosionCache =
+        new List<GameObject>();
+
+    private bool enChargement = false;
+
     void Start()
     {
         SauvegarderTaillesOriginales();
@@ -53,6 +57,22 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         ChargerPreferences();
         ConfigurerListeners();
         AppliquerToutesLesOptions();
+    }
+
+    void OnEnable()
+    {
+        ChargerPreferences();
+        AppliquerToutesLesOptions();
+    }
+
+    private void MarquerModification()
+    {
+        if (enChargement) return;
+
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.MarquerModification();
     }
 
     private void SauvegarderTaillesOriginales()
@@ -151,8 +171,10 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnGlitchChange(bool actif)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("glitchTexte", actif ? 1 : 0);
         AppliquerGlitch(actif);
+        MarquerModification();
     }
 
     private void AppliquerGlitch(bool actif)
@@ -178,8 +200,10 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnTailleTexteUIChange(int index)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("tailleTexteUI", index);
         AppliquerTailleTexteUI(index);
+        MarquerModification();
     }
 
     private void AppliquerTailleTexteUI(int index)
@@ -201,8 +225,10 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnTailleTexteBoutonChange(int index)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("tailleTexteBouton", index);
         AppliquerTailleTexteBouton(index);
+        MarquerModification();
     }
 
     private void AppliquerTailleTexteBouton(int index)
@@ -224,7 +250,9 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnTailleSousTitreChange(int index)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("tailleSousTitre", index);
+        MarquerModification();
 
         gestionSousTitre sousTitre =
             FindFirstObjectByType<gestionSousTitre>();
@@ -236,7 +264,9 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnCouleurSousTitreChange(int index)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("couleurSousTitre", index);
+        MarquerModification();
 
         gestionSousTitre sousTitre =
             FindFirstObjectByType<gestionSousTitre>();
@@ -248,8 +278,24 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnIndicateurCorrosionChange(bool actif)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("indicateurCorrosion", actif ? 1 : 0);
         AppliquerIndicateurCorrosion(actif);
+        MarquerModification();
+    }
+
+    private void CacherElementsCorrosion()
+    {
+        elementsCorrosionCache.Clear();
+
+        GameObject[] elements =
+            GameObject.FindGameObjectsWithTag("corrosion_ui");
+
+        foreach (GameObject element in elements)
+        {
+            elementsCorrosionCache.Add(element);
+            element.SetActive(false);
+        }
     }
 
     private void AppliquerIndicateurCorrosion(bool actif)
@@ -257,15 +303,28 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         if (indicateurCorrosionSimplifie != null)
             indicateurCorrosionSimplifie.SetActive(actif);
 
-        if (jaugeCorrosionNormale != null)
-            jaugeCorrosionNormale.SetActive(!actif);
+        if (actif)
+        {
+            CacherElementsCorrosion();
+        }
+        else
+        {
+            foreach (GameObject element in elementsCorrosionCache)
+            {
+                if (element != null)
+                    element.SetActive(true);
+            }
+            elementsCorrosionCache.Clear();
+        }
     }
 
     // ===== VITESSE CORROSION =====
 
     private void OnVitesseCorrosionChange(int index)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("vitesseCorrosion", index);
+        MarquerModification();
     }
 
     public float ObtenirVitesseCorrosion()
@@ -280,7 +339,9 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void OnDescriptionAudioChange(bool actif)
     {
+        if (enChargement) return;
         PlayerPrefs.SetInt("descriptionAudio", actif ? 1 : 0);
+        MarquerModification();
     }
 
     public bool DescriptionAudioActive()
@@ -292,8 +353,10 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void ChargerPreferences()
     {
+        enChargement = true;
+
         toggleGlitchTexte.isOn =
-            PlayerPrefs.GetInt("glitchTexte", 1) == 1;
+            PlayerPrefs.GetInt("glitchTexte", 0) == 1;
 
         dropdownTailleTexteUI.value =
             PlayerPrefs.GetInt("tailleTexteUI", 1);
@@ -320,6 +383,49 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
         toggleDescriptionAudio.isOn =
             PlayerPrefs.GetInt("descriptionAudio", 0) == 1;
+
+        enChargement = false;
+    }
+
+    public void Reinitialiser()
+    {
+        enChargement = true;
+
+        toggleGlitchTexte.isOn = false;
+        dropdownTailleTexteUI.value = 1;
+        dropdownTailleTexteBouton.value = 1;
+        dropdownTailleSousTitre.value = 1;
+        dropdownCouleurSousTitre.value = 0;
+        toggleIndicateurCorrosion.isOn = false;
+        dropdownVitesseCorrosion.value = 1;
+        toggleDescriptionAudio.isOn = false;
+
+        enChargement = false;
+
+        PlayerPrefs.SetInt("glitchTexte", 0);
+        PlayerPrefs.SetInt("tailleTexteUI", 1);
+        PlayerPrefs.SetInt("tailleTexteBouton", 1);
+        PlayerPrefs.SetInt("tailleSousTitre", 1);
+        PlayerPrefs.SetInt("couleurSousTitre", 0);
+        PlayerPrefs.SetInt("indicateurCorrosion", 0);
+        PlayerPrefs.SetInt("vitesseCorrosion", 1);
+        PlayerPrefs.SetInt("descriptionAudio", 0);
+
+        dropdownTailleTexteUI.RefreshShownValue();
+        dropdownTailleTexteBouton.RefreshShownValue();
+        dropdownTailleSousTitre.RefreshShownValue();
+        dropdownCouleurSousTitre.RefreshShownValue();
+        dropdownVitesseCorrosion.RefreshShownValue();
+
+        AppliquerToutesLesOptions();
+
+        Debug.Log("Options accessibilite reinitialisees");
+    }
+
+    public void RechargerPreferences()
+    {
+        ChargerPreferences();
+        AppliquerToutesLesOptions();
     }
 
     private void AppliquerToutesLesOptions()
@@ -330,11 +436,9 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         AppliquerIndicateurCorrosion(toggleIndicateurCorrosion.isOn);
     }
 
-    // ===== METHODES PUBLIQUES =====
-
     public bool GlitchActif()
     {
-        return PlayerPrefs.GetInt("glitchTexte", 1) == 1;
+        return PlayerPrefs.GetInt("glitchTexte", 0) == 1;
     }
 
     public bool IndicateurCorrosionSimplifie()

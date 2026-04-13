@@ -26,6 +26,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
     [SerializeField] private float volumeSurvol;
     [SerializeField] private float volumeClic;
 
+    [Header("Texte au survol")]
+    [SerializeField] private GameObject texteIndicateur;
+
     private Vector3 echelleOriginale;
     private bool estSurvole = false;
     private AudioSource sourceAudio;
@@ -35,6 +38,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
         echelleOriginale = transform.localScale;
         ConfigurerAudio();
         ConfigurerParticules();
+
+        if (texteIndicateur != null)
+            texteIndicateur.SetActive(false);
     }
 
     void OnEnable()
@@ -101,13 +107,20 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
         float volume = ObtenirVolumeBouton();
         if (sonSurvol != null && sourceAudio != null && volume > 0f)
             sourceAudio.PlayOneShot(sonSurvol, volumeSurvol * volume);
+
+        if (texteIndicateur != null)
+            texteIndicateur.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData donneesEvenement)
     {
         estSurvole = false;
+
         if (effetSurvol != null)
             effetSurvol.Stop();
+
+        if (texteIndicateur != null)
+            texteIndicateur.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData donneesEvenement)

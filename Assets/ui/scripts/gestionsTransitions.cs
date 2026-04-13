@@ -53,6 +53,9 @@ public class gestionsTransitions : MonoBehaviour
     [SerializeField] private float vitesseFade;
     [SerializeField] private float delaiApparition;
 
+    [Header("Flou")]
+    public gestionFlou gestionFlou;
+
     private struct FadeInfo
     {
         public CanvasGroup groupe;
@@ -85,6 +88,9 @@ public class gestionsTransitions : MonoBehaviour
         canvasHud.SetActive(false);
 
         MettreAJourBoutonContinuer();
+
+        if (gestionFlou != null)
+            gestionFlou.FlouMenuPrincipal();
 
         if (brouillard1 != null)
         {
@@ -213,6 +219,9 @@ public class gestionsTransitions : MonoBehaviour
         vcamJeu.Priority = 50;
         positionYCible1 = positionYDepart1;
 
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
+
         Invoke(nameof(DesactiverMenu), 2.5f);
     }
 
@@ -235,6 +244,9 @@ public class gestionsTransitions : MonoBehaviour
         vcamJeu.Priority = 50;
         positionYCible1 = positionYDepart1;
 
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
+
         Invoke(nameof(DesactiverMenu), 2.5f);
     }
 
@@ -247,6 +259,9 @@ public class gestionsTransitions : MonoBehaviour
 
         FadeOut(groupeMenu);
         vcamOptionsCredits.Priority = 40;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouOptions();
 
         Invoke(nameof(AfficherOnglets), delaiApparitionOnglets);
         Invoke(nameof(ActiverBrouillard2), delaiDebutBrouillard2);
@@ -263,6 +278,9 @@ public class gestionsTransitions : MonoBehaviour
 
         FadeOut(groupeMenu);
         vcamOptionsCredits.Priority = 40;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouCredits();
 
         Invoke(nameof(ActiverBrouillard2), delaiDebutBrouillard2);
         Invoke(nameof(AfficherCredits), delaiApparition);
@@ -292,6 +310,9 @@ public class gestionsTransitions : MonoBehaviour
 
         positionYCible2 = positionYDepart2;
 
+        if (gestionFlou != null)
+            gestionFlou.FlouMenuPrincipal();
+
         Invoke(nameof(DesactiverOptionsCredits), 2.5f);
     }
 
@@ -319,6 +340,9 @@ public class gestionsTransitions : MonoBehaviour
 
         groupesEnFadeIn.Clear();
         groupesEnFadeOut.Clear();
+
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
     }
 
     public void OnQuitter()

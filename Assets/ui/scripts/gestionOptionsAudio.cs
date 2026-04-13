@@ -34,10 +34,19 @@ public class gestionOptionsAudio : MonoBehaviour
     [Header("Apparence Desactive")]
     [SerializeField] private float alphaDesactive;
 
+    private bool enChargement = false;
+
     void Start()
     {
         ChargerPreferences();
         ConfigurerListeners();
+        MettreAJourTousLesTextes();
+        MettreAJourEtatsToggles();
+    }
+
+    void OnEnable()
+    {
+        ChargerPreferences();
         MettreAJourTousLesTextes();
         MettreAJourEtatsToggles();
     }
@@ -48,6 +57,16 @@ public class gestionOptionsAudio : MonoBehaviour
         if (t != null)
             return t.GetComponent<TMP_Text>();
         return null;
+    }
+
+    private void MarquerModification()
+    {
+        if (enChargement) return;
+
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.MarquerModification();
     }
 
     private void ConfigurerListeners()
@@ -82,18 +101,26 @@ public class gestionOptionsAudio : MonoBehaviour
 
     private void OnSliderChange(string cle, float valeur, Slider slider)
     {
+        if (enChargement) return;
+
         PlayerPrefs.SetFloat(cle, valeur);
+
         TMP_Text texte = TrouverTexte(slider);
         if (texte != null)
             texte.text = Mathf.RoundToInt(valeur * 100) + "%";
+
         AppliquerVolumes();
+        MarquerModification();
     }
 
     private void OnToggleChange(string cle, bool actif, Slider slider)
     {
+        if (enChargement) return;
+
         PlayerPrefs.SetInt(cle, actif ? 1 : 0);
         ActiverDesactiverSlider(slider, actif);
         AppliquerVolumes();
+        MarquerModification();
     }
 
     private void ActiverDesactiverSlider(Slider slider, bool actif)
@@ -117,6 +144,8 @@ public class gestionOptionsAudio : MonoBehaviour
 
     private void ChargerPreferences()
     {
+        enChargement = true;
+
         sliderVolumeGeneral.value =
             PlayerPrefs.GetFloat("volumeGeneral", 1f);
         sliderMusiqueAmbiance.value =
@@ -140,6 +169,54 @@ public class gestionOptionsAudio : MonoBehaviour
             PlayerPrefs.GetInt("effetsScroll", 1) == 1;
         toggleEffetsEnvironnant.isOn =
             PlayerPrefs.GetInt("effetsEnvironnant", 1) == 1;
+
+        enChargement = false;
+    }
+
+    public void Reinitialiser()
+    {
+        enChargement = true;
+
+        sliderVolumeGeneral.value = 1f;
+        sliderMusiqueAmbiance.value = 1f;
+        sliderVolumeBouton.value = 1f;
+        sliderVolumeScroll.value = 1f;
+        sliderVolumeEnvironnant.value = 1f;
+        sliderVolumeDialogues.value = 1f;
+        sliderVolumeCinematiques.value = 1f;
+        sliderVolumeSonsPas.value = 1f;
+
+        toggleEffetsBouton.isOn = true;
+        toggleEffetsScroll.isOn = true;
+        toggleEffetsEnvironnant.isOn = true;
+
+        enChargement = false;
+
+        PlayerPrefs.SetFloat("volumeGeneral", 1f);
+        PlayerPrefs.SetFloat("musiqueAmbiance", 1f);
+        PlayerPrefs.SetFloat("volumeBouton", 1f);
+        PlayerPrefs.SetFloat("volumeScroll", 1f);
+        PlayerPrefs.SetFloat("volumeEnvironnant", 1f);
+        PlayerPrefs.SetFloat("volumeDialogues", 1f);
+        PlayerPrefs.SetFloat("volumeCinematiques", 1f);
+        PlayerPrefs.SetFloat("volumeSonsPas", 1f);
+        PlayerPrefs.SetInt("effetsBouton", 1);
+        PlayerPrefs.SetInt("effetsScroll", 1);
+        PlayerPrefs.SetInt("effetsEnvironnant", 1);
+
+        MettreAJourTousLesTextes();
+        MettreAJourEtatsToggles();
+        AppliquerVolumes();
+
+        Debug.Log("Options audio reinitialisees");
+    }
+
+    public void RechargerPreferences()
+    {
+        ChargerPreferences();
+        MettreAJourTousLesTextes();
+        MettreAJourEtatsToggles();
+        AppliquerVolumes();
     }
 
     private void MettreAJourTousLesTextes()
@@ -176,8 +253,6 @@ public class gestionOptionsAudio : MonoBehaviour
         float general = sliderVolumeGeneral.value;
         AudioListener.volume = general;
     }
-
-    // ===== METHODES PUBLIQUES =====
 
     public float ObtenirVolumeGeneral()
     {

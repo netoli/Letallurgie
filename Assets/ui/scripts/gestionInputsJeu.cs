@@ -25,6 +25,14 @@ public class gestionInputsJeu : MonoBehaviour
     [SerializeField] private GameObject ensembleTuileTutoEtBoutonRetour;
     [SerializeField] private CanvasGroup groupeTuto;
 
+    [Header("Canvas Reinitialisation")]
+    [SerializeField] private GameObject canvasConfirmerReinitialisation;
+    [SerializeField] private CanvasGroup groupeConfirmerReinitialisation;
+
+    [Header("Canvas Inventaire")]
+    [SerializeField] private GameObject ensembleMenuInventaire;
+    [SerializeField] private CanvasGroup groupeContenuHud;
+
     [Header("Cameras")]
     [SerializeField] private CinemachineCamera vcamMenu;
     [SerializeField] private CinemachineCamera vcamJeu;
@@ -32,6 +40,13 @@ public class gestionInputsJeu : MonoBehaviour
     [Header("Parametres")]
     [SerializeField] private float vitesseFade;
     [SerializeField] private float delaiEffets;
+
+    [Header("Effets HUD")]
+    [SerializeField] private ParticleSystem[] fxHud;
+
+    [Header("Flou")]
+    public gestionFlou gestionFlou;
+
 
     private enum EtatJeu
     {
@@ -42,12 +57,17 @@ public class gestionInputsJeu : MonoBehaviour
         DansJournal,
         DansCredits,
         DansTuto,
+        DansInventaire,
         ConfirmationRetourMenu,
-        ConfirmationQuitter
+        ConfirmationQuitter,
+        ConfirmationReinitialisation
     }
 
     private EtatJeu etatActuel = EtatJeu.EnJeu;
     private EtatJeu etatAvantConfirmation = EtatJeu.EnJeu;
+    private EtatJeu etatAvantJournal = EtatJeu.EnJeu;
+    private EtatJeu etatAvantInventaire = EtatJeu.EnJeu;
+    private EtatJeu etatAvantReinitialisation = EtatJeu.EnJeu;
     private bool jeuActif = false;
     private bool attenteAction = false;
 
@@ -56,6 +76,8 @@ public class gestionInputsJeu : MonoBehaviour
         canvasMenuPause.SetActive(false);
         canvasRetournerMenuPrincipal.SetActive(false);
         canvasQuitter.SetActive(false);
+        canvasConfirmerReinitialisation.SetActive(false);
+        ensembleMenuInventaire.SetActive(false);
     }
 
     public void ActiverInputs()
@@ -69,8 +91,10 @@ public class gestionInputsJeu : MonoBehaviour
         canvasQuitter.SetActive(false);
         canvasCredits.SetActive(false);
         canvasJournal.SetActive(false);
+        canvasConfirmerReinitialisation.SetActive(false);
+        ensembleMenuInventaire.SetActive(false);
         attenteAction = false;
-        canvasHud.SetActive(true);
+        MontrerContenuHud();
         StopAllCoroutines();
     }
 
@@ -79,13 +103,84 @@ public class gestionInputsJeu : MonoBehaviour
         jeuActif = false;
     }
 
+    private void MontrerContenuHud()
+    {
+        groupeContenuHud.alpha = 1f;
+        groupeContenuHud.interactable = true;
+        groupeContenuHud.blocksRaycasts = true;
+
+        foreach (ParticleSystem fx in fxHud)
+        {
+            if (fx != null)
+                fx.Play();
+        }
+    }
+
+    private void CacherContenuHud()
+    {
+        groupeContenuHud.alpha = 0f;
+        groupeContenuHud.interactable = false;
+        groupeContenuHud.blocksRaycasts = false;
+
+        foreach (ParticleSystem fx in fxHud)
+        {
+            if (fx != null)
+                fx.Stop(true,
+                    ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
+    private System.Collections.IEnumerator MontrerContenuHudApresDelai(
+        float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+        MontrerContenuHud();
+    }
+
+    private void AnnulerOptionsNonConfirmees()
+    {
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null && confirmation.ADesModifications())
+        {
+            confirmation.AnnulerChangements();
+
+            gestionOptionsAudio audio =
+                FindFirstObjectByType<gestionOptionsAudio>();
+            if (audio != null)
+                audio.RechargerPreferences();
+
+            gestionOptionsGraphiques graphiques =
+                FindFirstObjectByType<gestionOptionsGraphiques>();
+            if (graphiques != null)
+                graphiques.RechargerPreferences();
+
+            gestionOptionsAccessibilite accessibilite =
+                FindFirstObjectByType<gestionOptionsAccessibilite>();
+            if (accessibilite != null)
+                accessibilite.RechargerPreferences();
+
+            gestionOptionsControle controle =
+                FindFirstObjectByType<gestionOptionsControle>();
+            if (controle != null)
+                controle.RechargerPreferences();
+        }
+    }
+
+    private void SauvegarderEtatOptions()
+    {
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.SauvegarderEtatActuel();
+    }
+
     void Update()
     {
         if (!jeuActif) return;
         if (Keyboard.current == null) return;
         if (attenteAction) return;
 
-        // Sauvegarde rapide avec K
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu
@@ -97,7 +192,6 @@ public class gestionInputsJeu : MonoBehaviour
             return;
         }
 
-        // Ouvrir/fermer options avec O
         if (Keyboard.current.oKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu)
@@ -111,14 +205,76 @@ public class gestionInputsJeu : MonoBehaviour
             return;
         }
 
-        // Pause avec Espace
+        if (Keyboard.current.jKey.wasPressedThisFrame)
+        {
+            if (etatActuel == EtatJeu.EnJeu
+                || etatActuel == EtatJeu.EnPause)
+            {
+                if (etatActuel == EtatJeu.EnPause)
+                {
+                    canvasMenuPause.SetActive(false);
+                    groupeMenuPause.interactable = false;
+                    groupeMenuPause.blocksRaycasts = false;
+                }
+                OuvrirJournal();
+            }
+            else if (etatActuel == EtatJeu.DansJournal)
+            {
+                LancerActionAvecDelai(nameof(FermerJournal));
+            }
+            return;
+        }
+
+        if (Keyboard.current.iKey.wasPressedThisFrame)
+        {
+            if (etatActuel == EtatJeu.EnJeu
+                || etatActuel == EtatJeu.EnPause)
+            {
+                if (etatActuel == EtatJeu.EnPause)
+                {
+                    canvasMenuPause.SetActive(false);
+                    groupeMenuPause.interactable = false;
+                    groupeMenuPause.blocksRaycasts = false;
+                }
+                OuvrirInventaire();
+            }
+            else if (etatActuel == EtatJeu.DansInventaire)
+            {
+                LancerActionAvecDelai(nameof(FermerInventaire));
+            }
+            return;
+        }
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            if (etatActuel == EtatJeu.DansOptionsPause
+                || etatActuel == EtatJeu.DansOptionsJeu)
+            {
+                LancerActionAvecDelai(
+                    nameof(AfficherConfirmationReinitialisation));
+            }
+            return;
+        }
+
+        if (Keyboard.current.enterKey.wasPressedThisFrame)
+        {
+            if (etatActuel == EtatJeu.DansOptionsPause
+                || etatActuel == EtatJeu.DansOptionsJeu)
+            {
+                gestionConfirmationOptions confirmation =
+                    FindFirstObjectByType<gestionConfirmationOptions>();
+                if (confirmation != null)
+                    confirmation.ConfirmerChangements();
+            }
+            return;
+        }
+
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu)
                 MettreEnPause();
         }
 
-        // Retour / ESC
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             switch (etatActuel)
@@ -144,6 +300,9 @@ public class gestionInputsJeu : MonoBehaviour
                 case EtatJeu.DansTuto:
                     LancerActionAvecDelai(nameof(FermerTuto));
                     break;
+                case EtatJeu.DansInventaire:
+                    LancerActionAvecDelai(nameof(FermerInventaire));
+                    break;
                 case EtatJeu.ConfirmationRetourMenu:
                     LancerActionAvecDelai(
                         nameof(FermerConfirmationRetourMenu));
@@ -151,6 +310,10 @@ public class gestionInputsJeu : MonoBehaviour
                 case EtatJeu.ConfirmationQuitter:
                     LancerActionAvecDelai(
                         nameof(FermerConfirmationQuitter));
+                    break;
+                case EtatJeu.ConfirmationReinitialisation:
+                    LancerActionAvecDelai(
+                        nameof(FermerConfirmationReinitialisation));
                     break;
             }
         }
@@ -170,6 +333,69 @@ public class gestionInputsJeu : MonoBehaviour
         attenteAction = false;
     }
 
+    // ===== BOUTONS HUD =====
+
+    public void BoutonJournal()
+    {
+        if (!jeuActif || attenteAction) return;
+
+        if (etatActuel == EtatJeu.EnJeu
+            || etatActuel == EtatJeu.EnPause)
+        {
+            if (etatActuel == EtatJeu.EnPause)
+            {
+                canvasMenuPause.SetActive(false);
+                groupeMenuPause.interactable = false;
+                groupeMenuPause.blocksRaycasts = false;
+            }
+            OuvrirJournal();
+        }
+        else if (etatActuel == EtatJeu.DansJournal)
+        {
+            LancerActionAvecDelai(nameof(FermerJournal));
+        }
+    }
+
+    public void BoutonOptions()
+    {
+        if (!jeuActif || attenteAction) return;
+
+        if (etatActuel == EtatJeu.EnJeu)
+        {
+            OuvrirOptionsDepuisJeu();
+        }
+        else if (etatActuel == EtatJeu.EnPause)
+        {
+            OuvrirOptionsDePause();
+        }
+        else if (etatActuel == EtatJeu.DansOptionsJeu
+            || etatActuel == EtatJeu.DansOptionsPause)
+        {
+            LancerActionAvecDelai(nameof(FermerOptionsVersJeu));
+        }
+    }
+
+    public void BoutonInventaire()
+    {
+        if (!jeuActif || attenteAction) return;
+
+        if (etatActuel == EtatJeu.EnJeu
+            || etatActuel == EtatJeu.EnPause)
+        {
+            if (etatActuel == EtatJeu.EnPause)
+            {
+                canvasMenuPause.SetActive(false);
+                groupeMenuPause.interactable = false;
+                groupeMenuPause.blocksRaycasts = false;
+            }
+            OuvrirInventaire();
+        }
+        else if (etatActuel == EtatJeu.DansInventaire)
+        {
+            LancerActionAvecDelai(nameof(FermerInventaire));
+        }
+    }
+
     // ===== PAUSE =====
 
     public void MettreEnPause()
@@ -179,12 +405,15 @@ public class gestionInputsJeu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        canvasHud.SetActive(false);
+        CacherContenuHud();
 
         canvasMenuPause.SetActive(true);
         groupeMenuPause.alpha = 1f;
         groupeMenuPause.interactable = true;
         groupeMenuPause.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouPause();
     }
 
     public void Reprendre()
@@ -196,7 +425,10 @@ public class gestionInputsJeu : MonoBehaviour
         groupeMenuPause.blocksRaycasts = false;
 
         StartCoroutine(DesactiverApresDelai(canvasMenuPause, delaiEffets));
-        StartCoroutine(ActiverApresDelai(canvasHud, delaiEffets));
+        StartCoroutine(MontrerContenuHudApresDelai(delaiEffets));
+
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
     }
 
     // ===== OPTIONS DEPUIS PAUSE =====
@@ -204,6 +436,8 @@ public class gestionInputsJeu : MonoBehaviour
     public void OuvrirOptionsDePause()
     {
         etatActuel = EtatJeu.DansOptionsPause;
+
+        SauvegarderEtatOptions();
 
         groupeMenuPause.alpha = 0f;
         groupeMenuPause.interactable = false;
@@ -219,6 +453,8 @@ public class gestionInputsJeu : MonoBehaviour
     public void RetourAuMenuPause()
     {
         etatActuel = EtatJeu.EnPause;
+
+        AnnulerOptionsNonConfirmees();
 
         groupeOptions.interactable = false;
         groupeOptions.blocksRaycasts = false;
@@ -244,12 +480,18 @@ public class gestionInputsJeu : MonoBehaviour
     {
         etatActuel = EtatJeu.DansOptionsJeu;
         Time.timeScale = 0f;
-        canvasHud.SetActive(false);
+
+        CacherContenuHud();
+
+        SauvegarderEtatOptions();
 
         canvasOptions.SetActive(true);
         groupeOptions.alpha = 1f;
         groupeOptions.interactable = true;
         groupeOptions.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouPause();
     }
 
     private void FermerOptionsVersJeu()
@@ -257,11 +499,16 @@ public class gestionInputsJeu : MonoBehaviour
         etatActuel = EtatJeu.EnJeu;
         Time.timeScale = 1f;
 
+        AnnulerOptionsNonConfirmees();
+
         groupeOptions.interactable = false;
         groupeOptions.blocksRaycasts = false;
 
         StartCoroutine(DesactiverApresDelai(canvasOptions, delaiEffets));
-        StartCoroutine(ActiverApresDelai(canvasHud, delaiEffets));
+        StartCoroutine(MontrerContenuHudApresDelai(delaiEffets));
+
+        if (gestionFlou != null)
+            gestionFlou.FlouJeu();
     }
 
     // ===== TUTO =====
@@ -297,27 +544,69 @@ public class gestionInputsJeu : MonoBehaviour
 
     public void OuvrirJournal()
     {
+        etatAvantJournal = etatActuel;
         etatActuel = EtatJeu.DansJournal;
         Time.timeScale = 0f;
 
-        canvasHud.SetActive(false);
+        CacherContenuHud();
 
         canvasJournal.SetActive(true);
         groupeJournal.alpha = 1f;
         groupeJournal.interactable = true;
         groupeJournal.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouPause();
     }
 
     public void FermerJournal()
     {
-        etatActuel = EtatJeu.EnJeu;
-        Time.timeScale = 1f;
-
         groupeJournal.interactable = false;
         groupeJournal.blocksRaycasts = false;
 
         StartCoroutine(DesactiverApresDelai(canvasJournal, delaiEffets));
-        StartCoroutine(ActiverApresDelai(canvasHud, delaiEffets));
+
+        if (etatAvantJournal == EtatJeu.EnPause)
+        {
+            etatActuel = EtatJeu.EnPause;
+            StartCoroutine(
+                AfficherMenuPauseApresDelai(delaiEffets + 0.05f));
+        }
+        else
+        {
+            etatActuel = EtatJeu.EnJeu;
+            Time.timeScale = 1f;
+            StartCoroutine(MontrerContenuHudApresDelai(delaiEffets));
+
+            if (gestionFlou != null)
+                gestionFlou.FlouJeu();
+        }
+    }
+
+    // ===== INVENTAIRE =====
+
+    private void OuvrirInventaire()
+    {
+        etatAvantInventaire = etatActuel;
+        etatActuel = EtatJeu.DansInventaire;
+
+        ensembleMenuInventaire.SetActive(true);
+    }
+
+    private void FermerInventaire()
+    {
+        ensembleMenuInventaire.SetActive(false);
+
+        if (etatAvantInventaire == EtatJeu.EnPause)
+        {
+            etatActuel = EtatJeu.EnPause;
+            StartCoroutine(
+                AfficherMenuPauseApresDelai(delaiEffets + 0.05f));
+        }
+        else
+        {
+            etatActuel = EtatJeu.EnJeu;
+        }
     }
 
     // ===== CREDITS =====
@@ -352,6 +641,7 @@ public class gestionInputsJeu : MonoBehaviour
         if (etatActuel == EtatJeu.EnJeu)
         {
             Time.timeScale = 0f;
+            CacherContenuHud();
         }
 
         if (etatActuel == EtatJeu.EnPause)
@@ -365,6 +655,9 @@ public class gestionInputsJeu : MonoBehaviour
         groupeRetournerMenuPrincipal.alpha = 1f;
         groupeRetournerMenuPrincipal.interactable = true;
         groupeRetournerMenuPrincipal.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouConfirmation();
     }
 
     public void ConfirmerRetourMenuPrincipal()
@@ -380,6 +673,9 @@ public class gestionInputsJeu : MonoBehaviour
         canvasOptions.SetActive(false);
         canvasJournal.SetActive(false);
         canvasCredits.SetActive(false);
+        canvasConfirmerReinitialisation.SetActive(false);
+        ensembleMenuInventaire.SetActive(false);
+        CacherContenuHud();
         canvasHud.SetActive(false);
 
         canvasMenu.SetActive(true);
@@ -391,6 +687,9 @@ public class gestionInputsJeu : MonoBehaviour
         vcamJeu.Priority = 10;
 
         GetComponent<gestionsTransitions>().MettreAJourBoutonContinuer();
+
+        if (gestionFlou != null)
+            gestionFlou.FlouMenuPrincipal();
 
         StartCoroutine(FadeCanvasGroup(groupeMenu, 1f));
     }
@@ -407,12 +706,19 @@ public class gestionInputsJeu : MonoBehaviour
             Time.timeScale = 1f;
             StartCoroutine(DesactiverApresDelai(
                 canvasRetournerMenuPrincipal, delaiEffets));
+            MontrerContenuHud();
+
+            if (gestionFlou != null)
+                gestionFlou.FlouJeu();
         }
         else if (etatActuel == EtatJeu.EnPause)
         {
             StartCoroutine(DesactiverApresDelai(
                 canvasRetournerMenuPrincipal, delaiEffets));
             StartCoroutine(ActiverMenuPauseApresDelai());
+
+            if (gestionFlou != null)
+                gestionFlou.FlouPause();
         }
     }
 
@@ -437,6 +743,9 @@ public class gestionInputsJeu : MonoBehaviour
         groupeQuitter.alpha = 1f;
         groupeQuitter.interactable = true;
         groupeQuitter.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouConfirmation();
     }
 
     public void ConfirmerQuitter()
@@ -456,6 +765,100 @@ public class gestionInputsJeu : MonoBehaviour
         groupeQuitter.blocksRaycasts = false;
 
         StartCoroutine(DesactiverApresDelai(canvasQuitter, delaiEffets));
+    }
+
+    // ===== CONFIRMATION REINITIALISATION =====
+
+    public void AfficherConfirmationReinitialisation()
+    {
+        etatAvantReinitialisation = etatActuel;
+        etatActuel = EtatJeu.ConfirmationReinitialisation;
+
+        canvasConfirmerReinitialisation.SetActive(true);
+        groupeConfirmerReinitialisation.alpha = 1f;
+        groupeConfirmerReinitialisation.interactable = true;
+        groupeConfirmerReinitialisation.blocksRaycasts = true;
+
+        if (gestionFlou != null)
+            gestionFlou.FlouConfirmation();
+    }
+
+    public void ConfirmerReinitialisation()
+    {
+        etatActuel = etatAvantReinitialisation;
+
+        groupeConfirmerReinitialisation.interactable = false;
+        groupeConfirmerReinitialisation.blocksRaycasts = false;
+
+        StartCoroutine(DesactiverApresDelai(
+            canvasConfirmerReinitialisation, delaiEffets));
+
+        ReinitialiserOngletActif();
+    }
+
+    public void FermerConfirmationReinitialisation()
+    {
+        etatActuel = etatAvantReinitialisation;
+
+        groupeConfirmerReinitialisation.interactable = false;
+        groupeConfirmerReinitialisation.blocksRaycasts = false;
+
+        StartCoroutine(DesactiverApresDelai(
+            canvasConfirmerReinitialisation, delaiEffets));
+    }
+
+    private void ReinitialiserOngletActif()
+    {
+        gestionOngletsOptions onglets =
+            FindFirstObjectByType<gestionOngletsOptions>();
+        if (onglets == null) return;
+
+        string ongletActif = onglets.ObtenirOngletActif();
+
+        switch (ongletActif)
+        {
+            case "sauvegarde":
+                gestionPartie.Instance.SupprimerToutesSauvegardes();
+                gestionTuileSauvegarde tuiles =
+                    FindFirstObjectByType<gestionTuileSauvegarde>();
+                if (tuiles != null)
+                    tuiles.RafraichirTuiles();
+                Debug.Log("Toutes les sauvegardes supprimees");
+                break;
+
+            case "controle":
+                gestionOptionsControle controle =
+                    FindFirstObjectByType<gestionOptionsControle>();
+                if (controle != null)
+                    controle.Reinitialiser();
+                break;
+
+            case "audio":
+                gestionOptionsAudio audio =
+                    FindFirstObjectByType<gestionOptionsAudio>();
+                if (audio != null)
+                    audio.Reinitialiser();
+                break;
+
+            case "graphique":
+                gestionOptionsGraphiques graphiques =
+                    FindFirstObjectByType<gestionOptionsGraphiques>();
+                if (graphiques != null)
+                    graphiques.Reinitialiser();
+                break;
+
+            case "accessibilite":
+                gestionOptionsAccessibilite accessibilite =
+                    FindFirstObjectByType<gestionOptionsAccessibilite>();
+                if (accessibilite != null)
+                    accessibilite.Reinitialiser();
+                break;
+        }
+
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.MarquerModification();
     }
 
     // ===== SAUVEGARDE =====

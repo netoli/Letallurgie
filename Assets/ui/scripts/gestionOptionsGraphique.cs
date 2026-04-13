@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 using TMPro;
 using System.Collections.Generic;
 
-public class gestionOptionsGraphique : MonoBehaviour
+public class gestionOptionsGraphiques : MonoBehaviour
 {
     [Header("Dropdowns")]
     [SerializeField] private TMP_Dropdown dropdownResolution;
@@ -19,9 +19,13 @@ public class gestionOptionsGraphique : MonoBehaviour
     [Header("Post Processing")]
     [SerializeField] private Volume globalVolume;
 
-    private Resolution[] resolutionsDisponibles;
     private ColorAdjustments colorAdjustments;
     private Vignette vignette;
+    private float vignetteOriginale;
+    private float luminositeOriginale;
+    private float luminositeSliderDefaut;
+    private float vignetteSliderDefaut;
+    private bool enChargement = false;
 
     void Start()
     {
@@ -31,6 +35,14 @@ public class gestionOptionsGraphique : MonoBehaviour
         ChargerPreferences();
         ConfigurerListeners();
         MettreAJourTousLesTextes();
+        AppliquerEffets();
+    }
+
+    void OnEnable()
+    {
+        ChargerPreferences();
+        MettreAJourTousLesTextes();
+        AppliquerEffets();
     }
 
     private void RecupererEffetsPostProcessing()
@@ -39,20 +51,41 @@ public class gestionOptionsGraphique : MonoBehaviour
 
         globalVolume.profile.TryGet(out colorAdjustments);
         globalVolume.profile.TryGet(out vignette);
+
+        if (vignette != null)
+        {
+            vignetteOriginale = vignette.intensity.value;
+            vignetteSliderDefaut = vignetteOriginale;
+        }
+
+        if (colorAdjustments != null)
+        {
+            luminositeOriginale = colorAdjustments.postExposure.value;
+            luminositeSliderDefaut =
+                0.5f + (luminositeOriginale / 4f);
+        }
     }
 
-    // ===== RESOLUTION =====
+    private void MarquerModification()
+    {
+        if (enChargement) return;
+
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.MarquerModification();
+    }
 
     private void ConfigurerDropdownResolution()
     {
         dropdownResolution.ClearOptions();
 
         List<string> options = new List<string>
-    {
-        "1280 x 720",
-        "1600 x 900",
-        "1920 x 1080"
-    };
+        {
+            "1280 x 720",
+            "1600 x 900",
+            "1920 x 1080"
+        };
 
         dropdownResolution.AddOptions(options);
 
@@ -60,8 +93,6 @@ public class gestionOptionsGraphique : MonoBehaviour
         dropdownResolution.value = indexSauvegarde;
         dropdownResolution.RefreshShownValue();
     }
-
-    // ===== MODE AFFICHAGE =====
 
     private void ConfigurerDropdownModeAffichage()
     {
@@ -81,8 +112,6 @@ public class gestionOptionsGraphique : MonoBehaviour
         dropdownModeAffichage.RefreshShownValue();
     }
 
-    // ===== LISTENERS =====
-
     private void ConfigurerListeners()
     {
         dropdownResolution.onValueChanged.AddListener(OnResolutionChange);
@@ -101,6 +130,8 @@ public class gestionOptionsGraphique : MonoBehaviour
 
     private void OnResolutionChange(int index)
     {
+        if (enChargement) return;
+
         switch (index)
         {
             case 0:
@@ -115,10 +146,13 @@ public class gestionOptionsGraphique : MonoBehaviour
         }
 
         PlayerPrefs.SetInt("resolution", index);
+        MarquerModification();
     }
 
     private void OnModeAffichageChange(int index)
     {
+        if (enChargement) return;
+
         switch (index)
         {
             case 0:
@@ -128,16 +162,18 @@ public class gestionOptionsGraphique : MonoBehaviour
                 Screen.fullScreenMode = FullScreenMode.Windowed;
                 break;
             case 2:
-                Screen.fullScreenMode =
-                    FullScreenMode.FullScreenWindow;
+                Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
                 break;
         }
 
         PlayerPrefs.SetInt("modeAffichage", index);
+        MarquerModification();
     }
 
     private void OnSliderChange(string cle, float valeur, Slider slider)
     {
+        if (enChargement) return;
+
         PlayerPrefs.SetFloat(cle, valeur);
 
         TMP_Text texte = TrouverTexte(slider);
@@ -145,33 +181,27 @@ public class gestionOptionsGraphique : MonoBehaviour
             texte.text = Mathf.RoundToInt(valeur * 100) + "%";
 
         AppliquerEffets();
+        MarquerModification();
     }
-
-    // ===== APPLIQUER EFFETS =====
 
     private void AppliquerEffets()
     {
-        // Luminosite
         if (colorAdjustments != null)
         {
-            // Convertir 0-1 en -1 a 1 (0.5 = normal)
             float lum = sliderLuminosite.value;
-            colorAdjustments.postExposure.value = (lum - 0.5f) * 2f;
+            colorAdjustments.postExposure.value = (lum - 0.5f) * 4f;
         }
 
-        // Vignette
         if (vignette != null)
         {
             vignette.intensity.value = sliderIntensiteVignette.value;
         }
 
-        // Brouillard
         AppliquerIntensiteBrouillard(sliderIntensiteBrouillard.value);
     }
 
     private void AppliquerIntensiteBrouillard(float intensite)
     {
-        // Chercher les particle systems de brouillard
         ParticleSystem[] brouillards =
             FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None);
 
@@ -185,17 +215,70 @@ public class gestionOptionsGraphique : MonoBehaviour
         }
     }
 
-    // ===== CHARGER / SAUVEGARDER =====
-
     private void ChargerPreferences()
     {
-        sliderLuminosite.value =
-            PlayerPrefs.GetFloat("luminosite", 0.5f);
-        sliderIntensiteVignette.value =
-            PlayerPrefs.GetFloat("intensiteVignette", 0.5f);
+        enChargement = true;
+
+        float lum = PlayerPrefs.GetFloat("luminosite", -1f);
+        float vig = PlayerPrefs.GetFloat("intensiteVignette", -1f);
+
+        if (lum < 0)
+            sliderLuminosite.value = luminositeSliderDefaut;
+        else
+            sliderLuminosite.value = lum;
+
+        if (vig < 0)
+            sliderIntensiteVignette.value = vignetteSliderDefaut;
+        else
+            sliderIntensiteVignette.value = vig;
+
         sliderIntensiteBrouillard.value =
             PlayerPrefs.GetFloat("intensiteBrouillard", 1f);
 
+        dropdownResolution.value =
+            PlayerPrefs.GetInt("resolution", 2);
+        dropdownResolution.RefreshShownValue();
+
+        dropdownModeAffichage.value =
+            PlayerPrefs.GetInt("modeAffichage", 0);
+        dropdownModeAffichage.RefreshShownValue();
+
+        enChargement = false;
+    }
+
+    public void Reinitialiser()
+    {
+        enChargement = true;
+
+        dropdownResolution.value = 2;
+        dropdownModeAffichage.value = 0;
+        sliderLuminosite.value = luminositeSliderDefaut;
+        sliderIntensiteVignette.value = vignetteSliderDefaut;
+        sliderIntensiteBrouillard.value = 1f;
+
+        enChargement = false;
+
+        PlayerPrefs.SetInt("resolution", 2);
+        PlayerPrefs.SetInt("modeAffichage", 0);
+        PlayerPrefs.SetFloat("luminosite", luminositeSliderDefaut);
+        PlayerPrefs.SetFloat("intensiteVignette", vignetteSliderDefaut);
+        PlayerPrefs.SetFloat("intensiteBrouillard", 1f);
+
+        Screen.SetResolution(1920, 1080,
+            FullScreenMode.ExclusiveFullScreen);
+
+        dropdownResolution.RefreshShownValue();
+        dropdownModeAffichage.RefreshShownValue();
+        MettreAJourTousLesTextes();
+        AppliquerEffets();
+
+        Debug.Log("Options graphiques reinitialisees");
+    }
+
+    public void RechargerPreferences()
+    {
+        ChargerPreferences();
+        MettreAJourTousLesTextes();
         AppliquerEffets();
     }
 

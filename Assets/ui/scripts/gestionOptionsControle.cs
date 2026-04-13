@@ -20,15 +20,15 @@ public class gestionOptionsControle : MonoBehaviour
     [SerializeField] private float fovMin;
     [SerializeField] private float fovMax;
 
-    // Cles PlayerPrefs
     private const string CLE_SENSIBILITE = "sensibiliteCamera";
     private const string CLE_INVERSER_V = "inverserAxeVertical";
     private const string CLE_INVERSER_H = "inverserAxeHorizontal";
     private const string CLE_FOV = "champDeVision";
 
-    // Valeurs par defaut
     private const float SENSIBILITE_DEFAUT = 1f;
     private const float FOV_DEFAUT = 90f;
+
+    private bool enChargement = false;
 
     void Start()
     {
@@ -36,9 +36,25 @@ public class gestionOptionsControle : MonoBehaviour
         ConfigurerListeners();
     }
 
+    void OnEnable()
+    {
+        ChargerParametres();
+    }
+
+    private void MarquerModification()
+    {
+        if (enChargement) return;
+
+        gestionConfirmationOptions confirmation =
+            FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmation != null)
+            confirmation.MarquerModification();
+    }
+
     private void ChargerParametres()
     {
-        // Sensibilite
+        enChargement = true;
+
         float sensibilite = PlayerPrefs.GetFloat(
             CLE_SENSIBILITE, SENSIBILITE_DEFAUT);
         sliderSensibilite.minValue = sensibiliteMin;
@@ -47,45 +63,53 @@ public class gestionOptionsControle : MonoBehaviour
         MettreAJourPourcentage(sliderSensibilite,
             pourcentageSensibilite, sensibiliteMin, sensibiliteMax);
 
-        // Inverser axes
         toggleInverserVertical.isOn =
             PlayerPrefs.GetInt(CLE_INVERSER_V, 0) == 1;
         toggleInverserHorizontal.isOn =
             PlayerPrefs.GetInt(CLE_INVERSER_H, 0) == 1;
 
-        // Champ de vision
         float fov = PlayerPrefs.GetFloat(CLE_FOV, FOV_DEFAUT);
         sliderChampVision.minValue = fovMin;
         sliderChampVision.maxValue = fovMax;
         sliderChampVision.value = fov;
         MettreAJourPourcentage(sliderChampVision,
             pourcentageChampVision, fovMin, fovMax);
+
+        enChargement = false;
     }
 
     private void ConfigurerListeners()
     {
         sliderSensibilite.onValueChanged.AddListener((valeur) =>
         {
+            if (enChargement) return;
             PlayerPrefs.SetFloat(CLE_SENSIBILITE, valeur);
             MettreAJourPourcentage(sliderSensibilite,
                 pourcentageSensibilite, sensibiliteMin, sensibiliteMax);
+            MarquerModification();
         });
 
         toggleInverserVertical.onValueChanged.AddListener((actif) =>
         {
+            if (enChargement) return;
             PlayerPrefs.SetInt(CLE_INVERSER_V, actif ? 1 : 0);
+            MarquerModification();
         });
 
         toggleInverserHorizontal.onValueChanged.AddListener((actif) =>
         {
+            if (enChargement) return;
             PlayerPrefs.SetInt(CLE_INVERSER_H, actif ? 1 : 0);
+            MarquerModification();
         });
 
         sliderChampVision.onValueChanged.AddListener((valeur) =>
         {
+            if (enChargement) return;
             PlayerPrefs.SetFloat(CLE_FOV, valeur);
             MettreAJourPourcentage(sliderChampVision,
                 pourcentageChampVision, fovMin, fovMax);
+            MarquerModification();
         });
     }
 
@@ -96,31 +120,44 @@ public class gestionOptionsControle : MonoBehaviour
         texte.text = Mathf.RoundToInt(pourcentage) + "%";
     }
 
-    public void Confirmer()
-    {
-        PlayerPrefs.Save();
-        AppliquerParametres();
-    }
-
     public void Reinitialiser()
     {
+        enChargement = true;
+
         sliderSensibilite.value = SENSIBILITE_DEFAUT;
         toggleInverserVertical.isOn = false;
         toggleInverserHorizontal.isOn = false;
         sliderChampVision.value = FOV_DEFAUT;
 
-        Confirmer();
+        enChargement = false;
+
+        PlayerPrefs.SetFloat(CLE_SENSIBILITE, SENSIBILITE_DEFAUT);
+        PlayerPrefs.SetInt(CLE_INVERSER_V, 0);
+        PlayerPrefs.SetInt(CLE_INVERSER_H, 0);
+        PlayerPrefs.SetFloat(CLE_FOV, FOV_DEFAUT);
+
+        MettreAJourPourcentage(sliderSensibilite,
+            pourcentageSensibilite, sensibiliteMin, sensibiliteMax);
+        MettreAJourPourcentage(sliderChampVision,
+            pourcentageChampVision, fovMin, fovMax);
+        AppliquerParametres();
+
+        Debug.Log("Options controle reinitialisees");
+    }
+
+    public void RechargerPreferences()
+    {
+        ChargerParametres();
+        AppliquerParametres();
     }
 
     private void AppliquerParametres()
     {
-        // Appliquer le FOV a la camera
         Camera cam = Camera.main;
         if (cam != null)
             cam.fieldOfView = sliderChampVision.value;
     }
 
-    // Methodes statiques pour lire les valeurs depuis d'autres scripts
     public static float ObtenirSensibilite()
     {
         return PlayerPrefs.GetFloat(CLE_SENSIBILITE, SENSIBILITE_DEFAUT);
