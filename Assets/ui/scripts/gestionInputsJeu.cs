@@ -33,6 +33,9 @@ public class gestionInputsJeu : MonoBehaviour
     [SerializeField] private GameObject ensembleMenuInventaire;
     [SerializeField] private CanvasGroup groupeContenuHud;
 
+    [Header("Effets HUD")]
+    [SerializeField] private ParticleSystem[] fxHud;
+
     [Header("Cameras")]
     [SerializeField] private CinemachineCamera vcamMenu;
     [SerializeField] private CinemachineCamera vcamJeu;
@@ -41,12 +44,8 @@ public class gestionInputsJeu : MonoBehaviour
     [SerializeField] private float vitesseFade;
     [SerializeField] private float delaiEffets;
 
-    [Header("Effets HUD")]
-    [SerializeField] private ParticleSystem[] fxHud;
-
     [Header("Flou")]
     public gestionFlou gestionFlou;
-
 
     private enum EtatJeu
     {
@@ -66,7 +65,6 @@ public class gestionInputsJeu : MonoBehaviour
     private EtatJeu etatActuel = EtatJeu.EnJeu;
     private EtatJeu etatAvantConfirmation = EtatJeu.EnJeu;
     private EtatJeu etatAvantJournal = EtatJeu.EnJeu;
-    private EtatJeu etatAvantInventaire = EtatJeu.EnJeu;
     private EtatJeu etatAvantReinitialisation = EtatJeu.EnJeu;
     private bool jeuActif = false;
     private bool attenteAction = false;
