@@ -317,7 +317,7 @@ MonoBehaviour:
   effetAppuie: {fileID: 8471784954727492428}
   nombreParticulesBurst: 60
   sonTouche: {fileID: 8300000, guid: 1b3bc3f92b04840358cbf455c3d7cb4d, type: 3}
-  volumeTouche: 0.3
+  volumeTouche: 0.6
 --- !u!1 &8456525934989449556
 GameObject:
   m_ObjectHideFlags: 0
