@@ -8,6 +8,9 @@ TagManager:
   - texte_bouton
   - texte_glitch
   - corrosion_ui
+  - bouton_clique
+  - bouton_clavier
+  - indice
   layers:
   - Default
   - TransparentFX
@@ -15,42 +18,6 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  m_SortingLayers:
-  - name: Default
-    uniqueID: 0
-    locked: 0
-  m_RenderingLayers:
-  - Default
-  - Light Layer 1
-  - Light Layer 2
-  - Light Layer 3
-  - Light Layer 4
-  - Light Layer 5
-  - Light Layer 6
-  - Light Layer 7
+  - Container-UI
+  - Content-UI
+  -
