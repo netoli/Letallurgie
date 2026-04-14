@@ -23,11 +23,7 @@ public class JournalManager : MonoBehaviour
     // Liste des entrées du journal (stockage)
     public List<EntreeJournal> entrees = new List<EntreeJournal>();
 
-    // Parent de tous les slots 
-    //public Transform contenuParent;
 
-    // Prefab de slot
-    //public GameObject slotPrefab;
 
     private void Awake()
     {
