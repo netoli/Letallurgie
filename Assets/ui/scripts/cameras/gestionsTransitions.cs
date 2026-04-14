@@ -56,6 +56,11 @@ public class gestionsTransitions : MonoBehaviour
     [Header("Flou")]
     public gestionFlou gestionFlou;
 
+    [Header("Joueur")]
+    [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private PlayerBodyRotation playerBodyRotation;
+    [SerializeField] private CinemachineInputAxisController inputAxisController;
+
     private struct FadeInfo
     {
         public CanvasGroup groupe;
@@ -87,6 +92,13 @@ public class gestionsTransitions : MonoBehaviour
         canvasOngletsOptions.SetActive(false);
         canvasHud.SetActive(false);
 
+        // Tout bloquer jusqu'à la fin de l'animation de caméra
+        DesactiverJoueur();
+
+        // Curseur libre pour le menu
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         MettreAJourBoutonContinuer();
 
         if (gestionFlou != null)
@@ -107,6 +119,35 @@ public class gestionsTransitions : MonoBehaviour
             brouillard2.gameObject.SetActive(false);
             positionYCible2 = positionYDepart2;
         }
+    }
+
+    // Désactive les 3 composants du joueur
+    private void DesactiverJoueur()
+    {
+        if (playerMovement != null)
+            playerMovement.enabled = false;
+
+        if (playerBodyRotation != null)
+            playerBodyRotation.enabled = false;
+
+        if (inputAxisController != null)
+            inputAxisController.enabled = false;
+    }
+
+    // Active les 3 composants du joueur + lock le curseur
+    private void ActiverJoueur()
+    {
+        if (playerMovement != null)
+            playerMovement.enabled = true;
+
+        if (playerBodyRotation != null)
+            playerBodyRotation.enabled = true;
+
+        if (inputAxisController != null)
+            inputAxisController.enabled = true;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void MettreAJourBoutonContinuer()
@@ -225,6 +266,7 @@ public class gestionsTransitions : MonoBehaviour
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesTaverne();
 
+        // Activer le joueur après la fin de l'animation (2.5s)
         Invoke(nameof(DesactiverMenu), 2.5f);
     }
 
@@ -253,6 +295,7 @@ public class gestionsTransitions : MonoBehaviour
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesTaverne();
 
+        // Activer le joueur après la fin de l'animation (2.5s)
         Invoke(nameof(DesactiverMenu), 2.5f);
     }
 
@@ -346,6 +389,9 @@ public class gestionsTransitions : MonoBehaviour
 
         groupesEnFadeIn.Clear();
         groupesEnFadeOut.Clear();
+
+        // Activer le joueur immédiatement (déjà en jeu)
+        ActiverJoueur();
 
         if (gestionFlou != null)
             gestionFlou.FlouJeu();
@@ -450,6 +496,9 @@ public class gestionsTransitions : MonoBehaviour
         canvasHud.SetActive(true);
         groupeHud.alpha = 0f;
         FadeIn(groupeHud);
+
+        // Activer le joueur exactement à la fin de l'animation de caméra
+        ActiverJoueur();
 
         GetComponent<gestionInputsJeu>().ActiverInputs();
 
