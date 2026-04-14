@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2701948725871277188}
   - component: {fileID: 2174082613327059411}
   - component: {fileID: 7536369914814201223}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: conteneur_slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +209,7 @@ GameObject:
   - component: {fileID: 7602123832726464185}
   - component: {fileID: 2030126246463810014}
   - component: {fileID: 4728222507793901365}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: titre_indice_liste
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -346,7 +346,7 @@ GameObject:
   - component: {fileID: 5934503578617439422}
   - component: {fileID: 8529793313329797714}
   - component: {fileID: 7993711364277449813}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: description_indice_liste
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -483,7 +483,7 @@ GameObject:
   - component: {fileID: 4648211972804231811}
   - component: {fileID: 3593605414084829772}
   - component: {fileID: 6276995092452421501}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: separateur
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 2955474329189856689}
   - component: {fileID: 7384472907629524560}
   - component: {fileID: 1609003817187140404}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: conteneur_image_liste
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -771,7 +771,7 @@ GameObject:
   - component: {fileID: 1092968778788862411}
   - component: {fileID: 1007386037135138175}
   - component: {fileID: 4095584376710809018}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: insight_indice_liste
   m_TagString: Untagged
   m_Icon: {fileID: 0}

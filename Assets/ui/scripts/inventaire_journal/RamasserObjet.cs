@@ -54,6 +54,7 @@ public class RamasserObjet : MonoBehaviour
     // TEST !!! A SUPPRIMER quand on a le personnage et les collisions
     public void SimulerRamassage()
     {
+        Debug.Log("SIMULATION RAMASSAGE : " + titre);
         JournalManager.Instance.AjouterEntreeJournal(img, titre, description, insight);
         if (!gameObject.name.Contains("NPC"))
             Destroy(gameObject);
