@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class gestionEffetsBoutonsCliques : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
@@ -29,6 +30,12 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
     [Header("Texte au survol")]
     [SerializeField] private GameObject texteIndicateur;
 
+    [Header("Couleurs texte")]
+    [SerializeField] private TMP_Text texteBouton;
+    [SerializeField] private Color couleurNormale;
+    [SerializeField] private Color couleurSurvol;
+    [SerializeField] private Color couleurClic;
+
     private Vector3 echelleOriginale;
     private bool estSurvole = false;
     private AudioSource sourceAudio;
@@ -43,12 +50,18 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
 
         if (texteIndicateur != null)
             texteIndicateur.SetActive(false);
+
+        if (texteBouton != null)
+            texteBouton.color = couleurNormale;
     }
 
     void OnEnable()
     {
         ConfigurerParticules();
         TrouverCanvasGroup();
+
+        if (texteBouton != null)
+            texteBouton.color = couleurNormale;
     }
 
     private void TrouverCanvasGroup()
@@ -135,6 +148,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
 
         estSurvole = true;
 
+        if (texteBouton != null)
+            texteBouton.color = couleurSurvol;
+
         if (effetSurvol != null)
         {
             var emission = effetSurvol.emission;
@@ -154,6 +170,9 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
     {
         estSurvole = false;
 
+        if (texteBouton != null)
+            texteBouton.color = couleurNormale;
+
         if (effetSurvol != null)
             effetSurvol.Stop();
 
@@ -165,11 +184,18 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
     {
         if (!PeutInteragir()) return;
 
+        if (texteBouton != null)
+            texteBouton.color = couleurClic;
+
         LancerEffetClic();
     }
 
     public void OnPointerUp(PointerEventData donneesEvenement)
     {
+        if (texteBouton != null)
+            texteBouton.color = estSurvole ?
+                couleurSurvol : couleurNormale;
+
         ArreterEffetClic();
     }
 
