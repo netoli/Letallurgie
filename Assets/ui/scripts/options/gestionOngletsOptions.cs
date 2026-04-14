@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class gestionOngletsOptions : MonoBehaviour
 {
@@ -9,37 +10,51 @@ public class gestionOngletsOptions : MonoBehaviour
     [SerializeField] private GameObject contenuGraphique;
     [SerializeField] private GameObject contenuAccessibilite;
 
+    [Header("Boutons Onglets")]
+    [SerializeField] private Button boutonSauvegarde;
+    [SerializeField] private Button boutonControle;
+    [SerializeField] private Button boutonAudio;
+    [SerializeField] private Button boutonGraphique;
+    [SerializeField] private Button boutonAccessibilite;
+
     private GameObject contenuActif;
     private string nomOngletActif = "sauvegarde";
+    private Button boutonActif;
 
     void OnEnable()
     {
-        AfficherContenu(contenuSauvegarde, "sauvegarde");
+        AfficherContenu(contenuSauvegarde, "sauvegarde",
+            boutonSauvegarde);
     }
 
     public void OnSauvegarde()
     {
-        AfficherContenu(contenuSauvegarde, "sauvegarde");
+        AfficherContenu(contenuSauvegarde, "sauvegarde",
+            boutonSauvegarde);
     }
 
     public void OnControle()
     {
-        AfficherContenu(contenuControle, "controle");
+        AfficherContenu(contenuControle, "controle",
+            boutonControle);
     }
 
     public void OnAudio()
     {
-        AfficherContenu(contenuAudio, "audio");
+        AfficherContenu(contenuAudio, "audio",
+            boutonAudio);
     }
 
     public void OnGraphique()
     {
-        AfficherContenu(contenuGraphique, "graphique");
+        AfficherContenu(contenuGraphique, "graphique",
+            boutonGraphique);
     }
 
     public void OnAccessibilite()
     {
-        AfficherContenu(contenuAccessibilite, "accessibilite");
+        AfficherContenu(contenuAccessibilite, "accessibilite",
+            boutonAccessibilite);
     }
 
     public string ObtenirOngletActif()
@@ -47,7 +62,8 @@ public class gestionOngletsOptions : MonoBehaviour
         return nomOngletActif;
     }
 
-    private void AfficherContenu(GameObject contenu, string nom)
+    private void AfficherContenu(GameObject contenu, string nom,
+        Button bouton)
     {
         if (contenuActif != null)
             contenuActif.SetActive(false);
@@ -55,5 +71,18 @@ public class gestionOngletsOptions : MonoBehaviour
         contenu.SetActive(true);
         contenuActif = contenu;
         nomOngletActif = nom;
+
+        DesactiverTousLesBoutons();
+        bouton.interactable = false;
+        boutonActif = bouton;
+    }
+
+    private void DesactiverTousLesBoutons()
+    {
+        boutonSauvegarde.interactable = true;
+        boutonControle.interactable = true;
+        boutonAudio.interactable = true;
+        boutonGraphique.interactable = true;
+        boutonAccessibilite.interactable = true;
     }
 }

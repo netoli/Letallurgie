@@ -117,6 +117,7 @@ public class gestionConfirmationOptions : MonoBehaviour
     public void ConfirmerChangements()
     {
         PlayerPrefs.Save();
+        SauvegarderEtatActuel();
         optionsModifiees = false;
         Debug.Log("Options confirmees");
     }

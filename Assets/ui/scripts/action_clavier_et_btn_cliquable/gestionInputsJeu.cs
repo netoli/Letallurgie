@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 
@@ -306,6 +307,9 @@ public class gestionInputsJeu : MonoBehaviour
             if (etatActuel == EtatJeu.DansOptionsPause
                 || etatActuel == EtatJeu.DansOptionsJeu)
             {
+                UnityEngine.EventSystems.EventSystem.current
+                    .SetSelectedGameObject(null);
+
                 gestionConfirmationOptions confirmation =
                     FindFirstObjectByType<gestionConfirmationOptions>();
                 if (confirmation != null)
@@ -360,6 +364,29 @@ public class gestionInputsJeu : MonoBehaviour
                     LancerActionAvecDelai(
                         nameof(FermerConfirmationReinitialisation));
                     break;
+            }
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (!jeuActif) return;
+
+        if (etatActuel == EtatJeu.DansOptionsPause
+            || etatActuel == EtatJeu.DansOptionsJeu)
+        {
+            GameObject selectionne =
+                UnityEngine.EventSystems.EventSystem.current
+                    .currentSelectedGameObject;
+
+            if (selectionne == null) return;
+
+            if (selectionne.GetComponent<Toggle>() != null
+                || selectionne.GetComponent<TMPro.TMP_Dropdown>() != null
+                || selectionne.GetComponent<Slider>() != null)
+            {
+                UnityEngine.EventSystems.EventSystem.current
+                    .SetSelectedGameObject(null);
             }
         }
     }
@@ -821,6 +848,7 @@ public class gestionInputsJeu : MonoBehaviour
             canvasConfirmerReinitialisation, delaiEffets));
 
         ReinitialiserOngletActif();
+        SauvegarderEtatOptions();
     }
 
     public void FermerConfirmationReinitialisation()

@@ -49,8 +49,11 @@ public class gestionOptionsGraphiques : MonoBehaviour
     {
         if (globalVolume == null) return;
 
-        globalVolume.profile.TryGet(out colorAdjustments);
-        globalVolume.profile.TryGet(out vignette);
+        if (!globalVolume.profile.TryGet(out colorAdjustments))
+            colorAdjustments = globalVolume.profile.Add<ColorAdjustments>(true);
+
+        if (!globalVolume.profile.TryGet(out vignette))
+            vignette = globalVolume.profile.Add<Vignette>(true);
 
         if (vignette != null)
         {
@@ -189,12 +192,12 @@ public class gestionOptionsGraphiques : MonoBehaviour
         if (colorAdjustments != null)
         {
             float lum = sliderLuminosite.value;
-            colorAdjustments.postExposure.value = (lum - 0.5f) * 4f;
+            colorAdjustments.postExposure.Override((lum - 0.5f) * 4f);
         }
 
         if (vignette != null)
         {
-            vignette.intensity.value = sliderIntensiteVignette.value;
+            vignette.intensity.Override(sliderIntensiteVignette.value);
         }
 
         AppliquerIntensiteBrouillard(sliderIntensiteBrouillard.value);
