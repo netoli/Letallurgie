@@ -251,7 +251,10 @@ public class gestionOptionsAudio : MonoBehaviour
     private void AppliquerVolumes()
     {
         float general = sliderVolumeGeneral.value;
-        AudioListener.volume = general;
+        if (GameObject.FindGameObjectWithTag("volumePersonnalise") == null)
+        {
+            AudioListener.volume = general;
+        }
     }
 
     public float ObtenirVolumeGeneral()

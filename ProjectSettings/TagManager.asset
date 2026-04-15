@@ -11,6 +11,7 @@ TagManager:
   - bouton_clique
   - bouton_clavier
   - indice
+  - volumePersonnalise
   layers:
   - Default
   - TransparentFX

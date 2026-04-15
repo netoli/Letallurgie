@@ -40,7 +40,10 @@ public class JournalDetailPanneau : MonoBehaviour
     private void Awake()
     {
         // Debug : Si un autre panneau existe déjà, détruis ce panneau
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { 
+            Destroy(gameObject); 
+            return; 
+        }
         // Enregistrer cette instance 
         Instance = this;
 
@@ -60,6 +63,7 @@ public class JournalDetailPanneau : MonoBehaviour
         // Activer le panneau détails
         panneauDetails.SetActive(true);
 
+
         // Si un clip est assigné (encore du debug) et qu'il ne joue pas déja,
         // jouer l'effet sonore
         if (sourceAudio != null && sonBrouillard != null)
@@ -68,20 +72,24 @@ public class JournalDetailPanneau : MonoBehaviour
             {
                 sourceAudio.clip = sonBrouillard;
                 sourceAudio.loop = true; //en boucle pendant que le panneau est ouvert
-                sourceAudio.volume = 0f; // 0 au début (fade in)
+                sourceAudio.volume = 0.0f; // 0 au début (fade in)
                 sourceAudio.Play();
+                Debug.Log("Audio active ? " + sourceAudio.gameObject.activeInHierarchy);
+                Debug.Log("VOLUME MAX RUNTIME = " + volumeMax);
+
             }
             // Si on est en train de fade out au moment ou on veut fade in, on annule le
             // fade out et on monte le volume progressivement
             if (fadeActif != null)
                 StopCoroutine(fadeActif);
-
-            fadeActif = StartCoroutine(FadeVolume(volumeMax));
-
+            fadeActif = StartCoroutine(FadeVolPostInitial());
         }
+    }
 
-
-
+    IEnumerator FadeVolPostInitial()
+    {
+        yield return null;
+        fadeActif = StartCoroutine(FadeVolume(volumeMax));
     }
 
     public void FermerPanneauDetail()
@@ -103,6 +111,7 @@ public class JournalDetailPanneau : MonoBehaviour
     IEnumerator FadeVolume(float cibleVolume, bool arretSon = false)
     {
         float volumeInitial = sourceAudio.volume;
+        Debug.Log($"FADE START | initial={volumeInitial} | cible={cibleVolume}");
         float timer = 0f;
 
         // Tant que le timer n'a pas atteint la durée du fade, on continue le lerp
@@ -110,6 +119,7 @@ public class JournalDetailPanneau : MonoBehaviour
         {
             timer += Time.deltaTime;
             sourceAudio.volume = Mathf.Lerp(volumeInitial, cibleVolume, timer / dureeFade);
+            Debug.Log("FADE volume = " + sourceAudio.volume);
             yield return null;
         }
         sourceAudio.volume = cibleVolume;
