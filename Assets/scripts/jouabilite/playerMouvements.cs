@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,40 +10,48 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private Animator animator;
-    
 
-void Start()
-{
-    controller = GetComponent<CharacterController>();
-    animator = GetComponentInChildren<Animator>();
+    void Start()
+    {
+        controller = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
 
-    if (animator == null)
-        Debug.LogWarning("Animator non trouvé sur les enfants du perso !");
+        if (animator == null)
+            Debug.LogWarning("Animator non trouvé sur les enfants du perso !");
 
-    Cursor.lockState = CursorLockMode.Locked;
-    Cursor.visible = false;
-}
+        // Le curseur est géré par gestionsTransitions — ne pas locker ici
+    }
 
     void Update()
-{
-    float x = Input.GetAxis("Horizontal");
-    float z = Input.GetAxis("Vertical");
+    {
+        if (Keyboard.current == null) return;
 
-    float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
+        // Nouveau Input System
+        float x = 0f;
+        float z = 0f;
 
-    // Gravité
-    if (controller.isGrounded && velocity.y < 0)
-        velocity.y = -2f;
+        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) x += 1f;
+        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)  x -= 1f;
+        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)    z += 1f;
+        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)  z -= 1f;
 
-    velocity.y += gravity * Time.deltaTime;
+        bool sprint = Keyboard.current.leftShiftKey.isPressed;
+        float currentSpeed = sprint ? sprintSpeed : speed;
 
-    // Un seul Move qui combine déplacement + gravité
-    Vector3 move = (transform.right * x + transform.forward * z) * currentSpeed;
-    move.y = velocity.y;
-    controller.Move(move * Time.deltaTime);
+        // Gravité
+        if (controller.isGrounded && velocity.y < 0)
+            velocity.y = -2f;
 
-    // Animations
-    float moveAmount = new Vector2(x, z).magnitude;
-    animator.SetBool("isWalking", moveAmount > 0.1f);
+        velocity.y += gravity * Time.deltaTime;
+
+        // Un seul Move qui combine déplacement + gravité
+        Vector3 move = (transform.right * x + transform.forward * z) * currentSpeed;
+        move.y = velocity.y;
+        controller.Move(move * Time.deltaTime);
+
+        // Animations
+        float moveAmount = new Vector2(x, z).magnitude;
+        animator.SetBool("isWalking", moveAmount > 0.1f);
+    }
 }
-}
+    
