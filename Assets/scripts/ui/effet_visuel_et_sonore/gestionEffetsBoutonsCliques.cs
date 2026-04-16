@@ -48,6 +48,7 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
 
     private Vector3 echelleOriginale;
     private bool estSurvole = false;
+    private bool estSelectionne = false;
     private AudioSource sourceAudio;
     private CanvasGroup monCanvasGroup;
 
@@ -61,7 +62,7 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
         if (texteIndicateur != null)
             texteIndicateur.SetActive(false);
 
-        if (texteBouton != null)
+        if (texteBouton != null && !estSelectionne)
             texteBouton.color = couleurNormale;
 
         if (imageEnfant != null)
@@ -198,7 +199,8 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
             return;
 
         if (texteBouton != null)
-            texteBouton.color = couleurNormale;
+            texteBouton.color = estSelectionne ?
+                couleurSelectionne : couleurNormale;
 
         if (imageEnfant != null)
             imageEnfant.color = couleurImageNormale;
@@ -224,8 +226,8 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
     public void OnPointerUp(PointerEventData donneesEvenement)
     {
         if (texteBouton != null)
-            texteBouton.color = estSurvole ?
-                couleurSurvol : couleurNormale;
+            texteBouton.color = estSelectionne ? couleurSelectionne :
+                estSurvole ? couleurSurvol : couleurNormale;
 
         if (imageEnfant != null)
             imageEnfant.color = estSurvole ?
@@ -236,12 +238,14 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
 
     public void AppliquerCouleurSelectionne()
     {
+        estSelectionne = true;
         if (texteBouton != null)
             texteBouton.color = couleurSelectionne;
     }
 
     public void AppliquerCouleurNormale()
     {
+        estSelectionne = false;
         if (texteBouton != null)
             texteBouton.color = couleurNormale;
     }

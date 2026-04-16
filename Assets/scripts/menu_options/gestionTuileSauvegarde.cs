@@ -51,6 +51,13 @@ public class gestionTuileSauvegarde : MonoBehaviour
 
             tuile.indexSlot = i;
 
+            // Reset couleur via gestionEffetsBoutonsCliques
+            gestionEffetsBoutonsCliques effet =
+                tuile.ensembleImageEtDonnees
+                    .GetComponent<gestionEffetsBoutonsCliques>();
+            if (effet != null)
+                effet.AppliquerCouleurNormale();
+
             if (tuile.contenuInstancie != null)
             {
                 Destroy(tuile.contenuInstancie);
@@ -94,18 +101,33 @@ public class gestionTuileSauvegarde : MonoBehaviour
     {
         if (index < 0 || index >= tuiles.Count) return;
 
+        // Désélectionne l'ancienne tuile
         if (tuileSelectionnee >= 0
             && tuileSelectionnee < tuiles.Count)
         {
             TuileSauvegarde ancienne = tuiles[tuileSelectionnee];
+
             if (ancienne.boutonCharger != null)
                 ancienne.boutonCharger.SetActive(false);
             if (ancienne.boutonSauvegarder != null)
                 ancienne.boutonSauvegarder.SetActive(false);
+
+            gestionEffetsBoutonsCliques effetAncien =
+                ancienne.ensembleImageEtDonnees
+                    .GetComponent<gestionEffetsBoutonsCliques>();
+            if (effetAncien != null)
+                effetAncien.AppliquerCouleurNormale();
         }
 
         tuileSelectionnee = index;
         TuileSauvegarde tuile = tuiles[index];
+
+        // Sélectionne la nouvelle tuile
+        gestionEffetsBoutonsCliques effetNouvel =
+            tuile.ensembleImageEtDonnees
+                .GetComponent<gestionEffetsBoutonsCliques>();
+        if (effetNouvel != null)
+            effetNouvel.AppliquerCouleurSelectionne();
 
         if (tuile.contientSauvegarde)
         {

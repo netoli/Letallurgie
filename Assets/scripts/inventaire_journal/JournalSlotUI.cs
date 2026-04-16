@@ -5,13 +5,13 @@
 // Date        : 28/03/2026
 // ------------------------------------------------------------
 // Description :
-//   Gère l'affichage du slot d'indice dans le journal. Crée un
+//   Gï¿½re l'affichage du slot d'indice dans le journal. Crï¿½e un
 //   template pour les indices, avec une image, un titre, une
-//   description et un insight. Gère les interactions de hover
-//   et de toggle clic pour afficher le panneau de détail de chaque
+//   description et un insight. Gï¿½re les interactions de hover
+//   et de toggle clic pour afficher le panneau de dï¿½tail de chaque
 //   indice
 // ------------------------------------------------------------
-// Dépendances :
+// Dï¿½pendances :
 //   - JournalDetailPanneau.cs : appelle OuvrirPanneauDetail() et FermerPanneauDetail()
 //   - JournalManager.cs : appelle InitialiserSlot()
 // ============================================================
@@ -23,66 +23,78 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class JournalSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class JournalSlotUI : MonoBehaviour,
+    IPointerEnterHandler, IPointerExitHandler
+
 {
-
-
-    [Header("Éléments du UI - Liste")]
+    [Header("Ã‰lÃ©ments du UI - Liste")]
     public Image imageIndice;
     public TMP_Text textTitreIndice;
     public TMP_Text textDescriptionIndice;
     public TMP_Text textInsightIndice;
 
     [Header("Audio")]
-    [SerializeField] private AudioSource sourceAudio;
-    [SerializeField] private AudioClip sonHover;
-    [SerializeField] private AudioClip sonClic;
+    [SerializeField] AudioSource sourceAudio;
+    [SerializeField] AudioClip sonHover;
+    [SerializeField] AudioClip sonClic;
 
-    [Header("Données de l'indice")]
-    private string _description;
-    private string _insight;
+    Sprite _sprite;
+    string _description;
+    string _insight;
+    bool _estEpingle = false;
 
+    static JournalSlotUI slotActif;
 
-    private bool _panneauOuvert = false;
-
-    // Assigner les données de l'indice au slot
-    public void InitialiserSlot(Sprite img, string titre, string description, string insight)
+    public void InitialiserSlot(Sprite img, string titre,
+        string description, string insight)
     {
         imageIndice.sprite = img;
         textTitreIndice.text = titre;
         textDescriptionIndice.text = description;
         textInsightIndice.text = insight;
+        _sprite = img;
         _description = description;
         _insight = insight;
-        _panneauOuvert = false;
+        _estEpingle = false;
     }
 
-    // Détection du hover
-    public void OnPointerEnter(PointerEventData eventData)
+    // Remplace ActiverSelection / DesactiverSelection par :
+    public void OnCliquerSlot()
     {
-        if (sonHover != null && sourceAudio != null && !sourceAudio.isPlaying)
-            sourceAudio.PlayOneShot(sonHover);
-        JournalDetailPanneau.Instance.OuvrirPanneauDetail(imageIndice.sprite, textTitreIndice.text, _description, _insight);
-    }
+        if (sonClic != null && sourceAudio != null)
+            sourceAudio.PlayOneShot(sonClic);
 
-    // Détection de la sortie du hover
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (!_panneauOuvert)
+        if (slotActif != null && slotActif != this)
+        {
+            slotActif._estEpingle = false;
+            slotActif.GetComponent<Button>().OnDeselect(null);
+        }
+
+        _estEpingle = !_estEpingle;
+        slotActif = _estEpingle ? this : null;
+
+        if (_estEpingle)
+            JournalDetailPanneau.Instance.OuvrirPanneauDetail(
+                _sprite, textTitreIndice.text, _description, _insight);
+        else
             JournalDetailPanneau.Instance.FermerPanneauDetail();
     }
 
-    // Détection du clic pour toggle le panneau de détail
-    public void OnPointerClick(PointerEventData eventData)
+    // Survol â†’ aperÃ§u seulement si rien n'est Ã©pinglÃ©
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        if (sonClic != null && sourceAudio != null && !sourceAudio.isPlaying)
-            sourceAudio.PlayOneShot(sonClic);
+        if (sonHover != null && sourceAudio != null)
+            sourceAudio.PlayOneShot(sonHover);
 
-        _panneauOuvert = !_panneauOuvert;
+        if (slotActif == null)
+            JournalDetailPanneau.Instance.OuvrirPanneauDetail(
+                _sprite, textTitreIndice.text, _description, _insight);
+    }
 
-        if (_panneauOuvert)
-            JournalDetailPanneau.Instance.OuvrirPanneauDetail(imageIndice.sprite, textTitreIndice.text, _description, _insight);
-        else
+    // Sortie souris â†’ ferme seulement si rien n'est Ã©pinglÃ©
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (slotActif == null)
             JournalDetailPanneau.Instance.FermerPanneauDetail();
     }
 }

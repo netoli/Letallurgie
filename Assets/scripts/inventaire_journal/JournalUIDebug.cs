@@ -6,59 +6,56 @@ using UnityEngine;
 // Date        : 13/04/2026
 // ------------------------------------------------------------
 // Description :
-//   Génère les slots UI du journal lorsque le canvas du journal
-//   devient actif. Script debug pour régler le problème de slots
-//   qui ne s'instancient pas pendant que le UI est désactivé. 
-//   Attaché sur canvas_journal.
+//   Gï¿½nï¿½re les slots UI du journal lorsque le canvas du journal
+//   devient actif. Script debug pour rï¿½gler le problï¿½me de slots
+//   qui ne s'instancient pas pendant que le UI est dï¿½sactivï¿½. 
+//   Attachï¿½ sur canvas_journal.
 // ------------------------------------------------------------
-// Dépendances :
-//   - JournalManager.cs : fournit les données
+// Dï¿½pendances :
+//   - JournalManager.cs : fournit les donnï¿½es
 //   - JournalSlotUI.cs  : initialise chaque slot
 // ============================================================
 public class JournalUIDebug : MonoBehaviour
 {
-    [Header("Références UI")]
-    public Transform contenuParent; //Où générer
-    public GameObject slotPrefab; //Quoi générer
-
-    // Par défaut, les slots ne sont pas déja générés
-    private bool dejaGenere = false;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [Header("References UI")]
+    public Transform contenuParent;
+    public GameObject slotPrefab;
 
     private void OnEnable()
     {
-        Debug.Log("JournalUIRenderer ACTIVÉ");
-
-        // Générer seulement la première fois
-        if (!dejaGenere)
+        if (JournalManager.Instance != null
+            && JournalManager.Instance.entrees.Count == 0)
         {
-            dejaGenere = true;
-            FindObjectOfType<TestJournal>()?.TestJDB();
-            GenererUI();
+            JournalManager.Instance.AjouterEntreeJournal(
+                null, "Cle rouille",
+                "Une vieille cle trouvee dans la taverne.",
+                "Elle pourrait ouvrir le coffre du sous-sol.");
+            JournalManager.Instance.AjouterEntreeJournal(
+                null, "Note du barman",
+                "Un message griffonne sur un bout de papier.",
+                "Le barman semble cacher quelque chose.");
         }
+
+        GenererUI();
     }
 
     void GenererUI()
     {
-        Debug.Log("Génération UI : " + JournalManager.Instance.entrees.Count + " entrées");
+        if (JournalManager.Instance == null) return;
+
+        foreach (Transform enfant in contenuParent)
+            Destroy(enfant.gameObject);
+
+        Debug.Log("Journal: " +
+            JournalManager.Instance.entrees.Count + " entrees");
 
         foreach (var entree in JournalManager.Instance.entrees)
         {
             GameObject slot = Instantiate(slotPrefab, contenuParent);
-
-            slot.GetComponent<JournalSlotUI>()
-                .InitialiserSlot(entree.icone, entree.titre, entree.description, entree.insight);
+            JournalSlotUI ui = slot.GetComponent<JournalSlotUI>();
+            if (ui != null)
+                ui.InitialiserSlot(entree.icone, entree.titre,
+                    entree.description, entree.insight);
         }
     }
 }

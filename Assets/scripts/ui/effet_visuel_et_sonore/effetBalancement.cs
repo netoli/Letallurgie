@@ -13,9 +13,15 @@ public class effetBalancement : MonoBehaviour
         rotationOriginale = transform.localRotation;
     }
 
+    void OnEnable()
+    {
+        rotationOriginale = transform.localRotation;
+    }
+
     void Update()
     {
-        float angle = Mathf.Sin(Time.time * vitesse) * angleMax;
+        float angle = Mathf.Sin(
+            Time.realtimeSinceStartup * vitesse) * angleMax;
         transform.localRotation = rotationOriginale
             * Quaternion.Euler(angle, 0f, 0f);
     }

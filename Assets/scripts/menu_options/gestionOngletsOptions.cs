@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class gestionOngletsOptions : MonoBehaviour
 {
@@ -21,6 +22,13 @@ public class gestionOngletsOptions : MonoBehaviour
     private string nomOngletActif = "sauvegarde";
     private Button boutonActif;
 
+    void Update()
+    {
+        if (boutonActif != null)
+            EventSystem.current.SetSelectedGameObject(
+                boutonActif.gameObject);
+    }
+
     void Start()
     {
         AfficherContenu(contenuSauvegarde, "sauvegarde",
@@ -29,9 +37,14 @@ public class gestionOngletsOptions : MonoBehaviour
 
     void OnEnable()
     {
-        if (boutonActif != null)
-            AfficherContenu(contenuSauvegarde, "sauvegarde",
-                boutonSauvegarde);
+        AfficherContenu(contenuSauvegarde, "sauvegarde",
+            boutonSauvegarde);
+    }
+
+    void OnDisable()
+    {
+        EventSystem.current.SetSelectedGameObject(null);
+        ResetTousLesBoutons();
     }
 
     public void OnSauvegarde()
@@ -79,44 +92,48 @@ public class gestionOngletsOptions : MonoBehaviour
         contenuActif = contenu;
         nomOngletActif = nom;
 
-        DesactiverTousLesBoutons();
-        bouton.interactable = false;
+        // Désélectionne l'ancien onglet
+        if (boutonActif != null && boutonActif != bouton)
+        {
+            gestionEffetsBoutonsCliques effetAncien =
+                boutonActif.GetComponent<gestionEffetsBoutonsCliques>();
+            if (effetAncien != null)
+                effetAncien.AppliquerCouleurNormale();
+        }
+
         boutonActif = bouton;
+
+        // Sélectionne le nouvel onglet
+        EventSystem.current.SetSelectedGameObject(bouton.gameObject);
 
         MettreAJourCouleursTexte(bouton);
     }
 
-    private void DesactiverTousLesBoutons()
+    private void ResetTousLesBoutons()
     {
-        boutonSauvegarde.interactable = true;
-        boutonControle.interactable = true;
-        boutonAudio.interactable = true;
-        boutonGraphique.interactable = true;
-        boutonAccessibilite.interactable = true;
+        ResetBouton(boutonSauvegarde);
+        ResetBouton(boutonControle);
+        ResetBouton(boutonAudio);
+        ResetBouton(boutonGraphique);
+        ResetBouton(boutonAccessibilite);
+    }
+
+    private void ResetBouton(Button bouton)
+    {
+        if (bouton == null) return;
+        bouton.interactable = true;
+        gestionEffetsBoutonsCliques effet =
+            bouton.GetComponent<gestionEffetsBoutonsCliques>();
+        if (effet != null)
+            effet.AppliquerCouleurNormale();
     }
 
     private void MettreAJourCouleursTexte(Button boutonSelectionne)
     {
-        ResetCouleurTexte(boutonSauvegarde);
-        ResetCouleurTexte(boutonControle);
-        ResetCouleurTexte(boutonAudio);
-        ResetCouleurTexte(boutonGraphique);
-        ResetCouleurTexte(boutonAccessibilite);
-
         gestionEffetsBoutonsCliques effet =
             boutonSelectionne
                 .GetComponent<gestionEffetsBoutonsCliques>();
         if (effet != null)
             effet.AppliquerCouleurSelectionne();
-    }
-
-    private void ResetCouleurTexte(Button bouton)
-    {
-        if (bouton == null) return;
-
-        gestionEffetsBoutonsCliques effet =
-            bouton.GetComponent<gestionEffetsBoutonsCliques>();
-        if (effet != null)
-            effet.AppliquerCouleurNormale();
     }
 }
