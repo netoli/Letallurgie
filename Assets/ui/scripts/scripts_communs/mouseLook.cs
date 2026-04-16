@@ -1,23 +1,18 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class mouseLook : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
-    public Transform playerBody; // Glisse le Player root ici
+    public Transform playerBody; // glisse persoTests ici
 
-    private float xRotation = 0f;
-
-    void LateUpdate()
+    void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") 
+                       * mouseSensitivity * Time.deltaTime;
 
-        // Rotation verticale de la caméra seulement
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-        // Rotation horizontale du corps entier (entraîne la caméra avec lui)
+        // Tourne uniquement le corps horizontalement
+        // Cinemachine s'occupe du reste (vertical)
         playerBody.Rotate(Vector3.up * mouseX);
     }
 }
