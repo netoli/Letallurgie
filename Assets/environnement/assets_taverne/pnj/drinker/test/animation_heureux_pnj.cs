@@ -16,6 +16,10 @@ public class animation_heureux_pnj : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+    }
+    void change_animation()
+    {
         if (animator.GetInteger("randi_chance") != 0)
         {
             animator.SetInteger("randi_chance", 0);
