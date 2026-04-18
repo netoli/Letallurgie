@@ -74,6 +74,7 @@ public class gestionInputsJeu : MonoBehaviour
     private EtatJeu etatAvantReinitialisation = EtatJeu.EnJeu;
     private bool jeuActif = false;
     private bool attenteAction = false;
+    private bool sourisVerrouillee = false;
 
     void Start()
     {
@@ -82,6 +83,22 @@ public class gestionInputsJeu : MonoBehaviour
         canvasQuitter.SetActive(false);
         canvasConfirmerReinitialisation.SetActive(false);
         ensembleMenuInventaire.SetActive(false);
+    }
+
+    // ===== GESTION SOURIS =====
+
+    private void VerrouillerSouris()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        sourisVerrouillee = true;
+    }
+
+    private void DeverrouillerSouris()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        sourisVerrouillee = false;
     }
 
     public void ActiverInputs()
@@ -98,6 +115,7 @@ public class gestionInputsJeu : MonoBehaviour
         canvasConfirmerReinitialisation.SetActive(false);
         ensembleMenuInventaire.SetActive(false);
         attenteAction = false;
+        VerrouillerSouris();
         MontrerContenuHud();
         StopAllCoroutines();
     }
@@ -114,6 +132,25 @@ public class gestionInputsJeu : MonoBehaviour
             && etatActuel != EtatJeu.ConfirmationRetourMenu
             && etatActuel != EtatJeu.ConfirmationQuitter
             && etatActuel != EtatJeu.ConfirmationReinitialisation;
+    }
+
+    void OnApplicationFocus(bool focus)
+    {
+        if (!focus) return;
+
+        if (!jeuActif) return;
+
+        // Restaure l'état correct selon l'état du jeu
+        if (etatActuel == EtatJeu.EnJeu && sourisVerrouillee)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     public bool PeutJouerEffets()
@@ -244,13 +281,9 @@ public class gestionInputsJeu : MonoBehaviour
         if (Keyboard.current.oKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu)
-            {
                 OuvrirOptionsDepuisJeu();
-            }
             else if (etatActuel == EtatJeu.DansOptionsJeu)
-            {
                 LancerActionAvecDelai(nameof(FermerOptionsVersJeu));
-            }
             return;
         }
 
@@ -267,9 +300,7 @@ public class gestionInputsJeu : MonoBehaviour
                 OuvrirJournal();
             }
             else if (etatActuel == EtatJeu.DansJournal)
-            {
                 LancerActionAvecDelai(nameof(FermerJournal));
-            }
             return;
         }
 
@@ -286,9 +317,7 @@ public class gestionInputsJeu : MonoBehaviour
                 OuvrirInventaire();
             }
             else if (etatActuel == EtatJeu.DansInventaire)
-            {
                 LancerActionAvecDelai(nameof(FermerInventaire));
-            }
             return;
         }
 
@@ -296,10 +325,8 @@ public class gestionInputsJeu : MonoBehaviour
         {
             if (etatActuel == EtatJeu.DansOptionsPause
                 || etatActuel == EtatJeu.DansOptionsJeu)
-            {
                 LancerActionAvecDelai(
                     nameof(AfficherConfirmationReinitialisation));
-            }
             return;
         }
 
@@ -325,23 +352,35 @@ public class gestionInputsJeu : MonoBehaviour
                 MettreEnPause();
         }
 
+        // Q → confirmation quitter le jeu
+        if (Keyboard.current.qKey.wasPressedThisFrame)
+        {
+            if (etatActuel == EtatJeu.EnJeu
+                || etatActuel == EtatJeu.EnPause)
+                AfficherConfirmationRetourMenu();
+            return;
+        }
+
+        // ESC → toggle mouselock en jeu,
+        // ferme les menus dans les autres états
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             switch (etatActuel)
             {
                 case EtatJeu.EnJeu:
-                    AfficherConfirmationRetourMenu();
+                    if (sourisVerrouillee)
+                        DeverrouillerSouris();
+                    else
+                        VerrouillerSouris();
                     break;
                 case EtatJeu.EnPause:
                     LancerActionAvecDelai(nameof(Reprendre));
                     break;
                 case EtatJeu.DansOptionsPause:
-                    LancerActionAvecDelai(
-                        nameof(RetourAuMenuPause));
+                    LancerActionAvecDelai(nameof(RetourAuMenuPause));
                     break;
                 case EtatJeu.DansOptionsJeu:
-                    LancerActionAvecDelai(
-                        nameof(FermerOptionsVersJeu));
+                    LancerActionAvecDelai(nameof(FermerOptionsVersJeu));
                     break;
                 case EtatJeu.DansJournal:
                     LancerActionAvecDelai(nameof(FermerJournal));
@@ -353,8 +392,7 @@ public class gestionInputsJeu : MonoBehaviour
                     LancerActionAvecDelai(nameof(FermerTuto));
                     break;
                 case EtatJeu.DansInventaire:
-                    LancerActionAvecDelai(
-                        nameof(FermerInventaire));
+                    LancerActionAvecDelai(nameof(FermerInventaire));
                     break;
                 case EtatJeu.ConfirmationRetourMenu:
                     LancerActionAvecDelai(
@@ -426,9 +464,7 @@ public class gestionInputsJeu : MonoBehaviour
             OuvrirJournal();
         }
         else if (etatActuel == EtatJeu.DansJournal)
-        {
             LancerActionAvecDelai(nameof(FermerJournal));
-        }
     }
 
     public void BoutonOptions()
@@ -436,18 +472,12 @@ public class gestionInputsJeu : MonoBehaviour
         if (!jeuActif || attenteAction) return;
 
         if (etatActuel == EtatJeu.EnJeu)
-        {
             OuvrirOptionsDepuisJeu();
-        }
         else if (etatActuel == EtatJeu.EnPause)
-        {
             OuvrirOptionsDePause();
-        }
         else if (etatActuel == EtatJeu.DansOptionsJeu
             || etatActuel == EtatJeu.DansOptionsPause)
-        {
             LancerActionAvecDelai(nameof(FermerOptionsVersJeu));
-        }
     }
 
     public void BoutonInventaire()
@@ -465,9 +495,7 @@ public class gestionInputsJeu : MonoBehaviour
             OuvrirInventaire();
         }
         else if (etatActuel == EtatJeu.DansInventaire)
-        {
             LancerActionAvecDelai(nameof(FermerInventaire));
-        }
     }
 
     // ===== PAUSE =====
@@ -476,8 +504,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         etatActuel = EtatJeu.EnPause;
         Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        DeverrouillerSouris();
 
         CacherContenuHud();
 
@@ -493,6 +520,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         etatActuel = EtatJeu.EnJeu;
         Time.timeScale = 1f;
+        VerrouillerSouris();
 
         BloquerCanvasGroup(groupeMenuPause);
 
@@ -553,9 +581,9 @@ public class gestionInputsJeu : MonoBehaviour
     {
         etatActuel = EtatJeu.DansOptionsJeu;
         Time.timeScale = 0f;
+        DeverrouillerSouris();
 
         CacherContenuHud();
-
         SauvegarderEtatOptions();
 
         canvasOptions.SetActive(true);
@@ -570,6 +598,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         etatActuel = EtatJeu.EnJeu;
         Time.timeScale = 1f;
+        VerrouillerSouris();
 
         AnnulerOptionsNonConfirmees();
 
@@ -617,6 +646,7 @@ public class gestionInputsJeu : MonoBehaviour
         etatAvantJournal = etatActuel;
         etatActuel = EtatJeu.DansJournal;
         Time.timeScale = 0f;
+        DeverrouillerSouris();
 
         CacherContenuHud();
 
@@ -645,6 +675,7 @@ public class gestionInputsJeu : MonoBehaviour
         {
             etatActuel = EtatJeu.EnJeu;
             Time.timeScale = 1f;
+            VerrouillerSouris();
             StartCoroutine(MontrerContenuHudApresDelai(delaiEffets));
 
             if (gestionFlou != null)
@@ -662,6 +693,7 @@ public class gestionInputsJeu : MonoBehaviour
         if (Time.timeScale == 0f)
             Time.timeScale = 1f;
 
+        DeverrouillerSouris();
         MontrerContenuHud();
         ensembleMenuInventaire.SetActive(true);
 
@@ -689,6 +721,7 @@ public class gestionInputsJeu : MonoBehaviour
         else
         {
             etatActuel = EtatJeu.EnJeu;
+            VerrouillerSouris();
         }
     }
 
@@ -727,6 +760,7 @@ public class gestionInputsJeu : MonoBehaviour
         {
             Time.timeScale = 0f;
             CacherContenuHud();
+            DeverrouillerSouris();
         }
 
         if (etatActuel == EtatJeu.EnPause)
@@ -752,6 +786,7 @@ public class gestionInputsJeu : MonoBehaviour
         jeuActif = false;
         attenteAction = false;
         Time.timeScale = 1f;
+        DeverrouillerSouris();
 
         canvasRetournerMenuPrincipal.SetActive(false);
         canvasMenuPause.SetActive(false);
@@ -791,6 +826,7 @@ public class gestionInputsJeu : MonoBehaviour
         if (etatActuel == EtatJeu.EnJeu)
         {
             Time.timeScale = 1f;
+            VerrouillerSouris();
             StartCoroutine(DesactiverApresDelai(
                 canvasRetournerMenuPrincipal, delaiEffets));
             MontrerContenuHud();
@@ -914,7 +950,6 @@ public class gestionInputsJeu : MonoBehaviour
                     FindFirstObjectByType<gestionTuileSauvegarde>();
                 if (tuiles != null)
                     tuiles.RafraichirTuiles();
-                Debug.Log("Toutes les sauvegardes supprimees");
                 break;
 
             case "controle":
