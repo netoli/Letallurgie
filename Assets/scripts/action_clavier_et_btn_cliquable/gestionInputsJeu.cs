@@ -614,6 +614,10 @@ public class gestionInputsJeu : MonoBehaviour
 
     public void OuvrirJournal()
     {
+        // TEMPORAIRE : ACTIVER CURSEUR POUR TESTER LES INTERACTIONS AVEC LE JOURNAL
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         etatAvantJournal = etatActuel;
         etatActuel = EtatJeu.DansJournal;
         Time.timeScale = 0f;
@@ -649,6 +653,10 @@ public class gestionInputsJeu : MonoBehaviour
 
             if (gestionFlou != null)
                 gestionFlou.DesactiverFlou();
+
+            // TEMPORAIRE : Désactiver curseur
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
