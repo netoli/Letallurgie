@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b3e5ebaed07e400a8fb889edf98ecf9, type: 3}
+  m_Name: donneesChapitre_premier_contact
+  m_EditorClassIdentifier: Assembly-CSharp::DonneesChapitre
+  idChapitre: premier_contact
+  nomAffiche: Premier contact
+  dureeAffichageBanniere: 6
+  delaiApparitionBanniere: 0
+  delaiAvantPremierTuto: 0.3
+  tutoriels:
+  - {fileID: 11400000, guid: 107b609fe14cb423aa0cf4b71db42684, type: 2}
+  - {fileID: 11400000, guid: 5fa551ed7084f4f129c93d95641b02d9, type: 2}
+  - {fileID: 11400000, guid: 862f459abc78f4605a1a203eea3bd683, type: 2}
+  - {fileID: 11400000, guid: 2422f572a8b9f4253b168407d8f7bc95, type: 2}
+  - {fileID: 11400000, guid: 1d9079d949d454dab9f8e55e486b051d, type: 2}
+  - {fileID: 11400000, guid: 10cb5a8ca59fd4d6e9243756756e5be4, type: 2}
+  - {fileID: 11400000, guid: e681ff06a42ea49dca7867c2943745b3, type: 2}

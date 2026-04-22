@@ -514,6 +514,11 @@ public class gestionsTransitions : MonoBehaviour
         GetComponent<gestionInputsJeu>().ActiverInputs();
 
         estEnTransition = false;
+
+        // Demarre le chapitre "Premier contact"
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.DemarrerChapitre(
+                "premier_contact");
     }
 
     private void DesactiverOptionsCredits()

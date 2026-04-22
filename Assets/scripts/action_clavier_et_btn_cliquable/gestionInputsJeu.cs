@@ -140,7 +140,6 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (!jeuActif) return;
 
-        // Restaure l'état correct selon l'état du jeu
         if (etatActuel == EtatJeu.EnJeu && sourisVerrouillee)
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -274,6 +273,10 @@ public class gestionInputsJeu : MonoBehaviour
             {
                 gestionPartie.Instance.Sauvegarder();
                 Debug.Log("Sauvegarde rapide K");
+
+                if (gestionChapitres.Instance != null)
+                    gestionChapitres.Instance.SignalerAction(
+                        "sauvegarde_faite");
             }
             return;
         }
@@ -281,7 +284,13 @@ public class gestionInputsJeu : MonoBehaviour
         if (Keyboard.current.oKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu)
+            {
                 OuvrirOptionsDepuisJeu();
+
+                if (gestionChapitres.Instance != null)
+                    gestionChapitres.Instance.SignalerAction(
+                        "options_ouvertes");
+            }
             else if (etatActuel == EtatJeu.DansOptionsJeu)
                 LancerActionAvecDelai(nameof(FermerOptionsVersJeu));
             return;
@@ -315,6 +324,10 @@ public class gestionInputsJeu : MonoBehaviour
                     BloquerCanvasGroup(groupeMenuPause);
                 }
                 OuvrirInventaire();
+
+                if (gestionChapitres.Instance != null)
+                    gestionChapitres.Instance.SignalerAction(
+                        "inventaire_ouvert");
             }
             else if (etatActuel == EtatJeu.DansInventaire)
                 LancerActionAvecDelai(nameof(FermerInventaire));
@@ -352,7 +365,6 @@ public class gestionInputsJeu : MonoBehaviour
                 MettreEnPause();
         }
 
-        // Q → confirmation quitter le jeu
         if (Keyboard.current.qKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu
@@ -361,10 +373,16 @@ public class gestionInputsJeu : MonoBehaviour
             return;
         }
 
-        // ESC → toggle mouselock en jeu,
-        // ferme les menus dans les autres états
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            // Priorité au tuto affiché
+            if (gestionChapitres.Instance != null
+                && gestionChapitres.Instance.TutoEstAffiche())
+            {
+                gestionChapitres.Instance.FermerTutoParEsc();
+                return;
+            }
+
             switch (etatActuel)
             {
                 case EtatJeu.EnJeu:

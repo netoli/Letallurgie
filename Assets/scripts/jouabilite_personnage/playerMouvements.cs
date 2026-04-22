@@ -4,12 +4,12 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
-    public float sprintSpeed = 9f;
     public float gravity = -20f;
 
     private CharacterController controller;
     private Vector3 velocity;
     private Animator animator;
+    private bool deplacementSignale;
 
     void Start()
     {
@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (Keyboard.current == null) return;
+        if (controller == null || !controller.enabled) return;
 
         float x = 0f;
         float z = 0f;
@@ -44,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = (transform.right * x
             + transform.forward * z) * speed;
         move.y = velocity.y;
+
         controller.Move(move * Time.deltaTime);
 
         float moveAmount = new Vector2(x, z).magnitude;
@@ -54,6 +56,15 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isWalking", enMarche);
             animator.SetBool("strafeGauche", x < -0.1f && enMarche);
             animator.SetBool("strafeDroit", x > 0.1f && enMarche);
+        }
+
+        // Signale l'action deplacement (une seule fois)
+        if (enMarche && !deplacementSignale)
+        {
+            deplacementSignale = true;
+            if (gestionChapitres.Instance != null)
+                gestionChapitres.Instance.SignalerAction(
+                    "deplacement");
         }
     }
 }

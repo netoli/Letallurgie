@@ -469,7 +469,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2145744272499642264, guid: f61fa23e972b44679be790c6fc9888ce, type: 3}
       propertyPath: lengthInSec
-      value: 1.2
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 2145744272499642264, guid: f61fa23e972b44679be790c6fc9888ce, type: 3}
       propertyPath: simulationSpeed
@@ -553,8 +553,8 @@ ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 2145744272499642264, guid: f61fa23e972b44679be790c6fc9888ce, type: 3}
   m_PrefabInstance: {fileID: 1980696425031800216}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &7357008082193526524 stripped
-Transform:
+--- !u!224 &7357008082193526524 stripped
+RectTransform:
   m_CorrespondingSourceObject: {fileID: 9035785700774689636, guid: f61fa23e972b44679be790c6fc9888ce, type: 3}
   m_PrefabInstance: {fileID: 1980696425031800216}
   m_PrefabAsset: {fileID: 0}
