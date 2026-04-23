@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using System.Collections;
 
 
 public class gestionInputsJeu : MonoBehaviour
@@ -41,6 +42,7 @@ public class gestionInputsJeu : MonoBehaviour
     [Header("Cameras")]
     [SerializeField] private CinemachineCamera vcamMenu;
     [SerializeField] private CinemachineCamera vcamJeu;
+    [SerializeField] private CinemachineBrain cinemachineBrain;
 
     [Header("Parametres")]
     [SerializeField] private float vitesseFade;
@@ -187,7 +189,7 @@ public class gestionInputsJeu : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator MontrerContenuHudApresDelai(
+    private IEnumerator MontrerContenuHudApresDelai(
         float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
@@ -375,7 +377,7 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // Priorité au tuto affiché
+            // Priorite au tuto affiche
             if (gestionChapitres.Instance != null
                 && gestionChapitres.Instance.TutoEstAffiche())
             {
@@ -457,8 +459,7 @@ public class gestionInputsJeu : MonoBehaviour
         StartCoroutine(ExecuterApresDelai(methode));
     }
 
-    private System.Collections.IEnumerator ExecuterApresDelai(
-        string methode)
+    private IEnumerator ExecuterApresDelai(string methode)
     {
         yield return new WaitForSecondsRealtime(delaiEffets);
         Invoke(methode, 0f);
@@ -583,8 +584,7 @@ public class gestionInputsJeu : MonoBehaviour
             delaiEffets + 0.05f));
     }
 
-    private System.Collections.IEnumerator
-        AfficherMenuPauseApresDelai(float delai)
+    private IEnumerator AfficherMenuPauseApresDelai(float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
 
@@ -799,6 +799,8 @@ public class gestionInputsJeu : MonoBehaviour
 
     public void ConfirmerRetourMenuPrincipal()
     {
+        Debug.Log("[RetourMenu] 1. Methode appelee");
+
         StopAllCoroutines();
         etatActuel = EtatJeu.EnJeu;
         jeuActif = false;
@@ -820,8 +822,9 @@ public class gestionInputsJeu : MonoBehaviour
         groupeMenu.alpha = 0f;
         DebloquerCanvasGroup(groupeMenu);
 
-        vcamMenu.Priority = 30;
-        vcamJeu.Priority = 10;
+        Debug.Log("[RetourMenu] 2. Avant StartCoroutine cut");
+        StartCoroutine(CutInstantaneVersMenu());
+        Debug.Log("[RetourMenu] 3. Apres StartCoroutine cut");
 
         GetComponent<gestionsTransitions>()
             .MettreAJourBoutonContinuer();
@@ -833,6 +836,27 @@ public class gestionInputsJeu : MonoBehaviour
             gestionAudio.Instance.JouerMusiquesIntro();
 
         StartCoroutine(FadeCanvasGroup(groupeMenu, 1f));
+    }
+
+    private IEnumerator CutInstantaneVersMenu()
+    {
+        if (cinemachineBrain == null)
+        {
+            Debug.LogWarning(
+                "[CutInstantane] Brain non assigne dans l'Inspector");
+            vcamMenu.Priority = 30;
+            vcamJeu.Priority = 10;
+            yield break;
+        }
+
+        cinemachineBrain.enabled = false;
+
+        vcamMenu.Priority = 30;
+        vcamJeu.Priority = 10;
+
+        yield return null;
+
+        cinemachineBrain.enabled = true;
     }
 
     public void FermerConfirmationRetourMenu()
@@ -863,8 +887,7 @@ public class gestionInputsJeu : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator
-        ActiverMenuPauseApresDelai()
+    private IEnumerator ActiverMenuPauseApresDelai()
     {
         yield return new WaitForSecondsRealtime(delaiEffets);
 
@@ -1014,21 +1037,21 @@ public class gestionInputsJeu : MonoBehaviour
 
     // ===== UTILITAIRES =====
 
-    private System.Collections.IEnumerator DesactiverApresDelai(
+    private IEnumerator DesactiverApresDelai(
         GameObject canvas, float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
         canvas.SetActive(false);
     }
 
-    private System.Collections.IEnumerator ActiverApresDelai(
+    private IEnumerator ActiverApresDelai(
         GameObject canvas, float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
         canvas.SetActive(true);
     }
 
-    private System.Collections.IEnumerator FadeCanvasGroup(
+    private IEnumerator FadeCanvasGroup(
         CanvasGroup groupe, float cible)
     {
         while (Mathf.Abs(groupe.alpha - cible) > 0.01f)
@@ -1041,7 +1064,7 @@ public class gestionInputsJeu : MonoBehaviour
         groupe.alpha = cible;
     }
 
-    private System.Collections.IEnumerator FadeCanvasGroupEtDesactiver(
+    private IEnumerator FadeCanvasGroupEtDesactiver(
         CanvasGroup groupe, GameObject canvas)
     {
         while (groupe.alpha > 0.01f)

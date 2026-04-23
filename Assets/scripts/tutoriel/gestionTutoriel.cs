@@ -10,7 +10,6 @@ public class gestionTutoriel : MonoBehaviour
     [SerializeField] private TMP_Text texteExplication;
     [SerializeField] private Image imageTutoriel;
     [SerializeField] private CanvasGroup groupeTuile;
-    [SerializeField] private GameObject ensembleTuile;
 
     [Header("Effets")]
     [SerializeField] private GameObject fxBrouillard;
@@ -26,7 +25,13 @@ public class gestionTutoriel : MonoBehaviour
     void Awake()
     {
         if (groupeTuile != null)
+        {
             groupeTuile.alpha = 0f;
+            groupeTuile.interactable = false;
+            groupeTuile.blocksRaycasts = false;
+        }
+
+        DesactiverBrouillardSecurise();
     }
 
     public void AfficherTuto(DonneesTutoriel tuto)
@@ -55,11 +60,14 @@ public class gestionTutoriel : MonoBehaviour
             }
         }
 
-        if (ensembleTuile != null)
-            ensembleTuile.SetActive(true);
-
         if (groupeTuile != null)
+        {
             groupeTuile.alpha = 0f;
+            groupeTuile.interactable = true;
+            groupeTuile.blocksRaycasts = true;
+        }
+
+        DesactiverBrouillardSecurise();
 
         if (coroutineFade != null)
             StopCoroutine(coroutineFade);
@@ -82,8 +90,7 @@ public class gestionTutoriel : MonoBehaviour
 
         tutoActuel = null;
 
-        if (fxBrouillard != null)
-            fxBrouillard.SetActive(false);
+        DesactiverBrouillardSecurise();
 
         if (coroutineFade != null)
             StopCoroutine(coroutineFade);
@@ -102,6 +109,20 @@ public class gestionTutoriel : MonoBehaviour
             tempsAffichage += Time.deltaTime;
     }
 
+    private void DesactiverBrouillardSecurise()
+    {
+        if (fxBrouillard == null) return;
+        try { fxBrouillard.SetActive(false); }
+        catch (MissingReferenceException) { fxBrouillard = null; }
+    }
+
+    private void ActiverBrouillardSecurise()
+    {
+        if (fxBrouillard == null) return;
+        try { fxBrouillard.SetActive(true); }
+        catch (MissingReferenceException) { fxBrouillard = null; }
+    }
+
     private IEnumerator FadeInPuisBrouillard()
     {
         if (groupeTuile == null) yield break;
@@ -114,9 +135,7 @@ public class gestionTutoriel : MonoBehaviour
         }
         groupeTuile.alpha = 1f;
 
-        // Active le brouillard maintenant - Play On Awake le jouera
-        if (fxBrouillard != null)
-            fxBrouillard.SetActive(true);
+        ActiverBrouillardSecurise();
     }
 
     private IEnumerator FadeOut()
@@ -131,8 +150,11 @@ public class gestionTutoriel : MonoBehaviour
         }
         groupeTuile.alpha = 0f;
 
-        if (ensembleTuile != null)
-            ensembleTuile.SetActive(false);
+        if (groupeTuile != null)
+        {
+            groupeTuile.interactable = false;
+            groupeTuile.blocksRaycasts = false;
+        }
     }
 
     private IEnumerator FermerApresDureeMaximum(float duree)

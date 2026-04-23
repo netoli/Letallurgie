@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using System.Collections;
 using System.Collections.Generic;
 
 
@@ -10,6 +11,7 @@ public class gestionsTransitions : MonoBehaviour
     [SerializeField] private CinemachineCamera vcamMenu;
     [SerializeField] private CinemachineCamera vcamOptionsCredits;
     [SerializeField] private CinemachineCamera vcamJeu;
+    [SerializeField] private CinemachineBrain cinemachineBrain;
 
     [Header("Canvas")]
     [SerializeField] private GameObject canvasMenu;
@@ -92,10 +94,8 @@ public class gestionsTransitions : MonoBehaviour
         canvasOngletsOptions.SetActive(false);
         canvasHud.SetActive(false);
 
-        // Tout bloquer jusqu'à la fin de l'animation de caméra
         DesactiverJoueur();
 
-        // Curseur libre pour le menu
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -122,7 +122,6 @@ public class gestionsTransitions : MonoBehaviour
         }
     }
 
-    // Désactive les 3 composants du joueur
     private void DesactiverJoueur()
     {
         if (playerMovement != null)
@@ -135,7 +134,6 @@ public class gestionsTransitions : MonoBehaviour
             inputAxisController.enabled = false;
     }
 
-    // Active les 3 composants du joueur + lock le curseur
     private void ActiverJoueur()
     {
         if (playerMovement != null)
@@ -255,6 +253,8 @@ public class gestionsTransitions : MonoBehaviour
 
     public void OnNouvellePartie()
     {
+        Debug.Log("[Transitions] OnNouvellePartie CLIQUE");
+
         if (estEnTransition) return;
         estEnTransition = true;
 
@@ -270,12 +270,14 @@ public class gestionsTransitions : MonoBehaviour
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesTaverne();
 
-        // Activer le joueur après la fin de l'animation (2.5s)
+        // Transition progressive de 2.5s - personnage proche du menu
         Invoke(nameof(DesactiverMenu), 2.5f);
     }
 
     public void OnContinuer()
     {
+        Debug.Log("[Transitions] OnContinuer CLIQUE");
+
         if (estEnTransition) return;
         estEnTransition = true;
 
@@ -290,7 +292,6 @@ public class gestionsTransitions : MonoBehaviour
         }
 
         FadeOut(groupeMenu);
-        vcamJeu.Priority = 50;
         positionYCible1 = positionYDepart1;
 
         if (gestionFlou != null)
@@ -299,8 +300,33 @@ public class gestionsTransitions : MonoBehaviour
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesTaverne();
 
-        // Activer le joueur après la fin de l'animation (2.5s)
-        Invoke(nameof(DesactiverMenu), 2.5f);
+        // Cut instantane - personnage potentiellement loin du menu
+        StartCoroutine(CutInstantaneVersJeu());
+
+        Invoke(nameof(DesactiverMenu), 0.1f);
+    }
+
+    private IEnumerator CutInstantaneVersJeu()
+    {
+        if (cinemachineBrain == null)
+        {
+            Debug.LogWarning(
+                "[Transitions] Brain non assigne dans l'Inspector");
+            vcamMenu.Priority = 10;
+            vcamOptionsCredits.Priority = 10;
+            vcamJeu.Priority = 50;
+            yield break;
+        }
+
+        cinemachineBrain.enabled = false;
+
+        vcamMenu.Priority = 10;
+        vcamOptionsCredits.Priority = 10;
+        vcamJeu.Priority = 50;
+
+        yield return null;
+
+        cinemachineBrain.enabled = true;
     }
 
     public void OnOptions()
@@ -397,7 +423,6 @@ public class gestionsTransitions : MonoBehaviour
         groupesEnFadeIn.Clear();
         groupesEnFadeOut.Clear();
 
-        // Activer le joueur immédiatement (déjà en jeu)
         ActiverJoueur();
 
         if (gestionFlou != null)
@@ -502,20 +527,23 @@ public class gestionsTransitions : MonoBehaviour
 
     private void DesactiverMenu()
     {
+        Debug.Log("[Transitions] DesactiverMenu appele");
+
         canvasMenu.SetActive(false);
 
         canvasHud.SetActive(true);
         groupeHud.alpha = 0f;
         FadeIn(groupeHud);
 
-        // Activer le joueur exactement à la fin de l'animation de caméra
         ActiverJoueur();
 
         GetComponent<gestionInputsJeu>().ActiverInputs();
 
         estEnTransition = false;
 
-        // Demarre le chapitre "Premier contact"
+        Debug.Log("[Transitions] gestionChapitres.Instance = "
+            + (gestionChapitres.Instance != null ? "OK" : "NULL"));
+
         if (gestionChapitres.Instance != null)
             gestionChapitres.Instance.DemarrerChapitre(
                 "premier_contact");
