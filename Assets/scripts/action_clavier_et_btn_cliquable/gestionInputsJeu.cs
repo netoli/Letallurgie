@@ -129,6 +129,7 @@ public class gestionInputsJeu : MonoBehaviour
         groupeContenuHud.alpha = 1f;
         groupeContenuHud.interactable = true;
         groupeContenuHud.blocksRaycasts = true;
+        JournalManager.Instance.MettreAJourCompteur();
 
         foreach (ParticleSystem fx in fxHud)
         {
