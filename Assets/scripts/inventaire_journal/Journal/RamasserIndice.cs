@@ -1,5 +1,5 @@
 // ============================================================
-// RamasserObjet.cs
+// RamasserIndice.cs
 // ------------------------------------------------------------
 // Auteur      : Fanny Fortier
 // Date        : 09/04/2026
@@ -16,7 +16,7 @@
 // ============================================================
 using UnityEngine;
 
-public class RamasserObjet : MonoBehaviour
+public class RamasserIndice : MonoBehaviour
 {
     [Header("Données de l'indice")]
 

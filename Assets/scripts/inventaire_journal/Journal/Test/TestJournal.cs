@@ -10,9 +10,9 @@ public class TestJournal : MonoBehaviour
 
         foreach (GameObject objet in objetsIndices)
         {
-            RamasserObjet ramasserObjet = objet.GetComponent<RamasserObjet>();
-            if (ramasserObjet != null)
-                ramasserObjet.SimulerRamassage();
+            RamasserIndice ramasserIndice = objet.GetComponent<RamasserIndice>();
+            if (ramasserIndice != null)
+                ramasserIndice.SimulerRamassage();
         }
     }
 }
