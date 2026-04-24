@@ -173,6 +173,9 @@ public class gestionInputsJeu : MonoBehaviour
             if (fx != null)
                 fx.Play();
         }
+
+        if (gestionInventaire.Instance != null)
+            gestionInventaire.Instance.MettreAJourHudInv();
     }
 
     private void CacherContenuHud()

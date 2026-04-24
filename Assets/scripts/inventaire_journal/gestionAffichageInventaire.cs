@@ -41,6 +41,8 @@ public class gestionAffichageInventaire : MonoBehaviour
         flecheDroite.onClick.AddListener(DefilerDroite);
     }
 
+
+
     void OnEnable()
     {
         if (gestionInventaire.Instance != null)

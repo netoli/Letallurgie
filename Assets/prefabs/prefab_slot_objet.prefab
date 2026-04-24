@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1228881517456853020}
   - component: {fileID: 1847706554456954449}
-  - component: {fileID: 2633114932074383217}
   - component: {fileID: 5257838826050911263}
   m_Layer: 5
   m_Name: prefab_slot_objet
@@ -48,36 +47,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 317045758603378138}
   m_CullTransparentMesh: 1
---- !u!114 &2633114932074383217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 317045758603378138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &5257838826050911263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cee7d883f1a354ca495397879b8002b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::slotObjetInventaire
-  iconeObjet: {fileID: 2633114932074383217}
+  iconeObjet: {fileID: 310084111372514998}
   texteNombreObjets: {fileID: 2131418591030580673}
 --- !u!1 &3173721458260909241
 GameObject:

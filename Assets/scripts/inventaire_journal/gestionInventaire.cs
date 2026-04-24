@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class gestionInventaire : MonoBehaviour
 {
@@ -10,10 +11,26 @@ public class gestionInventaire : MonoBehaviour
         new Dictionary<objetInventaire, int>();
 
     public event Action onInventaireModifie;
+    public event Action<int> onInventaireModifieHud;
+
+    [Header("HUD")]
+    [SerializeField] private TMP_Text texteNombreObjetsHud;
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
+
+        //MettreAJourHudInv();
+    }
+
+    private void Start()
+    {
+        //MettreAJourHudInv();
     }
 
     public void AjouterObjet(objetInventaire objet, int quantite = 1)
@@ -34,7 +51,9 @@ public class gestionInventaire : MonoBehaviour
         Debug.Log("Ajoute: " + objet.nomObjet
             + " x" + objets[objet]);
 
-        onInventaireModifie?.Invoke();
+        //onInventaireModifie?.Invoke();
+        NotifierModif();
+        MettreAJourHudInv();
     }
 
     public void RetirerObjet(objetInventaire objet, int quantite = 1)
@@ -46,7 +65,9 @@ public class gestionInventaire : MonoBehaviour
         if (objets[objet] <= 0)
             objets.Remove(objet);
 
-        onInventaireModifie?.Invoke();
+        //onInventaireModifie?.Invoke();
+        NotifierModif();
+        MettreAJourHudInv();
     }
 
     public int ObtenirQuantite(objetInventaire objet)
@@ -82,6 +103,43 @@ public class gestionInventaire : MonoBehaviour
     public void ViderInventaire()
     {
         objets.Clear();
+        //onInventaireModifie?.Invoke();
+        NotifierModif();
+        MettreAJourHudInv();
+    }
+
+    public void MettreAJourHudInv()
+    {
+        if (texteNombreObjetsHud != null)
+        {
+            Debug.Log($"[HUD] InstanceID={texteNombreObjetsHud.GetInstanceID()} TMP: {texteNombreObjetsHud.gameObject.name} | path={GetFullPath(texteNombreObjetsHud.gameObject)}", texteNombreObjetsHud.gameObject);
+        }
+        else Debug.Log("[HUD] texteNombreObjetsHud is NULL");
+
+        int total = ObtenirTotalObjets();
+        if (texteNombreObjetsHud == null) return;
+
+        Debug.Log($"[gestionInventaire] MettreAJourHud called. total={total} | texteNombreObjetsHud={(texteNombreObjetsHud != null ? texteNombreObjetsHud.name : "NULL")} | activeInHierarchy={(texteNombreObjetsHud != null ? texteNombreObjetsHud.gameObject.activeInHierarchy.ToString() : "N/A")}");
+
+        texteNombreObjetsHud.text = total.ToString();
+    }
+
+    private string GetFullPath(GameObject go)
+    {
+        string path = go.name;
+        Transform t = go.transform.parent;
+        while (t != null)
+        {
+            path = t.name + "/" + path;
+            t = t.parent;
+        }
+        return path;
+    }
+
+    private void NotifierModif()
+    {
+        int total = ObtenirTotalObjets();
         onInventaireModifie?.Invoke();
+        onInventaireModifieHud?.Invoke(total);
     }
 }

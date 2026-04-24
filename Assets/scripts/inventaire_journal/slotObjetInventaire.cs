@@ -15,11 +15,22 @@ public class slotObjetInventaire : MonoBehaviour
         objetAssocie = objet;
 
         if (iconeObjet != null)
+        {
+
             iconeObjet.sprite = objet.icone;
 
-        MettreAJourQuantite(quantite);
-    }
+            Debug.Log($"Configurer: objet={objet.nomObjet} sprite={(objet.icone != null ? objet.icone.name : "NULL")}");
+            iconeObjet.SetNativeSize();
 
+            MettreAJourQuantite(quantite);
+
+        }
+        else
+        {
+            Debug.LogWarning("Configurer: iconeObjet est null");
+        }
+
+    }
     public void MettreAJourQuantite(int quantite)
     {
         if (texteNombreObjets != null)

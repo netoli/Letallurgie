@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: tuyau_l
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyau en L
-  icone: {fileID: 0}
+  icone: {fileID: 21300000, guid: 1503d845365594d4b922d1ce4c57aa9f, type: 3}
   categorie: 0
   quantiteMax: 0
