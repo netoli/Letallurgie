@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 8837302158038687684}
   - component: {fileID: 5743151927734943782}
   - component: {fileID: 3925957053245942359}
+  - component: {fileID: 8848166352329782041}
   m_Layer: 0
   m_Name: scrollview_insight_details
   m_TagString: Untagged
@@ -371,6 +372,23 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8848166352329782041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291884577291867946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacc408cda574f71a0776d1609f59a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionEffetsScroll
+  sonScroll: {fileID: 8300000, guid: 90ba42027ae434b1cac7ef5dd043f419, type: 3}
+  volumeScroll: 0.9
+  delaiEntreDeuxSons: 0.01
+  debutSon: 0
+  finSon: 0.24
 --- !u!1 &2732299298439233334
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,6 +838,7 @@ GameObject:
   - component: {fileID: 7870461679601122106}
   - component: {fileID: 7166110816973342868}
   - component: {fileID: 2639644919058920340}
+  - component: {fileID: 3177884923485767150}
   m_Layer: 0
   m_Name: scrollview_desc_details
   m_TagString: Untagged
@@ -916,6 +935,23 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3177884923485767150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3981907452224940342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacc408cda574f71a0776d1609f59a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionEffetsScroll
+  sonScroll: {fileID: 8300000, guid: 90ba42027ae434b1cac7ef5dd043f419, type: 3}
+  volumeScroll: 0.9
+  delaiEntreDeuxSons: 0.01
+  debutSon: 0
+  finSon: 0.24
 --- !u!1 &4144572103109482507
 GameObject:
   m_ObjectHideFlags: 0
@@ -1723,6 +1759,7 @@ GameObject:
   - component: {fileID: 2022240276143392100}
   - component: {fileID: 3062034098547245430}
   - component: {fileID: 1226015519638516031}
+  - component: {fileID: 3143913861197791502}
   m_Layer: 5
   m_Name: scrollview_indices
   m_TagString: Untagged
@@ -1819,6 +1856,23 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3143913861197791502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7007653175774488464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacc408cda574f71a0776d1609f59a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionEffetsScroll
+  sonScroll: {fileID: 8300000, guid: 90ba42027ae434b1cac7ef5dd043f419, type: 3}
+  volumeScroll: 0.9
+  delaiEntreDeuxSons: 0.01
+  debutSon: 0
+  finSon: 0.24
 --- !u!1 &8145607090744954791
 GameObject:
   m_ObjectHideFlags: 0
