@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 776334054789768959}
   - component: {fileID: 1339285990761121655}
   - component: {fileID: 8770913117437617492}
+  - component: {fileID: 4290682571712342031}
   m_Layer: 0
   m_Name: nombre_objets
   m_TagString: Untagged
@@ -137,6 +138,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4290682571712342031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 164174857312686676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73589c4fedb8182499d8853f069fee6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::compteurInventaireHud
+  texteNombreObjetsHud: {fileID: 8770913117437617492}
 --- !u!1 &843264020508785182
 GameObject:
   m_ObjectHideFlags: 0

@@ -174,8 +174,6 @@ public class gestionInputsJeu : MonoBehaviour
                 fx.Play();
         }
 
-        if (gestionInventaire.Instance != null)
-            gestionInventaire.Instance.MettreAJourHudInv();
     }
 
     private void CacherContenuHud()
