@@ -62,7 +62,7 @@ public class gestionInteractionClic : MonoBehaviour
         if (Physics.Raycast(rayon, out RaycastHit impact, distObjet, coucheObjet))
         {
 
-            gestionHighlightHover highlight = impact.collider.GetComponent<gestionHighlightHover>();
+            gestionHighlightHover highlight = impact.collider.GetComponentInParent<gestionHighlightHover>();
             if (highlight != null)
             {
                 // Si on change d'objet visé, on enlève l'ancien highlight
@@ -86,7 +86,7 @@ public class gestionInteractionClic : MonoBehaviour
             }
 
             //Débug console pour vérifier que le raycast touche un objet
-            Debug.Log("Raycast touche : " + impact.collider.name + " | Tag : " + impact.collider.tag);
+            //Debug.Log("Raycast touche : " + impact.collider.name + " | Tag : " + impact.collider.tag);
 
             string tag = impact.collider.tag;
 
@@ -94,14 +94,14 @@ public class gestionInteractionClic : MonoBehaviour
 
             if (tag == "indice")
             {
-                impact.collider.TryGetComponent(out _indiceVise);
+                _indiceVise = impact.collider.GetComponentInParent<RamasserIndice>();
                 _objetVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
                 _highlightVise?.Highlighter(true);
             }
             else if (tag == "obj_int")
             {
-                impact.collider.TryGetComponent(out _objetVise);
+                impact.collider.GetComponentInParent<objetRamassable>();
                 _indiceVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }

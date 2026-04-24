@@ -28,11 +28,14 @@ public class RamasserIndice : MonoBehaviour
 
     public void Ramasser()
     {
+        Debug.Log("Ramasser() appelé sur : " + gameObject.name);
         // Jouer l'effet sonore au grab
         gestionAudio.Instance.JouerSFX(sonRamasser);
 
+        Debug.Log("Avant AjouterEntreeJournal - entrees count : " + JournalManager.Instance.entrees.Count);
         // Créer une instance du prefab de slot dans le journal avec les données rentrées dans l'inspecteur
         JournalManager.Instance.AjouterEntreeJournal(img, titre, description, insight);
+        Debug.Log("Après AjouterEntreeJournal - entrees count : " + JournalManager.Instance.entrees.Count);
         // Si l'objet sur lequel ce script est attaché ne s'appelle pas "NPC", le détruire
         if (!gameObject.name.Contains("NPC"))
         {
