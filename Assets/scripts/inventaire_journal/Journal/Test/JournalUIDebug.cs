@@ -22,9 +22,9 @@ public class JournalUIDebug : MonoBehaviour
     public GameObject slotPrefab;
 
     // Par défaut, les slots ne sont pas déja générés
-    private bool dejaGenere = false;
+    //private bool dejaGenere = false;
 
-    private void OnEnable()
+    /* private void OnEnable()
     {
         Debug.Log("JournalUIRenderer ACTIVÉ");
 
@@ -36,9 +36,17 @@ public class JournalUIDebug : MonoBehaviour
             GenererUI();
         }
 
+    } */
+
+    private void OnEnable()
+    {
+        Debug.Log("JournalUIRenderer ACTIVÉ");
+        // Toujours (re)générer à l'activation pour refléter l'état courant du manager
+        GenererUI();
     }
 
-    void GenererUI()
+
+    /* void GenererUI()
     {
         Debug.Log("Génération UI : " + JournalManager.Instance.entrees.Count + " entrées");
 
@@ -49,5 +57,47 @@ public class JournalUIDebug : MonoBehaviour
             slot.GetComponent<JournalSlotUI>()
                 .InitialiserSlot(entree.icone, entree.titre, entree.description, entree.insight);
         }
+    } */
+
+    void GenererUI()
+    {
+        if (JournalManager.Instance == null)
+        {
+            Debug.LogError("[Journal] JournalManager.Instance is NULL");
+            return;
+        }
+
+        Debug.Log($"Génération UI : {JournalManager.Instance.entrees.Count} entrées");
+
+        // Vider d'abord le contenu existant (sécurise contre doublons)
+        for (int i = contenuParent.childCount - 1; i >= 0; i--)
+            Destroy(contenuParent.GetChild(i).gameObject);
+
+        // Instancier proprement sous le parent (false = keep local transform)
+        foreach (var entree in JournalManager.Instance.entrees)
+        {
+            if (slotPrefab == null)
+            {
+                Debug.LogError("[Journal] slotPrefab is NULL");
+                break;
+            }
+
+            GameObject slot = Instantiate(slotPrefab, contenuParent, false);
+            slot.SetActive(true);
+
+            var ui = slot.GetComponent<JournalSlotUI>();
+            if (ui != null)
+                ui.InitialiserSlot(entree.icone, entree.titre, entree.description, entree.insight);
+            else
+                Debug.LogWarning("[Journal] slotPrefab missing JournalSlotUI component");
+        }
+
+        // Forcer le recalcul du layout (résout la plupart des problèmes d'affichage)
+        Canvas.ForceUpdateCanvases();
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(contenuParent.GetComponent<RectTransform>());
+
+        Debug.Log($"[Journal] Après génération : content childCount={contenuParent.childCount}");
     }
+
+
 }
