@@ -24,6 +24,8 @@ public class gestionInteractionClic : MonoBehaviour
     [SerializeField] private LayerMask coucheObjet;
     [Header("Render")]
     [SerializeField] private Camera cam;
+    [Header("Interactivité")]
+    [SerializeField] private gestionPointeur pointeur;
 
     private RamasserIndice _indiceVise;
     private objetRamassable _objetVise;
@@ -61,26 +63,34 @@ public class gestionInteractionClic : MonoBehaviour
 
             string tag = impact.collider.tag;
 
+
+
             if (tag == "indice")
             {
                 impact.collider.TryGetComponent(out _indiceVise);
                 _objetVise = null;
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }
             else if (tag == "obj_int")
             {
                 impact.collider.TryGetComponent(out _objetVise);
                 _indiceVise = null;
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }
             else
             {
                 _indiceVise = null;
                 _objetVise = null;
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
             }
         }
         else
         {
             _indiceVise = null;
             _objetVise = null;
+            pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
         }
+
+
     }
 }
