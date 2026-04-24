@@ -15,4 +15,4 @@ MonoBehaviour:
   nomObjet: Tuyau long
   icone: {fileID: 0}
   categorie: 0
-  quantiteMax: 0
+  quantiteMax: 10

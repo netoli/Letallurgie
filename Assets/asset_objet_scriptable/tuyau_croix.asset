@@ -15,4 +15,4 @@ MonoBehaviour:
   nomObjet: Tuyau en Croix
   icone: {fileID: 0}
   categorie: 0
-  quantiteMax: 0
+  quantiteMax: 10

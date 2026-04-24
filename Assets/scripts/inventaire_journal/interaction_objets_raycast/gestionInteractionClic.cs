@@ -101,7 +101,7 @@ public class gestionInteractionClic : MonoBehaviour
             }
             else if (tag == "obj_int")
             {
-                impact.collider.GetComponentInParent<objetRamassable>();
+                _objetVise = impact.collider.GetComponentInParent<objetRamassable>();
                 _indiceVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }
