@@ -13,6 +13,7 @@
 //   - RamasserIndice.cs
 // ============================================================
 
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,6 +30,7 @@ public class gestionInteractionClic : MonoBehaviour
 
     private RamasserIndice _indiceVise;
     private objetRamassable _objetVise;
+    private gestionHighlightHover _highlightVise;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -56,8 +58,33 @@ public class gestionInteractionClic : MonoBehaviour
         // Raycast du centre vers l'objet visé
         Ray rayon = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
+
         if (Physics.Raycast(rayon, out RaycastHit impact, distObjet, coucheObjet))
         {
+
+            gestionHighlightHover highlight = impact.collider.GetComponent<gestionHighlightHover>();
+            if (highlight != null)
+            {
+                // Si on change d'objet visé, on enlève l'ancien highlight
+                if (_highlightVise != highlight)
+                {
+                    if (_highlightVise != null)
+                        _highlightVise.Highlighter(false);
+
+                    _highlightVise = highlight;
+                    _highlightVise.Highlighter(true);
+                }
+            }
+            else
+            {
+                // Si on ne vise plus un objet highlightable
+                if (_highlightVise != null)
+                {
+                    _highlightVise.Highlighter(false);
+                    _highlightVise = null;
+                }
+            }
+
             //Débug console pour vérifier que le raycast touche un objet
             Debug.Log("Raycast touche : " + impact.collider.name + " | Tag : " + impact.collider.tag);
 
@@ -70,6 +97,7 @@ public class gestionInteractionClic : MonoBehaviour
                 impact.collider.TryGetComponent(out _indiceVise);
                 _objetVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
+                _highlightVise?.Highlighter(true);
             }
             else if (tag == "obj_int")
             {
@@ -89,6 +117,11 @@ public class gestionInteractionClic : MonoBehaviour
             _indiceVise = null;
             _objetVise = null;
             pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
+            if (_highlightVise != null)
+            {
+                _highlightVise.Highlighter(false);
+                _highlightVise = null;
+            }
         }
 
 
