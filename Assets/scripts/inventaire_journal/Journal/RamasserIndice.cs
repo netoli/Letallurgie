@@ -25,41 +25,12 @@ public class RamasserIndice : MonoBehaviour
     [SerializeField] public string insight;
     public Sprite img;
     public AudioClip sonRamasser;
-    AudioSource audioSourceGrab;
-
-
-   /* Méthode au contact - Retirer pour intégrer en Raycast
-    * 
-    * private void OnTriggerEnter(Collider autre)
-    {
-        // Si l'objet touché a le tag "Player"
-        if (autre.CompareTag("Player")) 
-        {
-
-            // Jouer l'effet sonore au grab
-            if(sonRamasser != null && audioSourceGrab != null)
-            {
-                audioSourceGrab.PlayOneShot(sonRamasser);
-            }
-
-
-            // Créer une instance du prefab de slot dans le journal avec les données rentrées dans l'inspecteur
-            JournalManager.Instance.AjouterEntreeJournal(img, titre, description, insight);
-            // Si l'objet sur lequel ce script est attaché ne s'appelle pas "NPC", le détruire
-            if (!gameObject.name.Contains("NPC"))
-            {
-                Destroy(gameObject);
-            }               
-        }
-    } */
 
     public void Ramasser()
     {
         // Jouer l'effet sonore au grab
-        if(sonRamasser != null && audioSourceGrab != null)
-        {
-            audioSourceGrab.PlayOneShot(sonRamasser);
-        }
+        gestionAudio.Instance.JouerSFX(sonRamasser);
+
         // Créer une instance du prefab de slot dans le journal avec les données rentrées dans l'inspecteur
         JournalManager.Instance.AjouterEntreeJournal(img, titre, description, insight);
         // Si l'objet sur lequel ce script est attaché ne s'appelle pas "NPC", le détruire

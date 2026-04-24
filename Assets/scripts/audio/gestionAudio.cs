@@ -1,3 +1,20 @@
+// ============================================================
+// gestionAudio.cs
+// ------------------------------------------------------------
+// Auteur      : Fanny Fortier
+// Date créé   : 07/04/2026
+// Modifié par Olivier V. le 13/04/2026
+// ------------------------------------------------------------
+// Description :
+//   Gère la musique d'ambiance et les effets sonores du jeu. Permet
+//   de jouer des musiques spécifiques pour différentes scènes et
+//   de jouer des effets sonores ponctuels. JouerSFX est appelé dans RamasserIndice
+// ------------------------------------------------------------
+// Dépendances :
+//   - gestionOptionsAudio.cs : pour obtenir les réglages de volume
+//   - PlayerPrefs : pour sauvegarder et charger les réglages de volume
+// ============================================================
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,8 +23,9 @@ public class gestionAudio : MonoBehaviour
 {
     public static gestionAudio Instance;
 
-    [Header("Audio Source")]
+    [Header("Audio Sources")]
     [SerializeField] private AudioSource sourceMusique;
+    [SerializeField] private AudioSource sourceSFX;
 
     [Header("Musiques")]
     [SerializeField] private AudioClip[] musiquesIntro;
@@ -165,5 +183,12 @@ public class gestionAudio : MonoBehaviour
 
         transitionEnCours = StartCoroutine(
             FondreVers(ProchainClip()));
+    }
+
+    // Jouer les effets sonores d'interaction objet
+    public void JouerSFX(AudioClip clip)
+    {
+        if (clip != null && sourceSFX != null)
+            sourceSFX.PlayOneShot(clip);
     }
 }
