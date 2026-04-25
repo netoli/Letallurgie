@@ -15,7 +15,7 @@ MonoBehaviour:
   idDeclencheur: passer_dialogue
   idActionRequise: dialogue_passe
   titre: Passer un dialogue
-  explication: "Appuie sur Entr\xE9e pour avancer dans une conversation."
+  explication: "Le Tavernier a quelque chose \xE0 te dire! Clique sur lui pour discuter. "
   image: {fileID: 0}
   dureeMinimum: 3
   dureeMaximum: 9

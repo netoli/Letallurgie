@@ -133,7 +133,29 @@ public class gestionChapitres : MonoBehaviour
     {
         tutoActuel = tuto;
         gestionTutoriel.AfficherTuto(tuto);
+
+        // Activation du detecteur correspondant
+        var tous = FindObjectsOfType<detecteurTuto>(true); // true = inclut inactifs
+        foreach (var d in tous) d.gameObject.SetActive(false);
+
+        if (!string.IsNullOrEmpty(tuto.idActionRequise))
+        {
+            foreach (var d in tous)
+            {
+                if (d.IdAction == tuto.idActionRequise)
+                {
+                    d.gameObject.SetActive(true);
+                    Debug.Log($"[Chapitre] Detecteur activé pour idActionRequise={tuto.idActionRequise} (obj={d.name})");
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("[Chapitre] Aucun idActionRequise pour ce tuto — pas de detecteur activé");
+        }
     }
+
 
     private void FermerTutoActuel(bool marquerVu)
     {
@@ -145,8 +167,39 @@ public class gestionChapitres : MonoBehaviour
             SauvegarderTutosVus();
         }
 
+        //Récupérer le id de l'action complétée 
+        string actionFerme = tutoActuel.idActionRequise;
+
         gestionTutoriel.FermerTuto();
         tutoActuel = null;
+
+
+
+        // S'il y a un tuto suivant dans le chapitre, l'afficher
+        if (chapitreActuel == null) return;
+
+        // Trouver le prochain tuto non vu dans le chapitre
+        DonneesTutoriel prochain = null;
+        foreach (var t in chapitreActuel.tutoriels)
+        {
+            if (!tutosVus.Contains(t.idDeclencheur))
+            {
+                prochain = t;
+                break;
+            }
+        }
+
+        // Délai pour laisser du temps au fade out
+        if (prochain != null)
+        {
+            Debug.Log($"[Chapitre] Passage à la prochaine étape: {prochain.idDeclencheur}");
+            // Petite attente pour laisser le fade out se produire proprement
+            StartCoroutine(AfficherProchainTutoApresDelai(prochain, 0.25f));
+        }
+        else
+        {
+            Debug.Log("[Chapitre] Aucune étape suivante non vue dans ce chapitre.");
+        }
     }
 
     private DonneesChapitre TrouverChapitre(string id)
@@ -196,4 +249,13 @@ public class gestionChapitres : MonoBehaviour
         PlayerPrefs.DeleteKey(CLE_PLAYERPREFS);
         PlayerPrefs.Save();
     }
+
+    // Affiche le prochain tuto après un délai
+    private System.Collections.IEnumerator AfficherProchainTutoApresDelai(DonneesTutoriel tuto, float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+        AfficherTuto(tuto);
+    }
+
+    
 }

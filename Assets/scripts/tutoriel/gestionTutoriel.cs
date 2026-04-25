@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +19,10 @@ public class gestionTutoriel : MonoBehaviour
     [Header("Parametres")]
     [SerializeField] private float vitesseFade;
 
+    public DonneesTutoriel TutoActuel => tutoActuel;
+    public event Action<DonneesTutoriel> OnTutoAffiche;
+    public event Action<DonneesTutoriel> OnTutoFerme;
+
     private DonneesTutoriel tutoActuel;
     private float tempsAffichage;
     private Coroutine coroutineMaximum;
@@ -34,6 +40,7 @@ public class gestionTutoriel : MonoBehaviour
         DesactiverBrouillardSecurise();
     }
 
+    // -------- AFFICHAGE GÉNÉRAL --------
     public void AfficherTuto(DonneesTutoriel tuto)
     {
         if (tuto == null) return;
@@ -44,8 +51,7 @@ public class gestionTutoriel : MonoBehaviour
         tempsAffichage = 0f;
 
         if (texteTitre != null) texteTitre.text = tuto.titre;
-        if (texteExplication != null)
-            texteExplication.text = tuto.explication;
+        if (texteExplication != null) texteExplication.text = tuto.explication;
 
         if (imageTutoriel != null)
         {
@@ -75,8 +81,15 @@ public class gestionTutoriel : MonoBehaviour
 
         if (coroutineMaximum != null)
             StopCoroutine(coroutineMaximum);
-        coroutineMaximum = StartCoroutine(
-            FermerApresDureeMaximum(tuto.dureeMaximum));
+
+        // Lancer seulement si dureeMaximum > 0
+        if (tuto.dureeMaximum > 0f)
+            coroutineMaximum = StartCoroutine(FermerApresDureeMaximum(tuto.dureeMaximum));
+        else
+            coroutineMaximum = null;
+
+        // Notifier les abonnés (gestionChapitres pourra activer le detecteur correspondant)
+        OnTutoAffiche?.Invoke(tutoActuel);
     }
 
     public void FermerTuto()
@@ -87,6 +100,9 @@ public class gestionTutoriel : MonoBehaviour
 
         if (coroutineMaximum != null)
             StopCoroutine(coroutineMaximum);
+
+        // Notifier avant de nuller
+        OnTutoFerme?.Invoke(tutoActuel);
 
         tutoActuel = null;
 
@@ -109,6 +125,7 @@ public class gestionTutoriel : MonoBehaviour
             tempsAffichage += Time.deltaTime;
     }
 
+    // Brouillard
     private void DesactiverBrouillardSecurise()
     {
         if (fxBrouillard == null) return;
@@ -157,9 +174,12 @@ public class gestionTutoriel : MonoBehaviour
         }
     }
 
+    // Timer de fermeture automatique après la durée maximum
     private IEnumerator FermerApresDureeMaximum(float duree)
     {
+        Debug.Log($"[Tutoriel] FermerApresDureeMaximum attendu: {duree} s");
         yield return new WaitForSeconds(duree);
-        FermerTuto();
+        if (tutoActuel != null)
+            FermerTuto();
     }
 }

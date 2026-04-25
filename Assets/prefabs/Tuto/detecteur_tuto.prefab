@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7624758683728611533}
   - component: {fileID: 7040878903828833459}
   - component: {fileID: 8958379489812094857}
+  - component: {fileID: 6776086196154546848}
   m_Layer: 0
   m_Name: detecteur_tuto
   m_TagString: Untagged
@@ -153,6 +154,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6776086196154546848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1607737927040902860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f6c9cfe5274b4647be9c1f0d8f5e295, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::detecteurTuto
+  idActionRequise: 
 --- !u!1 &2805070735381650791
 GameObject:
   m_ObjectHideFlags: 0
@@ -5212,7 +5226,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 0.03529412}
+      maxColor: {r: 0.76517445, g: 0.8962264, b: 0.868713, a: 0.02745098}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -9771,7 +9785,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a8f90673680a8df488fc70a16617645d, type: 2}
+  - {fileID: 2100000, guid: ac7c08f2b664f2b428189ab78163b269, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

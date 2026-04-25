@@ -7,7 +7,7 @@
 // Description :
 //   Attaché sur la caméra first person. Au clic gauche, envoie
 //   un raycast depuis le centre de l'écran. Si l'objet touché
-//   a un composant RamasserIndice, déclenche le ramassage.
+//   a le tag "indice" ou "obj_int", appelle la méthode de ramassage
 // ------------------------------------------------------------
 // Dépendances :
 //   - RamasserIndice.cs
@@ -31,6 +31,8 @@ public class gestionInteractionClic : MonoBehaviour
     private RamasserIndice _indiceVise;
     private objetRamassable _objetVise;
     private gestionHighlightHover _highlightVise;
+    private DialogueTuto _tavernierVise;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -49,9 +51,12 @@ public class gestionInteractionClic : MonoBehaviour
                 _indiceVise.Ramasser();
             else if (_objetVise != null)
                 _objetVise.Ramasser();
+            else if (_tavernierVise != null)
+                _tavernierVise.Interagir();
         }
 
-}
+
+    }
 
     private void _DetecterObjet()
     {
@@ -96,6 +101,7 @@ public class gestionInteractionClic : MonoBehaviour
             {
                 _indiceVise = impact.collider.GetComponentInParent<RamasserIndice>();
                 _objetVise = null;
+                _tavernierVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
                 _highlightVise?.Highlighter(true);
             }
@@ -103,12 +109,23 @@ public class gestionInteractionClic : MonoBehaviour
             {
                 _objetVise = impact.collider.GetComponentInParent<objetRamassable>();
                 _indiceVise = null;
+                _tavernierVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }
+            else if (tag == "tavernier")
+            {
+                _tavernierVise = impact.collider.GetComponentInParent<DialogueTuto>();
+                _indiceVise = null;
+                _objetVise = null;
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
+                _highlightVise?.Highlighter(true);
+            }
+
             else
             {
                 _indiceVise = null;
                 _objetVise = null;
+                _tavernierVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
             }
         }
@@ -116,6 +133,7 @@ public class gestionInteractionClic : MonoBehaviour
         {
             _indiceVise = null;
             _objetVise = null;
+            _tavernierVise = null;
             pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
             if (_highlightVise != null)
             {

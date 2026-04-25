@@ -13,6 +13,7 @@ TagManager:
   - indice
   - volumePersonnalise
   - obj_int
+  - tavernier
   layers:
   - Default
   - TransparentFX
