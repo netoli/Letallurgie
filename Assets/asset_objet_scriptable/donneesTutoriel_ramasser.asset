@@ -15,7 +15,7 @@ MonoBehaviour:
   idDeclencheur: ramasser_objet
   idActionRequise: objet_ramasse
   titre: 'Ramasser un objet '
-  explication: Quand le pointeur change, clic gauche pour prendre.
+  explication: Quand le pointeur change, clique gauche pour prendre.
   image: {fileID: 21300000, guid: a3c065dff05ba4887870cdbbc9c09b34, type: 3}
   dureeMinimum: 3
-  dureeMaximum: 9
+  dureeMaximum: 10

@@ -17,6 +17,13 @@ public class gestionChapitres : MonoBehaviour
     private DonneesTutoriel tutoActuel;
     private HashSet<string> tutosVus = new HashSet<string>();
 
+    // Booléens pour suivre les actions de la 4e étape (3) du tutoriel, 
+    // donc ouvrir et fermer l'inventaire et le journal au moins une fois chacun
+    private bool inventaireOuvertAuMoinsUneFois = false;
+    private bool inventaireFermeAuMoinsUneFois = false;
+    private bool journalOuvertAuMoinsUneFois = false;
+    private bool journalFermeAuMoinsUneFois = false;
+
     private const string CLE_PLAYERPREFS = "tutosVus_";
 
     void Awake()
@@ -257,5 +264,61 @@ public class gestionChapitres : MonoBehaviour
         AfficherTuto(tuto);
     }
 
-    
+
+    // Détection d'action pour l'étape d'inventaire du tuto
+    // Appelées par l'UI Inventaire
+    public void NotifierInventaireOuvert()
+    {
+        inventaireOuvertAuMoinsUneFois = true;
+        Debug.Log("[Chapitre] Inventaire ouvert (notifié)");
+        VerifierProgressionUI();
+    }
+
+    public void NotifierInventaireFerme()
+    {
+        inventaireFermeAuMoinsUneFois = true;
+        Debug.Log("[Chapitre] Inventaire fermé (notifié)");
+        VerifierProgressionUI();
+    }
+
+    // Appelées par l'UI Journal
+    public void NotifierJournalOuvert()
+    {
+        journalOuvertAuMoinsUneFois = true;
+        Debug.Log("[Chapitre] Journal ouvert (notifié)");
+        VerifierProgressionUI();
+    }
+
+    public void NotifierJournalFerme()
+    {
+        journalFermeAuMoinsUneFois = true;
+        Debug.Log("[Chapitre] Journal fermé (notifié)");
+        VerifierProgressionUI();
+    }
+
+    // Vérifie si les deux UI ont été ouvertes ET fermées au moins une fois
+    private void VerifierProgressionUI()
+    {
+        // Ne rien faire si aucun tuto n'est affiché
+        if (tutoActuel == null) return;
+
+        // n'agir que si le tuto actuel attend cette action
+        string idAttendu = "inventaire_ouvert";
+        if (!string.IsNullOrEmpty(tutoActuel.idActionRequise) && tutoActuel.idActionRequise != idAttendu)
+            return;
+
+        if (inventaireOuvertAuMoinsUneFois && inventaireFermeAuMoinsUneFois
+            && journalOuvertAuMoinsUneFois && journalFermeAuMoinsUneFois)
+        {
+            Debug.Log("[Chapitre] Conditions UI remplies — progression du tuto");
+            // Fermer le tuto actuel et marquer comme vu
+            FermerTutoActuel(true);
+            // Réinitialiser les flags pour éviter double déclenchement
+            inventaireOuvertAuMoinsUneFois = inventaireFermeAuMoinsUneFois = false;
+            journalOuvertAuMoinsUneFois = journalFermeAuMoinsUneFois = false;
+        }
+    }
+
+
+
 }

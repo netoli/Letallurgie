@@ -16,6 +16,10 @@ public class objetRamassable : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip sonRamasser;
 
+    [Header("Tuto")]
+    [Tooltip("ID d'action à signaler à gestionChapitres quand l'objet est ramassé")]
+    [SerializeField] private string idActionADeclencher;
+
     public void Ramasser()
     {
         if (ajouterInventaire
@@ -30,6 +34,17 @@ public class objetRamassable : MonoBehaviour
                 titreJournal,
                 descriptionJournal,
                 insightJournal);
+
+        // Jouer son si assigné
+        if (sonRamasser != null)
+            AudioSource.PlayClipAtPoint(sonRamasser, transform.position);
+
+        // Signaler l'action au système de chapitres (si un idAction est fourni)
+        if (!string.IsNullOrEmpty(idActionADeclencher) && gestionChapitres.Instance != null)
+        {
+            gestionChapitres.Instance.SignalerAction(idActionADeclencher);
+            Debug.Log($"[Pickup] SignalerAction appelé: {idActionADeclencher}");
+        }
 
         Destroy(gameObject);
     }

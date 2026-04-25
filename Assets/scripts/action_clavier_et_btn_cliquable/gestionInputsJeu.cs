@@ -675,6 +675,10 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
+
+        // Détection d'action - Tutoriel (Ouvrir journal)
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.NotifierJournalOuvert();
     }
 
     public void FermerJournal()
@@ -683,6 +687,11 @@ public class gestionInputsJeu : MonoBehaviour
 
         StartCoroutine(DesactiverApresDelai(
             canvasJournal, delaiEffets));
+
+        // Détection d'action - Tutoriel (Fermer journal)
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.NotifierJournalFerme();
+
 
         if (etatAvantJournal == EtatJeu.EnPause)
         {
@@ -718,11 +727,21 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.DesactiverFlou();
+
+        // Détection d'action - Tutoriel (Ouvrir inventaire)
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.NotifierInventaireOuvert();
+
     }
 
     private void FermerInventaire()
     {
         ensembleMenuInventaire.SetActive(false);
+
+        // Détection d'action - Tutoriel (Fermer inventaire)
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.NotifierInventaireFerme();
+
 
         if (etatAvantInventaire == EtatJeu.EnPause)
         {
