@@ -51,7 +51,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -106,7 +106,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -4840,7 +4840,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0153253dee1c55945abc95d9be9e19df, type: 2}
+  - {fileID: 2100000, guid: b9953bfcb06ff4f238c34eb1cd276484, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4945,7 +4945,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -5000,7 +5000,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -9734,7 +9734,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 65700cbb3b887cd4e9ba3c6960267cb1, type: 2}
+  - {fileID: 2100000, guid: c8b261c69adcd4cb88f665501204329f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9800,7 +9800,7 @@ GameObject:
   - component: {fileID: 1201268099948108340}
   - component: {fileID: 1873688495672120298}
   - component: {fileID: 431341152126128437}
-  - component: {fileID: 1882936731163538094}
+  - component: {fileID: 6337972412081573775}
   m_Layer: 0
   m_Name: prefab_vfx_explosion_02
   m_TagString: Untagged
@@ -10026,7 +10026,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 0}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -14705,7 +14705,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3445404674498194155}
   m_CullTransparentMesh: 1
---- !u!114 &1882936731163538094
+--- !u!114 &6337972412081573775
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -14801,7 +14801,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -14856,7 +14856,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -19590,7 +19590,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 65700cbb3b887cd4e9ba3c6960267cb1, type: 2}
+  - {fileID: 2100000, guid: c8b261c69adcd4cb88f665501204329f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19695,7 +19695,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -19750,7 +19750,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -24484,7 +24484,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f89acd7b19d225944b4fbf35c6271641, type: 2}
+  - {fileID: 2100000, guid: 41bb5c1af36cd4c09b59cbdad82eed83, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -24589,7 +24589,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -24644,7 +24644,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -29378,7 +29378,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0153253dee1c55945abc95d9be9e19df, type: 2}
+  - {fileID: 2100000, guid: b9953bfcb06ff4f238c34eb1cd276484, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29483,7 +29483,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -29538,7 +29538,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -34272,7 +34272,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f89acd7b19d225944b4fbf35c6271641, type: 2}
+  - {fileID: 2100000, guid: 41bb5c1af36cd4c09b59cbdad82eed83, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -34377,7 +34377,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -34432,7 +34432,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -39166,7 +39166,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f89acd7b19d225944b4fbf35c6271641, type: 2}
+  - {fileID: 2100000, guid: 41bb5c1af36cd4c09b59cbdad82eed83, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -39271,7 +39271,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -39326,7 +39326,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -44060,7 +44060,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f89acd7b19d225944b4fbf35c6271641, type: 2}
+  - {fileID: 2100000, guid: 41bb5c1af36cd4c09b59cbdad82eed83, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -44165,7 +44165,7 @@ ParticleSystem:
   looping: 1
   prewarm: 0
   playOnAwake: 0
-  useUnscaledTime: 0
+  useUnscaledTime: 1
   autoRandomSeed: 1
   startDelay:
     serializedVersion: 2
@@ -44220,7 +44220,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
@@ -48954,7 +48954,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 65700cbb3b887cd4e9ba3c6960267cb1, type: 2}
+  - {fileID: 2100000, guid: c8b261c69adcd4cb88f665501204329f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
