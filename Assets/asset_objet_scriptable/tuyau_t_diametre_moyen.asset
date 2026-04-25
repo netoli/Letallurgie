@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41c9488488914f3fa2b9c487407363c, type: 3}
+  m_Name: tuyau_t_diametre_moyen
+  m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
+  nomObjet: Tuyau en T diametre moyen
+  icone: {fileID: 0}
+  categorie: 0
+  quantiteMax: 0
+  prefabModele3D: {fileID: 6367313042336483628, guid: 611e961b2b9064b70b6b6cf1d73e818c, type: 3}
+  estLeurre: 0
+  descriptionInspection: 

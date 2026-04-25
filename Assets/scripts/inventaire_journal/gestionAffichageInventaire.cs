@@ -30,10 +30,6 @@ public class gestionAffichageInventaire : MonoBehaviour
     {
         ongletTuyaux.onClick.AddListener(
             () => ChangerCategorie(CategorieObjet.Tuyaux));
-        ongletMorse.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Morse));
-        ongletCartographie.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Cartographie));
         ongletAlchimie.onClick.AddListener(
             () => ChangerCategorie(CategorieObjet.Alchimie));
 
