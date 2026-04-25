@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
   m_Name: donneesTutoriel_ouvrir_inventaire
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
-  idDeclencheur: ouvrir_inventaire
-  idActionRequise: inventaire_ouvert
-  titre: 'Ouvrir l''inventaire '
-  explication: "Appuie sur I pour consulter ce que tu poss\xE8des."
-  image: {fileID: 0}
+  idDeclencheur: ouvrir_jdb
+  idActionRequise: jdb_ouvert
+  titre: Ouvrir le jounal de bord
+  explication: 'Cet objet a de l''histoire. Ouvre le Journal de Bord en cliquant
+    J pour en savoir plus. '
+  image: {fileID: 21300000, guid: 2a61ccdc74efb4d0c813661403f8901a, type: 3}
   dureeMinimum: 3
   dureeMaximum: 9

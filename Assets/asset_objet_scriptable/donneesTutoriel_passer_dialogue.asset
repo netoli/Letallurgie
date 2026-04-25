@@ -16,6 +16,6 @@ MonoBehaviour:
   idActionRequise: dialogue_passe
   titre: Passer un dialogue
   explication: "Le Tavernier a quelque chose \xE0 te dire! Clique sur lui pour discuter. "
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: d2bac556e1bd8de4aa2af21642eaa176, type: 3}
   dureeMinimum: 3
   dureeMaximum: 9
