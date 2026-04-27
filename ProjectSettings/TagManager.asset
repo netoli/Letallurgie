@@ -11,6 +11,9 @@ TagManager:
   - bouton_clique
   - bouton_clavier
   - indice
+  - volumePersonnalise
+  - obj_int
+  - tavernier
   layers:
   - Default
   - TransparentFX
@@ -24,7 +27,7 @@ TagManager:
   - 
   - ground
   - 
-  - 
+  - obj_interactifs_RC
   - 
   - 
   - 

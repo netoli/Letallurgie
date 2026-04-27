@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
+  m_Name: donneesTutoriel_utiliser_objet
+  m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
+  idDeclencheur: utiliser_objet
+  idActionRequise: objet_utilise
+  titre: Utiliser un objet
+  explication: "Ouvre l'inventaire en pressant i. C'est ici que tu pourras drag and
+    drop ton objet dans la sc\xE8ne pour l'utiliser.  "
+  image: {fileID: 21300000, guid: 510bf4090227f614f9f4efa4395367b0, type: 3}
+  dureeMinimum: 3
+  dureeMaximum: 9
