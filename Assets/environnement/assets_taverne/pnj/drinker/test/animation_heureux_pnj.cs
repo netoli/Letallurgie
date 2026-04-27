@@ -11,10 +11,15 @@ public class animation_heureux_pnj : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         animator.SetInteger("randi_chance", 1);
+        change_animation();
     }
 
     // Update is called once per frame
     void Update()
+    {
+
+    }
+    void change_animation()
     {
         if (animator.GetInteger("randi_chance") != 0)
         {
@@ -22,8 +27,10 @@ public class animation_heureux_pnj : MonoBehaviour
         }
         else
         {
-            animator.SetInteger("randi_chance", UnityEngine.Random.Range(0, 3));
+            animator.SetInteger("randi_chance", UnityEngine.Random.Range(1, 4));
         }
+        //animator.SetInteger("randi_chance", UnityEngine.Random.Range(0, 3));
+
     }
 
 }
