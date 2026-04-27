@@ -50,6 +50,7 @@ public class gestionAudio : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
