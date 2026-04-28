@@ -290,7 +290,13 @@ public class gestionsTransitions : MonoBehaviour
             gestionFlou.DesactiverFlou();
 
         if (gestionAudio.Instance != null)
-            gestionAudio.Instance.JouerMusiquesTaverne();
+        {
+            if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+            {
+                gestionAudio.Instance.JouerMusiquesTutoriel();
+            }
+        }
+
 
         // Transition progressive de 2.5s - personnage proche du menu
         Invoke(nameof(DesactiverMenu), 2.5f);
@@ -320,12 +326,26 @@ public class gestionsTransitions : MonoBehaviour
             gestionFlou.DesactiverFlou();
 
         if (gestionAudio.Instance != null)
-            gestionAudio.Instance.JouerMusiquesTaverne();
+        {
+            if (SceneManager.GetActiveScene().name == "SCENE1-Taverne1")
+            {
+                gestionAudio.Instance.JouerMusiquesTaverne();
+            }
+            else if (SceneManager.GetActiveScene().name == "SCENE2-Usine")
+            {
+                gestionAudio.Instance.JouerMusiquesUsine();
+            }
+            else if (SceneManager.GetActiveScene().name == "SCENE4-Manoir")
+            {
+                gestionAudio.Instance.JouerMusiquesManoir();
+            }
 
-        // Cut instantane - personnage potentiellement loin du menu
-        StartCoroutine(CutInstantaneVersJeu());
 
-        Invoke(nameof(DesactiverMenu), 0.1f);
+            // Cut instantane - personnage potentiellement loin du menu
+            StartCoroutine(CutInstantaneVersJeu());
+
+            Invoke(nameof(DesactiverMenu), 0.1f);
+        }
     }
 
     private IEnumerator CutInstantaneVersJeu()

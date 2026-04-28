@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // Auteur      : Olivier Vernet
 // Date créé   : 
-// Dernière modification : 25/04/2026 - Fanny Fortier
+// Dernière modification : 28/04/2026 - Fanny Fortier
 // ------------------------------------------------------------
 // Description :
 //   Gestion centralisée des chapitres et tutoriels.
@@ -323,12 +323,12 @@ public class gestionChapitres : MonoBehaviour
         VideoClip clip = System.Array.Find(cinematique, c => c.name == nomCinematique);
         if (clip != null)
         {
+            FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(true);
+
             // Arrêter la musique de fond si elle est encore en train de jouer
-                var musique = FindObjectOfType<gestionAudio>();
+            var musique = FindObjectOfType<gestionAudio>();
                 if (musique != null)
                     musique.ArreterMusique();
-
-            // 
 
             playerCinematiques.clip = clip;
             playerCinematiques.loopPointReached += OnCinematiqueFinie;
@@ -343,13 +343,16 @@ public class gestionChapitres : MonoBehaviour
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
         Debug.Log("[Chapitre] Cinématique terminée, retour au jeu");
-        
+
+        FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
+
         // Reprendre la musique de fond après la cinématique
         var musique = FindObjectOfType<gestionAudio>();
         if (musique != null)
             musique.ReprendreMusique();
 
         SceneManager.LoadScene("SCENE1-Taverne1");
+        gestionAudio.Instance.JouerMusiquesTaverne();
     }
 
 }

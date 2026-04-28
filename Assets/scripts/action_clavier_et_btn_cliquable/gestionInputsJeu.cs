@@ -98,7 +98,7 @@ public class gestionInputsJeu : MonoBehaviour
                 vcamMenu.Priority = 10;
         }
 
-            canvasMenuPause.SetActive(false);
+        canvasMenuPause.SetActive(false);
         canvasRetournerMenuPrincipal.SetActive(false);
         canvasQuitter.SetActive(false);
         canvasConfirmerReinitialisation.SetActive(false);
@@ -1107,4 +1107,39 @@ public class gestionInputsJeu : MonoBehaviour
         groupe.alpha = 0f;
         canvas.SetActive(false);
     }
+
+    public void ModeCinematique(bool actif)
+    {
+        if (actif)
+        {
+            // Désactiver curseur
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            var pointeur = FindObjectOfType<gestionPointeur>(true);
+            if (pointeur != null)
+                pointeur.gameObject.SetActive(false);
+            var testP = FindObjectOfType<testPointeur>(true);
+            if (testP != null)
+                testP.enabled = false;
+
+            // Bloquer les inputs
+            jeuActif = false;
+        }
+        else
+        {
+            // Réactiver curseur
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            var pointeur = FindObjectOfType<gestionPointeur>(true);
+            if (pointeur != null)
+                pointeur.gameObject.SetActive(true);
+            var testP = FindObjectOfType<testPointeur>(true);
+            if (testP != null)
+                testP.enabled = true;
+
+            // Réactiver inputs
+            jeuActif = true;
+        }
+    }
+
 }

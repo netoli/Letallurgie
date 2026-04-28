@@ -18,6 +18,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class gestionAudio : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class gestionAudio : MonoBehaviour
     [SerializeField] private AudioClip[] musiquesTutoriel;
     [SerializeField] private AudioClip[] musiquesTaverne;
     [SerializeField] private AudioClip[] musiquesUsine;
+    [SerializeField] private AudioClip[] musiquesManoir;
 
     [Header("Parametres")]
     [SerializeField] private float dureeTransition;
@@ -57,7 +59,22 @@ public class gestionAudio : MonoBehaviour
     {
         volumeCible = ObtenirVolumeMusique();
         sourceMusique.volume = volumeCible;
-        JouerMusiquesIntro();
+
+        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+        {
+            JouerMusiquesIntro();
+        } else if (SceneManager.GetActiveScene().name == "SCENE1-Taverne1" || SceneManager.GetActiveScene().name == "SCENE3-Taverne2")
+        {
+            JouerMusiquesTaverne();
+        } else if (SceneManager.GetActiveScene().name == "SCENE2-Usine")
+        {
+            JouerMusiquesUsine();
+        } else if (SceneManager.GetActiveScene().name == "SCENE4-Manoir")
+        {
+            JouerMusiquesManoir();
+        }
+
+
     }
 
     private float ObtenirVolumeMusique()
@@ -98,6 +115,11 @@ public class gestionAudio : MonoBehaviour
     public void JouerMusiquesUsine()
     {
         ChangerPlaylist(musiquesUsine);
+    }
+
+    public void JouerMusiquesManoir()
+    {
+        ChangerPlaylist(musiquesManoir);
     }
 
     private void ChangerPlaylist(AudioClip[] nouvellePlaylist)
