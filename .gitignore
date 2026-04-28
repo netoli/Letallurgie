@@ -100,3 +100,18 @@ InitTestScene*.unity*
 .DS_Store
 .DS_Store
 **/.DS_Store
+
+# Backups Unity automatiques (régénérés au besoin, ne pas versionner)
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+/_Recovery_backup_*/
+
+# Note: /Assets/_Archives/ EST versionné — c'est le trail des déplacements
+# pour permettre la récupération en cas de besoin. Examen puis suppression
+# manuelle par Oli après validation que rien n'est cassé.
+
+# Library backups manuels (resets ponctuels)
+/Library_avant_reset_*/
+
+# Notes et docs perso Oli (Cowork outputs, hors repo équipe)
+/SÉANCE CODAGE/
