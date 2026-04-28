@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections;
+using UnityEngine.SceneManagement;
+
 
 
 public class gestionInputsJeu : MonoBehaviour
@@ -80,7 +82,23 @@ public class gestionInputsJeu : MonoBehaviour
 
     void Start()
     {
-        canvasMenuPause.SetActive(false);
+        // Désactiver le menu principal si on n'est pas dans la scène du menu
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        {
+            if (canvasMenu != null)
+                canvasMenu.SetActive(false);
+
+            ActiverInputs();
+
+            // Activer la caméra première personne par défaut
+            if (vcamJeu != null)
+                vcamJeu.Priority = 50;
+
+            if (vcamMenu != null)
+                vcamMenu.Priority = 10;
+        }
+
+            canvasMenuPause.SetActive(false);
         canvasRetournerMenuPrincipal.SetActive(false);
         canvasQuitter.SetActive(false);
         canvasConfirmerReinitialisation.SetActive(false);

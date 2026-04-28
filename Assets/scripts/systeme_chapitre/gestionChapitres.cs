@@ -20,6 +20,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class gestionChapitres : MonoBehaviour
 {
@@ -28,6 +30,7 @@ public class gestionChapitres : MonoBehaviour
     [Header("References")]
     [SerializeField] private gestionBanniere gestionBanniere;
     [SerializeField] private gestionTutoriel gestionTutoriel;
+    [SerializeField] private VideoPlayer playerCinematiques;
 
     [Header("Chapitres disponibles")]
     [SerializeField] private DonneesChapitre[] chapitres;
@@ -35,6 +38,9 @@ public class gestionChapitres : MonoBehaviour
     private DonneesChapitre chapitreActuel;
     private DonneesTutoriel tutoActuel;
     private HashSet<string> tutosVus = new HashSet<string>();
+
+    [Header("Cinématiques")]
+    [SerializeField] private VideoClip[] cinematique;
 
     // Booléens pour suivre les actions UI (ouverture/fermeture)
     private bool inventaireOuvertAuMoinsUneFois = false;
@@ -56,13 +62,13 @@ public class gestionChapitres : MonoBehaviour
         }
         Instance = this;
 
-        Debug.Log("[Chapitre] Awake - Instance initialisee");
-
         // TEMPORAIRE DEV : efface les tutos vus a chaque lancement
         PlayerPrefs.DeleteKey("tutosVus_");
         PlayerPrefs.Save();
 
         ChargerTutosVus();
+
+
     }
 
     public void DemarrerChapitre(string idChapitre)
@@ -80,6 +86,11 @@ public class gestionChapitres : MonoBehaviour
 
     private IEnumerator SequenceDemarrageChapitre(DonneesChapitre chapitre)
     {
+
+        // Ne pas afficher de tutoriels si on n'est pas dans la scène du menu
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+            yield break;
+
         Debug.Log("[Chapitre] Demarrage: " + chapitre.idChapitre);
 
         yield return new WaitForSecondsRealtime(chapitre.delaiApparitionBanniere);
@@ -158,7 +169,7 @@ public class gestionChapitres : MonoBehaviour
     {
         if (tutoActuel == null) return;
         FermerTutoActuel(true);
-    } 
+    }
 
     public bool TutoEstAffiche()
     {
@@ -167,6 +178,10 @@ public class gestionChapitres : MonoBehaviour
 
     private void AfficherTuto(DonneesTutoriel tuto)
     {
+        // Bloquer le tutoriel quand on n'est pas dans la scène du menu
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+            return;
+
         tutoActuel = tuto;
         gestionTutoriel.AfficherTuto(tuto);
 
@@ -233,6 +248,11 @@ public class gestionChapitres : MonoBehaviour
         else
         {
             Debug.Log("[Chapitre] Aucune étape suivante non vue dans ce chapitre.");
+            // Jouer un son de validation de chapitre
+            // Feedback visuel festif
+
+            // Coroutine pour afficher la cinématique après un délai
+            StartCoroutine(JouerCinematique("cinematique1", 3f));
         }
     }
 
@@ -289,7 +309,47 @@ public class gestionChapitres : MonoBehaviour
         AfficherTuto(tuto);
     }
 
+    public Coroutine LancerCinematiqueAvecDelai(string nomCinematique, float delaiAvantCinematique)
+    {
+        return StartCoroutine(JouerCinematique(nomCinematique, delaiAvantCinematique));
+    }
 
+    public System.Collections.IEnumerator JouerCinematique(string nomCinematique, float delaiAvantCinematique)
+    {
+        yield return new WaitForSecondsRealtime(delaiAvantCinematique);
 
-    
+        // Faire jouer le video player en lui assignant la vidéo correspondante au nomCinematique
+        Debug.Log($"[Chapitre] Lancement cinématique: {nomCinematique}");
+        VideoClip clip = System.Array.Find(cinematique, c => c.name == nomCinematique);
+        if (clip != null)
+        {
+            // Arrêter la musique de fond si elle est encore en train de jouer
+                var musique = FindObjectOfType<gestionAudio>();
+                if (musique != null)
+                    musique.ArreterMusique();
+
+            // 
+
+            playerCinematiques.clip = clip;
+            playerCinematiques.loopPointReached += OnCinematiqueFinie;
+            playerCinematiques.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"[Chapitre] Cinématique introuvable: {nomCinematique}");
+        }
+    }
+
+    private void OnCinematiqueFinie(VideoPlayer vp)
+    {
+        Debug.Log("[Chapitre] Cinématique terminée, retour au jeu");
+        
+        // Reprendre la musique de fond après la cinématique
+        var musique = FindObjectOfType<gestionAudio>();
+        if (musique != null)
+            musique.ReprendreMusique();
+
+        SceneManager.LoadScene("SCENE1-Taverne1");
+    }
+
 }

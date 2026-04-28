@@ -192,4 +192,18 @@ public class gestionAudio : MonoBehaviour
         if (clip != null && sourceSFX != null)
             sourceSFX.PlayOneShot(clip);
     }
+
+   // Mettre la musique sur pause (exemple: pour cinématiques)
+   public void ArreterMusique()
+   {
+       if (sourceMusique != null)
+           sourceMusique.Pause();
+    }
+
+    // Reprendre la musique après une pause
+    public void ReprendreMusique()
+    {
+        if (sourceMusique != null && sourceMusique.clip != null)
+            sourceMusique.UnPause();
+    }
 }

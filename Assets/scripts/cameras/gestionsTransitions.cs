@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
-using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Cinemachine;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 
 public class gestionsTransitions : MonoBehaviour
@@ -80,6 +81,27 @@ public class gestionsTransitions : MonoBehaviour
 
     void Start()
     {
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        {
+            // Désactiver le flou
+            if (gestionFlou != null)
+                gestionFlou.DesactiverFlou();
+
+            // Activer la caméra de jeu
+            if (vcamJeu != null)
+                vcamJeu.Priority = 50;
+
+            if (vcamMenu != null)
+                vcamMenu.Priority = 10;
+
+            // Activer le joueur
+            ActiverJoueur();
+
+            // Désactiver complètement ce script pour éviter qu'il interfère
+            this.enabled = false;
+            return;
+        }
+
         vcamMenu.Priority = 30;
         vcamOptionsCredits.Priority = 20;
         vcamJeu.Priority = 10;

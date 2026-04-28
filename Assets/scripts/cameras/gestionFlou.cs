@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class gestionFlou : MonoBehaviour
 {
@@ -22,6 +23,12 @@ public class gestionFlou : MonoBehaviour
             dof = volumeGlobal.profile.Add<DepthOfField>(true);
 
         dof.mode.Override(DepthOfFieldMode.Bokeh);
+
+        // Désactiver par défaut, sauf dans la scène principale
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        {
+            DesactiverFlou();
+        }
     }
 
     public void ActiverFlou()
