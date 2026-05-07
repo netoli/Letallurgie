@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5559548087385936637}
   - component: {fileID: 8025299499692656199}
   - component: {fileID: 3495326959608711953}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: prefab_vfx_etincelle_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30,7 +30,7 @@ RectTransform:
   m_GameObject: {fileID: 8325441668326873059}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 0.3}
+  m_LocalScale: {x: 2.2, y: 2.1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -48,14 +48,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8325441668326873059}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 3
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -230,7 +230,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.31317276, b: 0.0990566, a: 1}
+      maxColor: {r: 1, g: 0.31317276, b: 0.0990566, a: 0.3529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -294,8 +294,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 30
-      minScalar: 15
+      scalar: 9
+      minScalar: 3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -611,15 +611,15 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 2000
+    maxNumParticles: 1000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.006
-      minScalar: 0.0021
+      scalar: 0.00015
+      minScalar: 0.0001
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -678,8 +678,8 @@ ParticleSystem:
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: -9, y: 0, z: 0}
-    m_Scale: {x: 90, y: 90, z: 0.3}
+    m_Rotation: {x: 9, y: 0, z: 0}
+    m_Scale: {x: 36, y: 21, z: 0.5}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -877,7 +877,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2000
+      scalar: 1000
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4952,7 +4952,7 @@ MonoBehaviour:
   m_IsTrail: 0
   m_IgnoreCanvasScaler: 0
   m_AbsoluteMode: 0
-  m_Scale3D: {x: 1, y: 1, z: 1}
+  m_Scale3D: {x: 1, y: 1, z: 0.5}
   m_AnimatableProperties: []
   m_Particles:
   - {fileID: 2145744272499642264}
@@ -4963,5 +4963,5 @@ MonoBehaviour:
   m_AutoScaling: 0
   m_AutoScalingMode: 0
   m_UseCustomView: 1
-  m_CustomViewSize: 1.5
+  m_CustomViewSize: 6
   m_TimeScaleMultiplier: 1

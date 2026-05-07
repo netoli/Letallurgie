@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5069985300485987008}
   - component: {fileID: 3599851799668345476}
   - component: {fileID: 3753106240773936933}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Flares
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,14 +41,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 138593561551621620}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -222,8 +222,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 0.3529412, b: 0, a: 1}
-      maxColor: {r: 1, g: 0.076913044, b: 0, a: 1}
+      minColor: {r: 1, g: 0.3529412, b: 0, a: 0.23529412}
+      maxColor: {r: 1, g: 0.076913044, b: 0, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4907,7 +4907,7 @@ GameObject:
   - component: {fileID: 1873688495672120298}
   - component: {fileID: 431341152126128437}
   - component: {fileID: 6337972412081573775}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: prefab_vfx_explosion_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4947,8 +4947,8 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3445404674498194155}
   serializedVersion: 8
-  lengthInSec: 0.5
-  simulationSpeed: 1
+  lengthInSec: 1
+  simulationSpeed: 1.2
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
@@ -5075,8 +5075,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 1.5
-      minScalar: 1
+      scalar: 30
+      minScalar: 15
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5129,7 +5129,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.7830189, g: 0.48035994, b: 0.34349412, a: 0.3529412}
+      maxColor: {r: 0.7830189, g: 0.48035994, b: 0.34349412, a: 0.1764706}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5577,8 +5577,8 @@ ParticleSystem:
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 0, y: 180, z: 0}
-    m_Scale: {x: 2.1, y: 0.6, z: 0.5}
+    m_Rotation: {x: -1, y: 0, z: 0}
+    m_Scale: {x: 2, y: 0.9, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -9831,15 +9831,12 @@ MonoBehaviour:
   m_IsTrail: 0
   m_IgnoreCanvasScaler: 0
   m_AbsoluteMode: 0
-  m_Scale3D: {x: 21, y: 21, z: 1.5}
+  m_Scale3D: {x: 32, y: 60, z: 1}
   m_AnimatableProperties: []
   m_Particles:
   - {fileID: 1201268099948108340}
   - {fileID: 5038468380198903379}
   - {fileID: 3599851799668345476}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 3253641887298733773}
   - {fileID: 5335582032740238387}
   - {fileID: 8952159931696610678}
@@ -9851,7 +9848,7 @@ MonoBehaviour:
   m_AutoScaling: 0
   m_AutoScalingMode: 2
   m_UseCustomView: 1
-  m_CustomViewSize: 0.3
+  m_CustomViewSize: 90
   m_TimeScaleMultiplier: 1
 --- !u!1 &4192600309553066095
 GameObject:
@@ -9864,7 +9861,7 @@ GameObject:
   - component: {fileID: 2607197909637432595}
   - component: {fileID: 3253641887298733773}
   - component: {fileID: 558216978050326171}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9894,14 +9891,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4192600309553066095}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -10076,7 +10073,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 0.3529412}
+      maxColor: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -14758,7 +14755,7 @@ GameObject:
   - component: {fileID: 2181684271868460264}
   - component: {fileID: 5038468380198903379}
   - component: {fileID: 6095299997354826891}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Flash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14788,14 +14785,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4194931082425480464}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -14970,7 +14967,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 0.2, g: 0.11372549, b: 0.06666667, a: 1}
-      maxColor: {r: 1, g: 0.08050716, b: 0, a: 1}
+      maxColor: {r: 1, g: 0.08050716, b: 0, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -19652,7 +19649,7 @@ GameObject:
   - component: {fileID: 6249215571696884507}
   - component: {fileID: 6318911338300421703}
   - component: {fileID: 996521278876845488}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Particle System (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19682,14 +19679,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6281535889297342786}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -19864,7 +19861,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.7176471, g: 0.25490198, b: 0.05490196, a: 1}
+      maxColor: {r: 0.7176471, g: 0.25490198, b: 0.05490196, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -24546,7 +24543,7 @@ GameObject:
   - component: {fileID: 6726595609331620583}
   - component: {fileID: 5335582032740238387}
   - component: {fileID: 7197166099744466966}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Particle System (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24576,14 +24573,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6622563241428210736}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -24758,7 +24755,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 1}
+      maxColor: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -29440,7 +29437,7 @@ GameObject:
   - component: {fileID: 8172110035318516964}
   - component: {fileID: 8952159931696610678}
   - component: {fileID: 5027652206392753371}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Particle System (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29470,14 +29467,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7494987464761875340}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 1
   simulationSpeed: 1.5
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 1
@@ -29652,7 +29649,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.3490566, g: 0.18178783, b: 0.103729084, a: 1}
+      maxColor: {r: 0.3490566, g: 0.18178783, b: 0.103729084, a: 0.23529412}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
