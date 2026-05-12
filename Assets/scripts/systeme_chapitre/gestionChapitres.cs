@@ -2,17 +2,17 @@
 // gestionChapitres.cs
 // ------------------------------------------------------------
 // Auteur      : Olivier Vernet
-// Date créé   : 
-// Dernière modification : 28/04/2026 - Fanny Fortier
+// Date crï¿½ï¿½   : 
+// Derniï¿½re modification : 28/04/2026 - Fanny Fortier
 // ------------------------------------------------------------
 // Description :
-//   Gestion centralisée des chapitres et tutoriels.
+//   Gestion centralisï¿½e des chapitres et tutoriels.
 //   Adaptation : prise en charge de deux comportements distincts
 //   pour la progression UI :
-//     - idActionRequise == "jdb_ouvert"  => valider quand le journal a été ouvert ET fermé au moins une fois.
-//     - idActionRequise == "utiliser_objet" => (remplacer par drag and drop) valider quand l'inventaire a été ouvert ET fermé au moins une fois
+//     - idActionRequise == "jdb_ouvert"  => valider quand le journal a ï¿½tï¿½ ouvert ET fermï¿½ au moins une fois.
+//     - idActionRequise == "utiliser_objet" => (remplacer par drag and drop) valider quand l'inventaire a ï¿½tï¿½ ouvert ET fermï¿½ au moins une fois
 // ------------------------------------------------------------
-// Dépendances :
+// Dï¿½pendances :
 //   - gestionTutoriel, gestionBanniere, DonneesChapitre, DonneesTutoriel
 //   - gestionInventaire / UI doivent appeler NotifierInventaireOuvert/Ferme et NotifierJournalOuvert/Ferme
 // ============================================================
@@ -27,6 +27,12 @@ public class gestionChapitres : MonoBehaviour
 {
     public static gestionChapitres Instance { get; private set; }
 
+    // Vrai par defaut pour les scenes hors-tuto. Mis a false dans
+    // DemarrerChapitre (SCENE0) et remis a true quand la premiere
+    // tuile de tuto apparait. Lu par PlayerMovement pour bloquer
+    // le deplacement WASD pendant la banniere/intro.
+    public bool MouvementAutorise { get; private set; } = true;
+
     [Header("References")]
     [SerializeField] private gestionBanniere gestionBanniere;
     [SerializeField] private gestionTutoriel gestionTutoriel;
@@ -39,16 +45,23 @@ public class gestionChapitres : MonoBehaviour
     private DonneesTutoriel tutoActuel;
     private HashSet<string> tutosVus = new HashSet<string>();
 
-    [Header("Cinématiques")]
+    [Header("Cinï¿½matiques")]
     [SerializeField] private VideoClip[] cinematique;
 
-    // Booléens pour suivre les actions UI (ouverture/fermeture)
+    [Header("HUD post-tutoriel")]
+    [Tooltip("GameObject des indices de jouabilite (canvas_hud > " +
+        "contenu_hud > indices_jouabilite). Reste desactive pendant " +
+        "tout le tutoriel et s'active automatiquement quand la " +
+        "cinematique de fin du dernier chapitre se termine.")]
+    [SerializeField] private GameObject indicesJouabilite;
+
+    // Boolï¿½ens pour suivre les actions UI (ouverture/fermeture)
     private bool inventaireOuvertAuMoinsUneFois = false;
     private bool inventaireFermeAuMoinsUneFois = false;
     private bool journalOuvertAuMoinsUneFois = false;
     private bool journalFermeAuMoinsUneFois = false;
 
-    // Flag pour signaler qu'une action "utiliser_objet" a été effectuée.
+    // Flag pour signaler qu'une action "utiliser_objet" a ï¿½tï¿½ effectuï¿½e.
     private bool objetUtiliseSignale = false;
 
     private const string CLE_PLAYERPREFS = "tutosVus_";
@@ -81,13 +94,20 @@ public class gestionChapitres : MonoBehaviour
         }
 
         chapitreActuel = chapitre;
+
+        // Bloquer le deplacement WASD tant que la premiere tuile
+        // de tuto n'est pas affichee (uniquement dans la scene tuto).
+        // Le regard a la souris reste autorise.
+        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+            MouvementAutorise = false;
+
         StartCoroutine(SequenceDemarrageChapitre(chapitre));
     }
 
     private IEnumerator SequenceDemarrageChapitre(DonneesChapitre chapitre)
     {
 
-        // Ne pas afficher de tutoriels si on n'est pas dans la scène du menu
+        // Ne pas afficher de tutoriels si on n'est pas dans la scï¿½ne du menu
         if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
             yield break;
 
@@ -138,31 +158,27 @@ public class gestionChapitres : MonoBehaviour
     }
 
 
-    // Méthode appelée par les objets du Tuto pour signaler qu'une action a été effectuée
+    // Methode appelee par les objets du Tuto pour signaler qu'une
+    // action a ete effectuee (detecteurTuto qui declenche, DialogueTuto
+    // qui termine son etape, objet ramasse, etc.).
     public void SignalerAction(string idAction)
     {
         if (tutoActuel == null) return;
         if (string.IsNullOrEmpty(idAction)) return;
 
-        // si l'action correspond à l'attente du tuto, fermer le tuto.
-        if (!string.IsNullOrEmpty(tutoActuel.idActionRequise) && tutoActuel.idActionRequise == idAction)
+        // Si l'action correspond a l'attente de la tuile actuelle,
+        // la fermer (ce qui declenchera AfficherTuto sur la suivante,
+        // qui verrouillera tous les PNJ et activera le bon).
+        if (!string.IsNullOrEmpty(tutoActuel.idActionRequise)
+            && tutoActuel.idActionRequise == idAction)
         {
             FermerTutoActuel(true);
         }
 
-        // Désactiver l'interaction DialogueTuto après l'avoir signalée 1 fois
-        var dialogues = FindObjectsOfType<DialogueTuto>(true);
-        foreach (var d in dialogues)
-        {
-            if (d.IdAction == idAction)
-            {
-                d.DesactiverInteraction(); // utilise le flag interactionActive existant
-                                           // Désactiver le highlight
-                var highlight = d.GetComponentInParent<gestionHighlightHover>();
-                if (highlight != null) highlight.Highlighter(false);
-            }
-        }
-
+        // NOTE : on NE desactive PLUS d'office les DialogueTuto ici.
+        // Chaque DialogueTuto gere lui-meme son interactionActive
+        // dans EtapeTerminee(). C'est AfficherTuto qui pilote le
+        // verrouillage / deverrouillage selon l'etape attendue.
     }
 
     public void FermerTutoParEsc()
@@ -178,33 +194,55 @@ public class gestionChapitres : MonoBehaviour
 
     private void AfficherTuto(DonneesTutoriel tuto)
     {
-        // Bloquer le tutoriel quand on n'est pas dans la scène du menu
+        // Bloquer le tutoriel quand on n'est pas dans la scï¿½ne du menu
         if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
             return;
+
+        // Des qu'une tuile de tuto s'affiche, autoriser le deplacement
+        // WASD du joueur (le regard a la souris etait deja autorise).
+        MouvementAutorise = true;
 
         tutoActuel = tuto;
         gestionTutoriel.AfficherTuto(tuto);
 
-        // Activation du detecteur correspondant : on désactive tous les detecteurs, puis on
-        // active celui qui correspond à l'idActionRequise (s'il existe).
-        var tous = FindObjectsOfType<detecteurTuto>(true);
-        foreach (var d in tous) d.gameObject.SetActive(false);
+        // ----- Detecteurs (triggers de zone) -----
+        // On desactive tous les detecteurs, puis on active celui qui
+        // correspond a l'idActionRequise (s'il existe).
+        var detecteurs = FindObjectsByType<detecteurTuto>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var d in detecteurs) d.gameObject.SetActive(false);
 
         if (!string.IsNullOrEmpty(tuto.idActionRequise))
         {
-            foreach (var d in tous)
+            foreach (var d in detecteurs)
             {
                 if (d.IdAction == tuto.idActionRequise)
                 {
                     d.gameObject.SetActive(true);
-                    Debug.Log($"[Chapitre] Detecteur activé pour idActionRequise={tuto.idActionRequise} (obj={d.name})");
+                    Debug.Log($"[Chapitre] Detecteur active pour idActionRequise={tuto.idActionRequise} (obj={d.name})");
                     break;
                 }
             }
         }
-        else
+
+        // ----- DialogueTuto (PNJ avec dialogue multi-etapes) -----
+        // Meme logique : tous les PNJ sont verrouilles, puis on
+        // deverrouille celui dont l'IdAction courante matche la tuile.
+        var dialogues = FindObjectsByType<DialogueTuto>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var d in dialogues) d.DesactiverInteraction();
+
+        if (!string.IsNullOrEmpty(tuto.idActionRequise))
         {
-            Debug.Log("[Chapitre] Aucun idActionRequise pour ce tuto — pas de detecteur activé");
+            foreach (var d in dialogues)
+            {
+                if (d.IdAction == tuto.idActionRequise)
+                {
+                    d.ReactiverInteraction();
+                    Debug.Log($"[Chapitre] DialogueTuto deverrouille pour idActionRequise={tuto.idActionRequise} (obj={d.name})");
+                    break;
+                }
+            }
         }
     }
 
@@ -218,7 +256,7 @@ public class gestionChapitres : MonoBehaviour
             SauvegarderTutosVus();
         }
 
-        // Récupérer le id de l'action complétée
+        // Rï¿½cupï¿½rer le id de l'action complï¿½tï¿½e
         string actionFerme = tutoActuel.idActionRequise;
 
         gestionTutoriel.FermerTuto();
@@ -238,22 +276,45 @@ public class gestionChapitres : MonoBehaviour
             }
         }
 
-        // Délai pour laisser du temps au fade out
+        // Dï¿½lai pour laisser du temps au fade out
         if (prochain != null)
         {
-            Debug.Log($"[Chapitre] Passage à la prochaine étape: {prochain.idDeclencheur}");
+            Debug.Log($"[Chapitre] Passage ï¿½ la prochaine ï¿½tape: {prochain.idDeclencheur}");
             // Petite attente pour laisser le fade out se faire
             StartCoroutine(AfficherProchainTutoApresDelai(prochain, 0.25f));
         }
         else
         {
-            Debug.Log("[Chapitre] Aucune étape suivante non vue dans ce chapitre.");
-            // Jouer un son de validation de chapitre
-            // Feedback visuel festif
+            Debug.Log("[Chapitre] Aucune etape suivante non vue dans ce chapitre.");
 
-            // Coroutine pour afficher la cinématique après un délai
-            StartCoroutine(JouerCinematique("cinematique1", 3f));
+            // S'il y a un prochain chapitre, l'enchainer (sa banniere
+            // s'affichera). Sinon, jouer la cinematique de fin.
+            if (chapitreActuel.prochainChapitre != null)
+            {
+                Debug.Log($"[Chapitre] Enchainement vers: {chapitreActuel.prochainChapitre.idChapitre}");
+                StartCoroutine(EnchainerChapitreApresDelai(
+                    chapitreActuel.prochainChapitre,
+                    chapitreActuel.delaiAvantProchainChapitre));
+            }
+            else
+            {
+                string nomCine = string.IsNullOrEmpty(chapitreActuel.nomCinematiqueAuFin)
+                    ? "cinematique1"
+                    : chapitreActuel.nomCinematiqueAuFin;
+                Debug.Log($"[Chapitre] Lancement cinematique de fin: {nomCine}");
+                StartCoroutine(JouerCinematique(nomCine, 3f));
+            }
         }
+    }
+
+    // Enchaine un nouveau chapitre apres un delai, en passant par la
+    // sequence normale (banniere + delai + premier tuto).
+    private IEnumerator EnchainerChapitreApresDelai(DonneesChapitre suivant, float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+
+        chapitreActuel = suivant;
+        StartCoroutine(SequenceDemarrageChapitre(suivant));
     }
 
     private DonneesChapitre TrouverChapitre(string id)
@@ -302,7 +363,7 @@ public class gestionChapitres : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // Affiche le prochain tuto après un délai
+    // Affiche le prochain tuto aprï¿½s un dï¿½lai
     private System.Collections.IEnumerator AfficherProchainTutoApresDelai(DonneesTutoriel tuto, float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
@@ -318,14 +379,14 @@ public class gestionChapitres : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delaiAvantCinematique);
 
-        // Faire jouer le video player en lui assignant la vidéo correspondante au nomCinematique
-        Debug.Log($"[Chapitre] Lancement cinématique: {nomCinematique}");
+        // Faire jouer le video player en lui assignant la vidï¿½o correspondante au nomCinematique
+        Debug.Log($"[Chapitre] Lancement cinï¿½matique: {nomCinematique}");
         VideoClip clip = System.Array.Find(cinematique, c => c.name == nomCinematique);
         if (clip != null)
         {
             FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(true);
 
-            // Arrêter la musique de fond si elle est encore en train de jouer
+            // Arrï¿½ter la musique de fond si elle est encore en train de jouer
             var musique = FindObjectOfType<gestionAudio>();
                 if (musique != null)
                     musique.ArreterMusique();
@@ -336,20 +397,30 @@ public class gestionChapitres : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[Chapitre] Cinématique introuvable: {nomCinematique}");
+            Debug.LogWarning($"[Chapitre] Cinï¿½matique introuvable: {nomCinematique}");
         }
     }
 
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
-        Debug.Log("[Chapitre] Cinématique terminée, retour au jeu");
+        Debug.Log("[Chapitre] Cinematique terminee, retour au jeu");
 
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
 
-        // Reprendre la musique de fond après la cinématique
+        // Reprendre la musique de fond apres la cinematique
         var musique = FindObjectOfType<gestionAudio>();
         if (musique != null)
             musique.ReprendreMusique();
+
+        // Le tutoriel est complete : on active les indices de
+        // jouabilite (UI persistante du HUD) pour le vrai gameplay.
+        // Comme le GameObject vit dans --DONTDESTROYONLOAD, il
+        // reste actif apres le LoadScene.
+        if (indicesJouabilite != null)
+        {
+            indicesJouabilite.SetActive(true);
+            Debug.Log("[Chapitre] indices_jouabilite active.");
+        }
 
         SceneManager.LoadScene("SCENE1-Taverne1");
         gestionAudio.Instance.JouerMusiquesTaverne();

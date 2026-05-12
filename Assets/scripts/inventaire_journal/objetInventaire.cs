@@ -2,16 +2,16 @@
 // objetInventaire.cs
 // ------------------------------------------------------------
 // Auteur      : Olivier Vernet
-// Date créé   : 
-// Dernière modification : 25/04/2026 - Fanny Fortier
+// Date crï¿½ï¿½   : 
+// Derniï¿½re modification : 25/04/2026 - Fanny Fortier
 // ------------------------------------------------------------
 // Description :
-//   ScriptableObject décrivant un item d'inventaire.
-//   Ajout d'un champ prefab3D pour permettre de ré-instancier
+//   ScriptableObject dï¿½crivant un item d'inventaire.
+//   Ajout d'un champ prefab3D pour permettre de rï¿½-instancier
 //   l'objet dans le monde lors d'un drop depuis l'UI.(Interaction Drag and drop)
 // ------------------------------------------------------------
-// Dépendances :
-//   - utilisé par objetRamassable / gestionInventaire
+// Dï¿½pendances :
+//   - utilisï¿½ par objetRamassable / gestionInventaire
 // ============================================================
 
 using UnityEngine;
@@ -26,7 +26,7 @@ public class objetInventaire : ScriptableObject
     public int quantiteMax;
 
     [Header("Prefab 3D")]
-    [Tooltip("Prefab 3D à instancier dans le monde quand l'objet est dragged depuis l'inventaire")]
+    [Tooltip("Prefab 3D ï¿½ instancier dans le monde quand l'objet est dragged depuis l'inventaire")]
     public GameObject prefab3D;
     [Tooltip("Identifiant unique")]
     public string id;
@@ -34,8 +34,7 @@ public class objetInventaire : ScriptableObject
 
 public enum CategorieObjet
 {
+    Tuto,
     Tuyaux,
-    Morse,
-    Cartographie,
     Alchimie
 }

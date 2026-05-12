@@ -24,8 +24,6 @@ public class gestionTutoriel : MonoBehaviour
     public event Action<DonneesTutoriel> OnTutoFerme;
 
     private DonneesTutoriel tutoActuel;
-    private float tempsAffichage;
-    private Coroutine coroutineMaximum;
     private Coroutine coroutineFade;
 
     void Awake()
@@ -40,7 +38,7 @@ public class gestionTutoriel : MonoBehaviour
         DesactiverBrouillardSecurise();
     }
 
-    // -------- AFFICHAGE GÉNÉRAL --------
+    // -------- AFFICHAGE Gï¿½Nï¿½RAL --------
     public void AfficherTuto(DonneesTutoriel tuto)
     {
         if (tuto == null) return;
@@ -48,7 +46,6 @@ public class gestionTutoriel : MonoBehaviour
         Debug.Log("[Tutoriel] AfficherTuto recu: " + tuto.titre);
 
         tutoActuel = tuto;
-        tempsAffichage = 0f;
 
         if (texteTitre != null) texteTitre.text = tuto.titre;
         if (texteExplication != null) texteExplication.text = tuto.explication;
@@ -79,16 +76,7 @@ public class gestionTutoriel : MonoBehaviour
             StopCoroutine(coroutineFade);
         coroutineFade = StartCoroutine(FadeInPuisBrouillard());
 
-        if (coroutineMaximum != null)
-            StopCoroutine(coroutineMaximum);
-
-        // Lancer seulement si dureeMaximum > 0
-        if (tuto.dureeMaximum > 0f)
-            coroutineMaximum = StartCoroutine(FermerApresDureeMaximum(tuto.dureeMaximum));
-        else
-            coroutineMaximum = null;
-
-        // Notifier les abonnés (gestionChapitres pourra activer le detecteur correspondant)
+        // Notifier les abonnes (gestionChapitres pourra activer le detecteur correspondant)
         OnTutoAffiche?.Invoke(tutoActuel);
     }
 
@@ -97,9 +85,6 @@ public class gestionTutoriel : MonoBehaviour
         if (tutoActuel == null) return;
 
         Debug.Log("[Tutoriel] FermerTuto");
-
-        if (coroutineMaximum != null)
-            StopCoroutine(coroutineMaximum);
 
         // Notifier avant de nuller
         OnTutoFerme?.Invoke(tutoActuel);
@@ -111,18 +96,6 @@ public class gestionTutoriel : MonoBehaviour
         if (coroutineFade != null)
             StopCoroutine(coroutineFade);
         coroutineFade = StartCoroutine(FadeOut());
-    }
-
-    public bool PeutEtreFermeParAction()
-    {
-        if (tutoActuel == null) return false;
-        return tempsAffichage >= tutoActuel.dureeMinimum;
-    }
-
-    void Update()
-    {
-        if (tutoActuel != null)
-            tempsAffichage += Time.deltaTime;
     }
 
     // Brouillard
@@ -174,12 +147,4 @@ public class gestionTutoriel : MonoBehaviour
         }
     }
 
-    // Timer de fermeture automatique après la durée maximum
-    private IEnumerator FermerApresDureeMaximum(float duree)
-    {
-        Debug.Log($"[Tutoriel] FermerApresDureeMaximum attendu: {duree} s");
-        yield return new WaitForSeconds(duree);
-        if (tutoActuel != null)
-            FermerTuto();
-    }
 }

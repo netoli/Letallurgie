@@ -17,5 +17,3 @@ MonoBehaviour:
   titre: "Se d\xE9placer"
   explication: "D\xE9place-toi avec WASD et oriente la vue avec la souris."
   image: {fileID: 21300000, guid: 18b51c816d733408198ee129067f97b2, type: 3}
-  dureeMinimum: 3
-  dureeMaximum: 0

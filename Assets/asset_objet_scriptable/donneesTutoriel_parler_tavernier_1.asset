@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
-  m_Name: donneesTutoriel_utiliser_objet
+  m_Name: donneesTutoriel_parler_tavernier_1
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
-  idDeclencheur: utiliser_objet
-  idActionRequise: objet_utilise
-  titre: Utiliser un objet
-  explication: "Ouvre l'inventaire en pressant I. C'est ici que tu pourras drag and
-    drop ton objet dans la sc\xE8ne pour l'utiliser."
-  image: {fileID: 21300000, guid: 510bf4090227f614f9f4efa4395367b0, type: 3}
+  idDeclencheur: parler_tavernier_1
+  idActionRequise: dialogue_tav1_debute
+  titre: Parler au tavernier
+  explication: "Clique sur le tavernier pour entamer la conversation."
+  image: {fileID: 0}

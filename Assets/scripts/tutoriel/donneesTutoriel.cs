@@ -21,10 +21,7 @@ public class DonneesTutoriel : ScriptableObject
 
     public Sprite image;
 
-    [Header("Timing")]
-    [Tooltip("Durée minimum d'affichage en secondes (pour laisser le temps de lire)")]
-    public float dureeMinimum = 3f;
-
-    [Tooltip("Durée maximum d'affichage en secondes (si le joueur ne fait jamais l'action)")]
-    public float dureeMaximum = 30f;
+    // Les anciens champs dureeMinimum / dureeMaximum ont ete retires :
+    // chaque tuile reste affichee jusqu'a ce que le joueur fasse l'action
+    // demandee (ou appuie sur ESC pour la fermer manuellement).
 }

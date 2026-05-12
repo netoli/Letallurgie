@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
   m_Name: donneesTutoriel_ramasser
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
-  idDeclencheur: ramasser_objet
-  idActionRequise: objet_ramasse
-  titre: 'Ramasser un objet '
-  explication: Quand le pointeur change, clique gauche pour prendre.
+  idDeclencheur: ramasser_bouteille
+  idActionRequise: bouteille_ramassee
+  titre: Ramasser une bouteille
+  explication: "Clique gauche sur la bouteille pour la ramasser."
   image: {fileID: 21300000, guid: a3c065dff05ba4887870cdbbc9c09b34, type: 3}
-  dureeMinimum: 3
-  dureeMaximum: 10

@@ -172,10 +172,10 @@ MonoBehaviour:
   nombreParticulesBurst: 300
   echelleSurvol: 1.15
   vitesseTransition: 8
-  sonSurvol: {fileID: 0}
-  sonClic: {fileID: 0}
-  volumeSurvol: 0
-  volumeClic: 0
+  sonSurvol: {fileID: 8300000, guid: e80ffa0f1fb154b7ca8fb9e44e0aeb08, type: 3}
+  sonClic: {fileID: 8300000, guid: b62fffa0fac5546ec9d46c367cccbd87, type: 3}
+  volumeSurvol: 0.003
+  volumeClic: 0.0045
   texteIndicateur: {fileID: 0}
   texteBouton: {fileID: 0}
   couleurNormale: {r: 0, g: 0, b: 0, a: 0}

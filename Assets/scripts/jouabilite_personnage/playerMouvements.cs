@@ -9,7 +9,6 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private Animator animator;
-    private bool deplacementSignale;
 
     void Start()
     {
@@ -25,17 +24,28 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current == null) return;
         if (controller == null || !controller.enabled) return;
 
+        // Tant que la premiere tuile de tuto n'est pas affichee
+        // (banniere de chapitre, delais d'intro), on ignore les
+        // touches de deplacement. Le regard a la souris reste libre
+        // (gere par mouseLook / CinemachineInputAxisController).
+        bool deplacementBloque =
+            gestionChapitres.Instance != null
+            && !gestionChapitres.Instance.MouvementAutorise;
+
         float x = 0f;
         float z = 0f;
 
-        if (Keyboard.current.dKey.isPressed
-            || Keyboard.current.rightArrowKey.isPressed) x += 1f;
-        if (Keyboard.current.aKey.isPressed
-            || Keyboard.current.leftArrowKey.isPressed) x -= 1f;
-        if (Keyboard.current.wKey.isPressed
-            || Keyboard.current.upArrowKey.isPressed) z += 1f;
-        if (Keyboard.current.sKey.isPressed
-            || Keyboard.current.downArrowKey.isPressed) z -= 1f;
+        if (!deplacementBloque)
+        {
+            if (Keyboard.current.dKey.isPressed
+                || Keyboard.current.rightArrowKey.isPressed) x += 1f;
+            if (Keyboard.current.aKey.isPressed
+                || Keyboard.current.leftArrowKey.isPressed) x -= 1f;
+            if (Keyboard.current.wKey.isPressed
+                || Keyboard.current.upArrowKey.isPressed) z += 1f;
+            if (Keyboard.current.sKey.isPressed
+                || Keyboard.current.downArrowKey.isPressed) z -= 1f;
+        }
 
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;
@@ -58,13 +68,10 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("strafeDroit", x > 0.1f && enMarche);
         }
 
-        // Signale l'action deplacement (une seule fois)
-        if (enMarche && !deplacementSignale)
-        {
-            deplacementSignale = true;
-            if (gestionChapitres.Instance != null)
-                gestionChapitres.Instance.SignalerAction(
-                    "deplacement");
-        }
+        // NOTE : on NE signale PLUS automatiquement "deplacement" ici.
+        // C'est le detecteurTuto place au pointeur (devant le bar) qui
+        // doit fermer la tuile #1 quand le joueur l'atteint. Sinon la
+        // tuile se fermait des le premier pas, avant que le joueur
+        // n'arrive a la cible.
     }
 }

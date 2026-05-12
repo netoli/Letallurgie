@@ -5,11 +5,11 @@
 // Date        : 22/04/2026
 // ------------------------------------------------------------
 // Description :
-//   Attaché sur la caméra first person. Au clic gauche, envoie
-//   un raycast depuis le centre de l'écran. Si l'objet touché
-//   a le tag "indice" ou "obj_int", appelle la méthode de ramassage
+//   Attachï¿½ sur la camï¿½ra first person. Au clic gauche, envoie
+//   un raycast depuis le centre de l'ï¿½cran. Si l'objet touchï¿½
+//   a le tag "indice" ou "obj_int", appelle la mï¿½thode de ramassage
 // ------------------------------------------------------------
-// Dépendances :
+// Dï¿½pendances :
 //   - RamasserIndice.cs
 // ============================================================
 
@@ -20,12 +20,12 @@ using UnityEngine.InputSystem;
 public class gestionInteractionClic : MonoBehaviour
 {
 
-    [Header("Paramètres")]
+    [Header("Paramï¿½tres")]
     [SerializeField] private float distObjet = 3f;
     [SerializeField] private LayerMask coucheObjet;
     [Header("Render")]
     [SerializeField] private Camera cam;
-    [Header("Interactivité")]
+    [Header("Interactivitï¿½")]
     [SerializeField] private gestionPointeur pointeur;
 
     private RamasserIndice _indiceVise;
@@ -60,7 +60,7 @@ public class gestionInteractionClic : MonoBehaviour
 
     private void _DetecterObjet()
     {
-        // Raycast du centre vers l'objet visé
+        // Raycast du centre vers l'objet visï¿½
         Ray rayon = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
 
@@ -70,7 +70,7 @@ public class gestionInteractionClic : MonoBehaviour
             gestionHighlightHover highlight = impact.collider.GetComponentInParent<gestionHighlightHover>();
             if (highlight != null)
             {
-                // Si on change d'objet visé, on enlève l'ancien highlight
+                // Si on change d'objet visï¿½, on enlï¿½ve l'ancien highlight
                 if (_highlightVise != highlight)
                 {
                     if (_highlightVise != null)
@@ -90,7 +90,7 @@ public class gestionInteractionClic : MonoBehaviour
                 }
             }
 
-            //Débug console pour vérifier que le raycast touche un objet
+            //Dï¿½bug console pour vï¿½rifier que le raycast touche un objet
             //Debug.Log("Raycast touche : " + impact.collider.name + " | Tag : " + impact.collider.tag);
 
             string tag = impact.collider.tag;
@@ -112,21 +112,24 @@ public class gestionInteractionClic : MonoBehaviour
                 _tavernierVise = null;
                 pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
             }
-            else if (tag == "tavernier")
+            else if (tag == "tavernier" || tag == "pnj")
             {
                 _tavernierVise = impact.collider.GetComponentInParent<DialogueTuto>();
                 _indiceVise = null;
                 _objetVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.PNJ);
                 _highlightVise?.Highlighter(true);
             }
-
             else
             {
+                // Catch-all : tout autre objet de la scene (mur,
+                // meuble, decor, pointeur tuto visuel, etc.) affiche
+                // le pointeur Mecanique. Seul le "rien-en-face" du
+                // raycast (branche else plus bas) reste en Defaut.
                 _indiceVise = null;
                 _objetVise = null;
                 _tavernierVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
+                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Mecanique);
             }
         }
         else

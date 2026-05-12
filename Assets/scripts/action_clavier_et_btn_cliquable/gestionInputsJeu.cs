@@ -82,7 +82,7 @@ public class gestionInputsJeu : MonoBehaviour
 
     void Start()
     {
-        // Désactiver le menu principal si on n'est pas dans la scène du menu
+        // Dï¿½sactiver le menu principal si on n'est pas dans la scï¿½ne du menu
         if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
         {
             if (canvasMenu != null)
@@ -90,7 +90,7 @@ public class gestionInputsJeu : MonoBehaviour
 
             ActiverInputs();
 
-            // Activer la caméra première personne par défaut
+            // Activer la camï¿½ra premiï¿½re personne par dï¿½faut
             if (vcamJeu != null)
                 vcamJeu.Priority = 50;
 
@@ -396,7 +396,16 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // Priorite au tuto affiche
+            // Priorite #1 : si un dialogue est en train de defiler,
+            // ESC saute la ligne courante (le joueur a deja lu).
+            if (DialogueTuto.DialogueActif != null
+                && DialogueTuto.DialogueActif.DialogueEnCours)
+            {
+                DialogueTuto.DialogueActif.SkipLigneCourante();
+                return;
+            }
+
+            // Priorite #2 : si un tuto (tuile) est affiche, ESC le ferme.
             if (gestionChapitres.Instance != null
                 && gestionChapitres.Instance.TutoEstAffiche())
             {
@@ -703,7 +712,7 @@ public class gestionInputsJeu : MonoBehaviour
         StartCoroutine(DesactiverApresDelai(
             canvasJournal, delaiEffets));
 
-        // Détection d'action - Tutoriel (Fermer journal)
+        // Dï¿½tection d'action - Tutoriel (Fermer journal)
         if (gestionChapitres.Instance != null)
             gestionChapitres.Instance.SignalerAction("jdb_ouvert");
 
@@ -748,7 +757,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         ensembleMenuInventaire.SetActive(false);
 
-        // Détection d'action - Tutoriel (Fermer inventaire)
+        // Dï¿½tection d'action - Tutoriel (Fermer inventaire)
         if (gestionChapitres.Instance != null)
             gestionChapitres.Instance.SignalerAction("objet_utilise");
 
@@ -1112,7 +1121,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         if (actif)
         {
-            // Désactiver curseur
+            // Dï¿½sactiver curseur
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             var pointeur = FindObjectOfType<gestionPointeur>(true);
@@ -1127,7 +1136,7 @@ public class gestionInputsJeu : MonoBehaviour
         }
         else
         {
-            // Réactiver curseur
+            // Rï¿½activer curseur
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             var pointeur = FindObjectOfType<gestionPointeur>(true);
@@ -1137,7 +1146,7 @@ public class gestionInputsJeu : MonoBehaviour
             if (testP != null)
                 testP.enabled = true;
 
-            // Réactiver inputs
+            // Rï¿½activer inputs
             jeuActif = true;
         }
     }

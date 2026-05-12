@@ -2,17 +2,21 @@
 // gestionAudio.cs
 // ------------------------------------------------------------
 // Auteur      : Fanny Fortier
-// Date cr��   : 07/04/2026
-// Modifi� par Olivier V. le 13/04/2026
+// Date créée  : 07/04/2026
+// Modifié par Olivier V. le 13/04/2026
+// Modifié par Olivier V. le 11/05/2026 : volume individuel par piste
 // ------------------------------------------------------------
 // Description :
-//   G�re la musique d'ambiance et les effets sonores du jeu. Permet
-//   de jouer des musiques sp�cifiques pour diff�rentes sc�nes et
-//   de jouer des effets sonores ponctuels. JouerSFX est appel� dans RamasserIndice
+//   Gère la musique d'ambiance et les effets sonores du jeu. Permet
+//   de jouer des musiques spécifiques pour différentes scènes et
+//   de jouer des effets sonores ponctuels. Chaque piste musicale
+//   possède son propre multiplicateur de volume réglable dans
+//   l'inspecteur pour créer de l'intensité sonore (ex.: menu tamisé,
+//   musique de jeu plus forte). JouerSFX est appelé dans RamasserIndice.
 // ------------------------------------------------------------
-// D�pendances :
-//   - gestionOptionsAudio.cs : pour obtenir les r�glages de volume
-//   - PlayerPrefs : pour sauvegarder et charger les r�glages de volume
+// Dépendances :
+//   - gestionOptionsAudio.cs : pour obtenir les réglages de volume
+//   - PlayerPrefs : pour sauvegarder et charger les réglages de volume
 // ============================================================
 
 using UnityEngine;
@@ -24,23 +28,36 @@ public class gestionAudio : MonoBehaviour
 {
     public static gestionAudio Instance;
 
+    // Représente une piste musicale avec son propre volume relatif.
+    // Le volume final = volumeSlider * volumeMax * piste.volume
+    [System.Serializable]
+    public class PisteMusique
+    {
+        public AudioClip clip;
+        [Range(0f, 1f)]
+        [Tooltip("Volume relatif de cette piste (multiplicateur). " +
+                 "1 = volume normal, 0.3 = tamisé, 0 = muet.")]
+        public float volume = 1f;
+    }
+
     [Header("Audio Sources")]
     [SerializeField] private AudioSource sourceMusique;
     [SerializeField] private AudioSource sourceSFX;
 
     [Header("Musiques")]
-    [SerializeField] private AudioClip[] musiquesIntro;
-    [SerializeField] private AudioClip[] musiquesTutoriel;
-    [SerializeField] private AudioClip[] musiquesTaverne;
-    [SerializeField] private AudioClip[] musiquesUsine;
-    [SerializeField] private AudioClip[] musiquesManoir;
+    [SerializeField] private PisteMusique[] musiquesIntro;
+    [SerializeField] private PisteMusique[] musiquesTutoriel;
+    [SerializeField] private PisteMusique[] musiquesTaverne;
+    [SerializeField] private PisteMusique[] musiquesUsine;
+    [SerializeField] private PisteMusique[] musiquesManoir;
 
     [Header("Parametres")]
     [SerializeField] private float dureeTransition;
     [SerializeField][Range(0f, 1f)] private float volumeMax;
 
     private Coroutine transitionEnCours;
-    private AudioClip[] playlistActuelle;
+    private PisteMusique[] playlistActuelle;
+    private PisteMusique pisteActuelle;
     private List<int> indexRestants = new List<int>();
     private float volumeCible;
 
@@ -57,7 +74,7 @@ public class gestionAudio : MonoBehaviour
 
     void Start()
     {
-        volumeCible = ObtenirVolumeMusique();
+        volumeCible = ObtenirVolumeBase();
         sourceMusique.volume = volumeCible;
 
         if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
@@ -73,11 +90,28 @@ public class gestionAudio : MonoBehaviour
         {
             JouerMusiquesManoir();
         }
-
-
     }
 
-    private float ObtenirVolumeMusique()
+    // Synchronise en continu le volume de l'AudioSource avec le volume
+    // cible calculé (slider × volumeMax × piste.volume). Permet de
+    // modifier le volume d'une piste en direct depuis l'inspecteur
+    // ou via les sliders du menu d'options, sans attendre la
+    // prochaine transition de piste.
+    void Update()
+    {
+        if (sourceMusique == null || pisteActuelle == null) return;
+
+        volumeCible = CalculerVolumeCible(pisteActuelle);
+
+        // Pendant un fondu, la coroutine FondreVers contrôle elle-même
+        // sourceMusique.volume en lisant volumeCible — on ne touche pas
+        // à la source pour ne pas casser le lerp.
+        if (transitionEnCours == null)
+            sourceMusique.volume = volumeCible;
+    }
+
+    // Volume de base partagé : slider utilisateur * volumeMax global.
+    private float ObtenirVolumeBase()
     {
         gestionOptionsAudio options =
             FindFirstObjectByType<gestionOptionsAudio>();
@@ -90,9 +124,16 @@ public class gestionAudio : MonoBehaviour
         return slider * volumeMax;
     }
 
+    // Volume cible pour une piste spécifique (applique le multiplicateur de la piste).
+    private float CalculerVolumeCible(PisteMusique piste)
+    {
+        float multiplicateur = (piste != null) ? piste.volume : 1f;
+        return ObtenirVolumeBase() * multiplicateur;
+    }
+
     public void MettreAJourVolume()
     {
-        volumeCible = ObtenirVolumeMusique();
+        volumeCible = CalculerVolumeCible(pisteActuelle);
         if (transitionEnCours == null)
             sourceMusique.volume = volumeCible;
     }
@@ -122,7 +163,7 @@ public class gestionAudio : MonoBehaviour
         ChangerPlaylist(musiquesManoir);
     }
 
-    private void ChangerPlaylist(AudioClip[] nouvellePlaylist)
+    private void ChangerPlaylist(PisteMusique[] nouvellePlaylist)
     {
         if (nouvellePlaylist == null
             || nouvellePlaylist.Length == 0) return;
@@ -134,9 +175,8 @@ public class gestionAudio : MonoBehaviour
         if (transitionEnCours != null)
             StopCoroutine(transitionEnCours);
 
-        volumeCible = ObtenirVolumeMusique();
         transitionEnCours = StartCoroutine(
-            FondreVers(ProchainClip()));
+            FondreVers(ProchainePiste()));
     }
 
     private void MelangerPlaylist()
@@ -154,7 +194,7 @@ public class gestionAudio : MonoBehaviour
         }
     }
 
-    private AudioClip ProchainClip()
+    private PisteMusique ProchainePiste()
     {
         if (indexRestants.Count == 0)
             MelangerPlaylist();
@@ -164,12 +204,13 @@ public class gestionAudio : MonoBehaviour
         return playlistActuelle[index];
     }
 
-    private IEnumerator FondreVers(AudioClip nouvelleMusique)
+    private IEnumerator FondreVers(PisteMusique nouvellePiste)
     {
-        if (nouvelleMusique == null) yield break;
+        if (nouvellePiste == null || nouvellePiste.clip == null) yield break;
 
         float volumeDepart = sourceMusique.volume;
 
+        // Fondu sortant de la piste précédente
         float temps = 0f;
         while (temps < dureeTransition)
         {
@@ -180,10 +221,15 @@ public class gestionAudio : MonoBehaviour
         }
 
         sourceMusique.volume = 0f;
-        sourceMusique.clip = nouvelleMusique;
+        sourceMusique.clip = nouvellePiste.clip;
         sourceMusique.loop = false;
         sourceMusique.Play();
 
+        // Calculer le volume cible avec le multiplicateur de la nouvelle piste
+        pisteActuelle = nouvellePiste;
+        volumeCible = CalculerVolumeCible(pisteActuelle);
+
+        // Fondu entrant vers le volume cible de cette piste
         temps = 0f;
         while (temps < dureeTransition)
         {
@@ -196,7 +242,7 @@ public class gestionAudio : MonoBehaviour
         sourceMusique.volume = volumeCible;
         transitionEnCours = null;
 
-        float attente = nouvelleMusique.length - dureeTransition;
+        float attente = nouvellePiste.clip.length - dureeTransition;
         float tempsEcoule = 0f;
         while (tempsEcoule < attente)
         {
@@ -205,7 +251,7 @@ public class gestionAudio : MonoBehaviour
         }
 
         transitionEnCours = StartCoroutine(
-            FondreVers(ProchainClip()));
+            FondreVers(ProchainePiste()));
     }
 
     // Jouer les effets sonores d'interaction objet
@@ -215,14 +261,14 @@ public class gestionAudio : MonoBehaviour
             sourceSFX.PlayOneShot(clip);
     }
 
-   // Mettre la musique sur pause (exemple: pour cin�matiques)
-   public void ArreterMusique()
-   {
-       if (sourceMusique != null)
-           sourceMusique.Pause();
+    // Mettre la musique sur pause (exemple: pour cinématiques)
+    public void ArreterMusique()
+    {
+        if (sourceMusique != null)
+            sourceMusique.Pause();
     }
 
-    // Reprendre la musique apr�s une pause
+    // Reprendre la musique après une pause
     public void ReprendreMusique()
     {
         if (sourceMusique != null && sourceMusique.clip != null)

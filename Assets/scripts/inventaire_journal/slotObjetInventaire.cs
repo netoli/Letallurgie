@@ -16,20 +16,22 @@ public class slotObjetInventaire : MonoBehaviour
 
         if (iconeObjet != null)
         {
-
             iconeObjet.sprite = objet.icone;
 
             Debug.Log($"Configurer: objet={objet.nomObjet} sprite={(objet.icone != null ? objet.icone.name : "NULL")}");
-            iconeObjet.SetNativeSize();
+
+            // On NE force PLUS SetNativeSize() : sinon l'Image prend
+            // la resolution pixel du sprite (ex: 512x512) au lieu de
+            // la taille definie dans le prefab du slot. Pour garder
+            // les proportions de l'icone, coche "Preserve Aspect"
+            // sur le composant Image du prefab slot dans l'Inspector.
 
             MettreAJourQuantite(quantite);
-
         }
         else
         {
             Debug.LogWarning("Configurer: iconeObjet est null");
         }
-
     }
     public void MettreAJourQuantite(int quantite)
     {

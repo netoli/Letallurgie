@@ -14,8 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
   idDeclencheur: sauvegarder
   idActionRequise: sauvegarde_faite
-  titre: 'Sauvegarder '
+  titre: Sauvegarder
   explication: Appuie sur K pour sauvegarder rapidement, ou passe par le menu pause.
   image: {fileID: 21300000, guid: 252d5fb27f59b4ef1b33adf6a8895f8c, type: 3}
-  dureeMinimum: 3
-  dureeMaximum: 9

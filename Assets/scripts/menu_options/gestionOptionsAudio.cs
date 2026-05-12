@@ -255,6 +255,12 @@ public class gestionOptionsAudio : MonoBehaviour
         {
             AudioListener.volume = general;
         }
+
+        // Notifier la musique d'ambiance en cours de lecture pour qu'elle
+        // applique immédiatement le nouveau volume (sinon il faudrait
+        // attendre la prochaine transition de piste).
+        if (gestionAudio.Instance != null)
+            gestionAudio.Instance.MettreAJourVolume();
     }
 
     public float ObtenirVolumeGeneral()

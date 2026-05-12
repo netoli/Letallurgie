@@ -9,9 +9,10 @@ public class gestionAffichageInventaire : MonoBehaviour
     [SerializeField] private GameObject prefabSlot;
 
     [Header("Onglets")]
+    [Tooltip("Onglet tutoriel (visible uniquement pendant la sequence " +
+        "tuto si le joueur a un objet de categorie Tuto dans son inventaire).")]
+    [SerializeField] private Button ongletTuto;
     [SerializeField] private Button ongletTuyaux;
-    [SerializeField] private Button ongletMorse;
-    [SerializeField] private Button ongletCartographie;
     [SerializeField] private Button ongletAlchimie;
 
     [Header("Scroll")]
@@ -23,19 +24,20 @@ public class gestionAffichageInventaire : MonoBehaviour
     [Header("Indicateur HUD")]
     [SerializeField] private TMPro.TMP_Text texteNombreObjetsHud;
 
-    private CategorieObjet categorieActuelle = CategorieObjet.Tuyaux;
+    private CategorieObjet categorieActuelle = CategorieObjet.Tuto;
     private List<GameObject> slotsInstancies = new List<GameObject>();
 
     void Start()
     {
-        ongletTuyaux.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Tuyaux));
-        ongletMorse.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Morse));
-        ongletCartographie.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Cartographie));
-        ongletAlchimie.onClick.AddListener(
-            () => ChangerCategorie(CategorieObjet.Alchimie));
+        if (ongletTuto != null)
+            ongletTuto.onClick.AddListener(
+                () => ChangerCategorie(CategorieObjet.Tuto));
+        if (ongletTuyaux != null)
+            ongletTuyaux.onClick.AddListener(
+                () => ChangerCategorie(CategorieObjet.Tuyaux));
+        if (ongletAlchimie != null)
+            ongletAlchimie.onClick.AddListener(
+                () => ChangerCategorie(CategorieObjet.Alchimie));
 
         flecheGauche.onClick.AddListener(DefilerGauche);
         flecheDroite.onClick.AddListener(DefilerDroite);
@@ -109,6 +111,22 @@ public class gestionAffichageInventaire : MonoBehaviour
 
     public void RafraichirAffichage()
     {
+        // 1. Mettre a jour la visibilite des onglets selon leur contenu
+        MettreAJourVisibiliteOnglets();
+
+        // 2. Si la categorie actuellement selectionnee est devenue vide
+        //    (ex: dernier objet tuto vient d'etre utilise), basculer sur
+        //    le premier onglet visible.
+        if (gestionInventaire.Instance != null
+            && gestionInventaire.Instance.ObtenirParCategorie(
+                categorieActuelle).Count == 0)
+        {
+            CategorieObjet? premiereVisible = TrouverPremiereCategorieAvecObjets();
+            if (premiereVisible.HasValue)
+                categorieActuelle = premiereVisible.Value;
+        }
+
+        // 3. Reconstruire les slots de la categorie courante
         foreach (GameObject slot in slotsInstancies)
             Destroy(slot);
         slotsInstancies.Clear();
@@ -136,6 +154,46 @@ public class gestionAffichageInventaire : MonoBehaviour
 
         MettreAJourFleches();
         MettreAJourIndicateurHud();
+    }
+
+    // Affiche un onglet uniquement si sa categorie contient au moins
+    // un objet. Quand un onglet est cache, son GameObject est desactive
+    // (donc pas cliquable, pas visible).
+    private void MettreAJourVisibiliteOnglets()
+    {
+        if (gestionInventaire.Instance == null) return;
+
+        AfficherOngletSiContenu(ongletTuto, CategorieObjet.Tuto);
+        AfficherOngletSiContenu(ongletTuyaux, CategorieObjet.Tuyaux);
+        AfficherOngletSiContenu(ongletAlchimie, CategorieObjet.Alchimie);
+    }
+
+    private void AfficherOngletSiContenu(Button onglet, CategorieObjet categorie)
+    {
+        if (onglet == null) return;
+        bool aDuContenu = gestionInventaire.Instance
+            .ObtenirParCategorie(categorie).Count > 0;
+        onglet.gameObject.SetActive(aDuContenu);
+    }
+
+    private CategorieObjet? TrouverPremiereCategorieAvecObjets()
+    {
+        if (gestionInventaire.Instance == null) return null;
+
+        // Ordre de priorite (premier non vide gagne)
+        CategorieObjet[] ordre = new CategorieObjet[]
+        {
+            CategorieObjet.Tuto,
+            CategorieObjet.Tuyaux,
+            CategorieObjet.Alchimie
+        };
+
+        foreach (var cat in ordre)
+        {
+            if (gestionInventaire.Instance.ObtenirParCategorie(cat).Count > 0)
+                return cat;
+        }
+        return null;
     }
 
     private void MettreAJourIndicateurHud()
