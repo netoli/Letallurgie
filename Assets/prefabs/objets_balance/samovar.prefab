@@ -85,9 +85,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7510874544132314101}
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 5052559211344241513}
     - targetCorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
       insertIndex: -1
@@ -98,25 +95,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3205654850651938963}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8061591140437457920}
   m_SourcePrefab: {fileID: 100100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
 --- !u!1 &1301102836093311446 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}
   m_PrefabInstance: {fileID: 1301102836093411190}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7510874544132314101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1301102836093311446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f3fb34e3c1331445b0cd6462a951003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
-  _valeurPoids: 5
 --- !u!64 &5052559211344241513
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -200,6 +187,19 @@ MonoBehaviour:
   imageJournal: {fileID: 0}
   sonRamasser: {fileID: 8300000, guid: 3d692ceca3e2fbc4cbea3ecacb407ba6, type: 3}
   idActionADeclencher: 
+--- !u!114 &8061591140437457920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301102836093311446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332076acf3d16b341858c771375072f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
+  _valeurPoids: 5
 --- !u!4 &1301102836093797878 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: ce59000c1209a6847aff4876ece2b834, type: 3}

@@ -26,7 +26,7 @@ public class objetInventaire : ScriptableObject
     public int quantiteMax;
 
     [Header("Prefab 3D")]
-    [Tooltip("Prefab 3D � instancier dans le monde quand l'objet est dragged depuis l'inventaire")]
+    [Tooltip("Prefab 3D  instancier dans le monde quand l'objet est dragged depuis l'inventaire")]
     public GameObject prefab3D;
     [Tooltip("Identifiant unique")]
     public string id;
