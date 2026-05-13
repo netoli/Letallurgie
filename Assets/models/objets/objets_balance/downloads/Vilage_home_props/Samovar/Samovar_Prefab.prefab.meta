@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 62e61dc47d9bf0347854d743dfce3637
+timeCreated: 1459340536
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 59782
+  packageName: Old Samovar
+  packageVersion: 1.0
+  assetPath: Assets/Vilage_home_props/Samovar/Samovar_Prefab.prefab
+  uploadId: 110931

@@ -36,6 +36,6 @@ public class compteurInventaireHud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        MettreAJour(gestionInventaire.Instance != null ? gestionInventaire.Instance.ObtenirTotalObjets() : 0);
     }
 }
