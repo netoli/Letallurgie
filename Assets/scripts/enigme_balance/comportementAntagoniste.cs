@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class comportementAntagoniste : MonoBehaviour
@@ -36,8 +37,37 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _echelleMax = 3f;
     [SerializeField] private float _echelleMin = 0.3f;
 
+    [Header("Caméra intro")]
+    [SerializeField] private CinemachineCamera _vcamIntroManoir;
+    [SerializeField] private float _dureeIntro = 3f;
+
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnActionTerminee;
+
+    void Start()
+    {
+        StartCoroutine(JouerIntroScene());
+    }
+
+    private IEnumerator JouerIntroScene()
+    {
+        // 1. Activer la caméra intro
+        if (_vcamIntroManoir != null)
+            _vcamIntroManoir.Priority = 60;
+
+        // 2. Déclencher animation d'entrée
+        if (_animateur != null)
+            _animateur.SetTrigger("DeclencherEntree");
+
+        // 3. Attendre la durée de l'intro
+        yield return new WaitForSeconds(_dureeIntro);
+
+        // 4. Rendre le contrôle au joueur
+        if (_vcamIntroManoir != null)
+            _vcamIntroManoir.Priority = 0;
+
+        Debug.Log("[ComportementAntagoniste] Intro terminée - contrôle rendu au joueur");
+    }
 
     // ===================== MÉTHODES PUBLIQUES =====================
 
@@ -67,8 +97,8 @@ public class comportementAntagoniste : MonoBehaviour
     private IEnumerator AppliquerImpact(ImpactAntagoniste impact)
     {
         // 1. Animation antagoniste
-        if (_animateur != null && !string.IsNullOrEmpty(impact.nomAnimation))
-            _animateur.SetTrigger(impact.nomAnimation);
+        if (_animateur != null)
+            _animateur.SetTrigger("DeclencherMagie");
 
         // 2. Attendre avant les particules
         yield return new WaitForSeconds(_delaiAvantParticules);
