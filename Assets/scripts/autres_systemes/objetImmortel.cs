@@ -2,9 +2,20 @@ using UnityEngine;
 
 public class objetImmortel : MonoBehaviour
 {
+
+    private static objetImmortel instance;
+
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
 
