@@ -1,14 +1,14 @@
 fileFormatVersion: 2
-guid: f1487e7dbc92b8c41af09d7a4b892dc4
+guid: 8e7a49cad4b356e46b935a203f2552fd
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
   externalObjects:
   - first:
-      type: UnityEngine:Material
+      type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
-      name: swag
-    second: {fileID: 2100000, guid: 3a1bea3c764eef94c91578aa11327eec, type: 2}
+      name: multipletest4
+    second: {fileID: 2800000, guid: 3a7d37289030d584880749829374f97a, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

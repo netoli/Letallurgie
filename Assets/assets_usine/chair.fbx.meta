@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: f0ac4a15e7bad8a43b83589cc9e30dc7
+guid: 296fc9028748f9c46acdcf8599d48d86
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: wood_for_chair
+    second: {fileID: 2800000, guid: b5a6175b1d145e14ab4603088fefb8ba, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
