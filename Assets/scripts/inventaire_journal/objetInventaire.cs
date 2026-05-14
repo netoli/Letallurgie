@@ -2,16 +2,18 @@
 // objetInventaire.cs
 // ------------------------------------------------------------
 // Auteur      : Olivier Vernet
-// Date cr��   : 
-// Derni�re modification : 25/04/2026 - Fanny Fortier
+// Date cr      :
+// Derniere modification : 12/05/2026 - fusion enigme tuyaux
 // ------------------------------------------------------------
 // Description :
-//   ScriptableObject d�crivant un item d'inventaire.
-//   Ajout d'un champ prefab3D pour permettre de r�-instancier
-//   l'objet dans le monde lors d'un drop depuis l'UI.(Interaction Drag and drop)
+//   ScriptableObject decrivant un item d'inventaire.
+//   Fusion entre la version tutoriel (enum Tuto + champ id) et la
+//   version enigme (prefabModele3D, estLeurre, descriptionInspection).
 // ------------------------------------------------------------
-// D�pendances :
-//   - utilis� par objetRamassable / gestionInventaire
+// Dependances :
+//   - utilise par objetRamassable / gestionInventaire /
+//     pointAncrageTuyau / controleurPlacementTuyau /
+//     iconeFlottanteCurseur / slotObjetInventaire
 // ============================================================
 
 using UnityEngine;
@@ -20,15 +22,21 @@ using UnityEngine;
     menuName = "Letallurgie/Objet Inventaire")]
 public class objetInventaire : ScriptableObject
 {
+    [Header("Proprietes communes")]
     public string nomObjet;
     public Sprite icone;
     public CategorieObjet categorie;
     public int quantiteMax;
 
-    [Header("Prefab 3D")]
-    [Tooltip("Prefab 3D � instancier dans le monde quand l'objet est dragged depuis l'inventaire")]
-    public GameObject prefab3D;
-    [Tooltip("Identifiant unique")]
+    [Header("Specifique aux tuyaux (laisser vide pour autres categories)")]
+    [Tooltip("Prefab 3D instancie quand l'objet est place dans un " +
+        "pointAncrageTuyau (et utilise comme ghost). Utilise aussi " +
+        "pour drag-and-drop depuis l'inventaire.")]
+    public GameObject prefabModele3D;
+    public bool estLeurre;
+    public string descriptionInspection;
+
+    [Header("Identifiant unique (sauvegarde, references)")]
     public string id;
 }
 

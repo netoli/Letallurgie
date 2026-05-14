@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: donneesTutoriel_parler_tavernier_2
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
   idDeclencheur: parler_tavernier_2
-  idActionRequise: dialogue_tav2_debute
+  idActionRequise: dialogue_tav2_fini
   titre: Reparler au tavernier
   explication: "Retourne voir le tavernier maintenant que tu l'as aid\xE9."
   image: {fileID: 0}

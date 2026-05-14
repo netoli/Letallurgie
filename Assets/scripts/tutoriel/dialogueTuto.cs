@@ -22,6 +22,16 @@ public class DialogueTuto : MonoBehaviour
     [Tooltip("Si vide, sera trouve automatiquement via FindFirstObjectByType.")]
     [SerializeField] private gestionSousTitre gestionSousTitreRef;
 
+    [Tooltip("AudioSource utilise pour jouer les clipAudio des repliques. " +
+        "Si vide, un AudioSource sera ajoute automatiquement sur ce " +
+        "GameObject au runtime.")]
+    [SerializeField] private AudioSource audioSourceVoix;
+
+    [Tooltip("Buffer (s) ajoute apres la fin du clip audio avant de " +
+        "passer a la replique suivante. Donne un peu de respiration " +
+        "naturelle. 0 = pas de buffer.")]
+    [SerializeField] private float bufferApresClip = 0.3f;
+
     [Header("Demarrage")]
     [Tooltip("Si coche, le PNJ est interactif des le debut. Sinon, " +
         "gestionChapitres doit l'activer via ReactiverInteraction() " +
@@ -54,6 +64,13 @@ public class DialogueTuto : MonoBehaviour
     private bool interactionActive;
     private Coroutine coroutineDialogue;
     private bool skipLigneDemande = false;
+    private bool premierSkipFait = false;
+
+    [Header("Skip (ESC)")]
+    [Tooltip("Delai (s) apres le 1er ESC avant que la tuile " +
+        "\"ESC pour passer un dialogue\" se ferme automatiquement. " +
+        "Le joueur a compris la mecanique, on retire l'indice.")]
+    [SerializeField] private float delaiFermetureTuileEsc = 3f;
 
     void Start()
     {
@@ -62,6 +79,20 @@ public class DialogueTuto : MonoBehaviour
         if (gestionSousTitreRef == null)
             gestionSousTitreRef = FindFirstObjectByType<gestionSousTitre>(
                 FindObjectsInactive.Include);
+
+        // Si aucun AudioSource n'est assigne, on en cree un automatiquement
+        // sur ce GameObject. Pratique : l'utilisateur n'a rien a configurer
+        // s'il ne veut pas de reglages specifiques (3D, spatial, etc.).
+        if (audioSourceVoix == null)
+        {
+            audioSourceVoix = GetComponent<AudioSource>();
+            if (audioSourceVoix == null)
+            {
+                audioSourceVoix = gameObject.AddComponent<AudioSource>();
+                audioSourceVoix.playOnAwake = false;
+                audioSourceVoix.spatialBlend = 0f; // 2D par defaut
+            }
+        }
     }
 
     /// <summary>
@@ -77,6 +108,26 @@ public class DialogueTuto : MonoBehaviour
             return;
         }
 
+        DemarrerEtapeCourante();
+    }
+
+    /// <summary>
+    /// Demarre automatiquement l'etape courante du dialogue, SANS
+    /// passer par le verrou interactionActive. Utilise par
+    /// declencheurAction pour que le PNJ "parle tout seul" quand une
+    /// action tutoriel est signalee (ex: client qui dit "prends mon
+    /// verre" apres que le joueur depose la bouteille). N'attend pas
+    /// un clic du joueur.
+    /// </summary>
+    public void DemarrerAuto()
+    {
+        Debug.Log($"[DialogueTuto] {name} : DemarrerAuto() appele " +
+            $"(etape={etapeActuelle}).");
+        DemarrerEtapeCourante();
+    }
+
+    private void DemarrerEtapeCourante()
+    {
         if (dialogueOuvert) return;
         if (etapes == null || etapes.Length == 0) return;
         if (etapeActuelle >= etapes.Length) return;
@@ -99,6 +150,7 @@ public class DialogueTuto : MonoBehaviour
         dialogueOuvert = true;
         DialogueActif = this;
         interactionActive = false;
+        premierSkipFait = false;
 
         // Signal du debut : ferme la tuile "Parler avec le tavernier".
         if (!string.IsNullOrEmpty(etape.idActionAuDebut)
@@ -119,14 +171,34 @@ public class DialogueTuto : MonoBehaviour
                     rep.interlocuteur, rep.texte, -1f);
             }
 
+            // Joue le clip audio s'il y en a un. La duree d'affichage
+            // devient alors la duree du clip + bufferApresClip.
+            float dureeReplique;
+            if (rep.clipAudio != null && audioSourceVoix != null)
+            {
+                audioSourceVoix.Stop();
+                audioSourceVoix.clip = rep.clipAudio;
+                audioSourceVoix.Play();
+                dureeReplique = rep.clipAudio.length + bufferApresClip;
+            }
+            else
+            {
+                // Pas de clip : on utilise la duree manuelle.
+                dureeReplique = rep.duree;
+            }
+
             // Attente avec possibilite de skip par ESC
             skipLigneDemande = false;
             float t = 0f;
-            while (t < rep.duree && !skipLigneDemande)
+            while (t < dureeReplique && !skipLigneDemande)
             {
                 t += Time.unscaledDeltaTime;
                 yield return null;
             }
+
+            // Stop l'audio si le joueur a skippe avant la fin
+            if (audioSourceVoix != null && audioSourceVoix.isPlaying)
+                audioSourceVoix.Stop();
 
             if (gestionSousTitreRef != null)
                 gestionSousTitreRef.MasquerSousTitre();
@@ -175,6 +247,21 @@ public class DialogueTuto : MonoBehaviour
         if (!dialogueOuvert) return;
         skipLigneDemande = true;
         Debug.Log("[DialogueTuto] Skip ligne demande par ESC.");
+
+        // Au 1er ESC du dialogue : le joueur a compris la mecanique,
+        // on ferme la tuile "ESC pour passer un dialogue" apres un
+        // court delai (lui laisse le temps de lire encore un instant).
+        if (!premierSkipFait)
+        {
+            premierSkipFait = true;
+            if (gestionChapitres.Instance != null)
+            {
+                Debug.Log("[DialogueTuto] 1er ESC -> fermeture tuile " +
+                    $"ESC dans {delaiFermetureTuileEsc}s.");
+                gestionChapitres.Instance.FermerTuileActuelleApresDelai(
+                    delaiFermetureTuileEsc);
+            }
+        }
     }
 
     public void ReactiverInteraction()
@@ -214,8 +301,16 @@ public class RepliqueDialogue
     [TextArea(2, 5)]
     public string texte;
 
+    [Tooltip("(Optionnel) Clip audio de la voix qui dit cette replique. " +
+        "Si renseigne, sa duree controle automatiquement combien de temps " +
+        "la bulle reste affichee (le champ 'duree' est ignore quand un " +
+        "clip est present).")]
+    public AudioClip clipAudio;
+
     [Tooltip("Duree en secondes pendant laquelle cette replique " +
-        "reste a l'ecran avant de disparaitre automatiquement.")]
+        "reste a l'ecran avant de disparaitre automatiquement. " +
+        "Ignoree si un clipAudio est renseigne (on utilise alors la " +
+        "duree du clip + un petit buffer).")]
     public float duree = 4f;
 
     [Tooltip("Pause en secondes apres la disparition de cette replique, " +

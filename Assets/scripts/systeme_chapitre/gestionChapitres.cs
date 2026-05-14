@@ -33,6 +33,21 @@ public class gestionChapitres : MonoBehaviour
     // le deplacement WASD pendant la banniere/intro.
     public bool MouvementAutorise { get; private set; } = true;
 
+    // idActionRequise de la tuile actuellement affichee, ou chaine vide
+    // si aucune tuile n'est en cours. Utilise par objetRamassable et
+    // autres scripts d'interaction pour bloquer une action prematuree
+    // qui ne correspond pas a l'etape en cours du tuto.
+    public string IdActionAttenduActuelle =>
+        tutoActuel != null ? tutoActuel.idActionRequise : "";
+
+    // Event broadcast a chaque appel a SignalerAction, MEME si aucune
+    // tuile n'est active. Permet a des composants externes (ex:
+    // declencheurAction) de reagir a des actions tutoriel sans avoir
+    // a passer par une tuile DonneesTutoriel. Utile pour chainer des
+    // sequences narratives (audio PNJ, activation de pointeurs, etc.)
+    // qui se produisent ENTRE deux tuiles.
+    public event System.Action<string> OnActionSignalee;
+
     [Header("References")]
     [SerializeField] private gestionBanniere gestionBanniere;
     [SerializeField] private gestionTutoriel gestionTutoriel;
@@ -163,8 +178,15 @@ public class gestionChapitres : MonoBehaviour
     // qui termine son etape, objet ramasse, etc.).
     public void SignalerAction(string idAction)
     {
-        if (tutoActuel == null) return;
         if (string.IsNullOrEmpty(idAction)) return;
+
+        // Notifier les abonnes (declencheurAction etc.) AVANT de
+        // traiter la tuile. Comme ca l'event passe meme si aucune
+        // tuile n'est active (cas des etapes silencieuses : audio
+        // PNJ, activation de pointeur, etc.).
+        OnActionSignalee?.Invoke(idAction);
+
+        if (tutoActuel == null) return;
 
         // Si l'action correspond a l'attente de la tuile actuelle,
         // la fermer (ce qui declenchera AfficherTuto sur la suivante,
@@ -185,6 +207,33 @@ public class gestionChapitres : MonoBehaviour
     {
         if (tutoActuel == null) return;
         FermerTutoActuel(true);
+    }
+
+    /// <summary>
+    /// Ferme automatiquement la tuile actuelle apres un delai donne.
+    /// Utilise notamment par DialogueTuto : quand le joueur fait son
+    /// premier ESC pour passer une ligne, la tuile "ESC pour passer
+    /// un dialogue" disparait apres 3s (le joueur a compris le geste,
+    /// l'info devient inutile).
+    /// Si une autre tuile s'affiche entre-temps, le close est annule.
+    /// </summary>
+    public void FermerTuileActuelleApresDelai(float delai)
+    {
+        if (tutoActuel == null) return;
+        StartCoroutine(FermerTuileActuelleCoroutine(tutoActuel, delai));
+    }
+
+    private IEnumerator FermerTuileActuelleCoroutine(
+        DonneesTutoriel tuileCible, float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+        // Securite : on ferme uniquement si la tuile est toujours
+        // la meme (le joueur peut avoir avance d'une etape entre-temps)
+        if (tutoActuel == tuileCible)
+        {
+            Debug.Log($"[Chapitre] Fermeture auto de '{tuileCible.idDeclencheur}' apres delai de {delai}s (1er ESC).");
+            FermerTutoActuel(true);
+        }
     }
 
     public bool TutoEstAffiche()
