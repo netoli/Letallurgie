@@ -39,6 +39,9 @@ public class DialogueTuto : MonoBehaviour
     [SerializeField] private bool interactifAuDemarrage = false;
 
     // Pour gestionChapitres : IdAction de l'etape EN COURS.
+    // Renvoie en priorite l'idActionAuDebut, sinon l'idActionAFin.
+    // (Conserve pour compat ; pour le deverrouillage, preferer
+    // PeutSignaler(idAction) qui considere aussi les repliques.)
     public string IdAction
     {
         get
@@ -52,6 +55,35 @@ public class DialogueTuto : MonoBehaviour
                 ? etape.idActionAuDebut
                 : etape.idActionAFin;
         }
+    }
+
+    /// <summary>
+    /// Vrai si l'etape courante peut signaler cette idAction, soit
+    /// au debut (idActionAuDebut), soit a la fin (idActionAFin), soit
+    /// en fin d'une de ses repliques (idActionADeclencher). Utilise
+    /// par gestionChapitres pour decider si ce PNJ doit etre
+    /// deverrouille quand une tuile attend cette idAction.
+    /// </summary>
+    public bool PeutSignaler(string idAction)
+    {
+        if (string.IsNullOrEmpty(idAction)) return false;
+        if (etapes == null
+            || etapeActuelle < 0
+            || etapeActuelle >= etapes.Length) return false;
+
+        var etape = etapes[etapeActuelle];
+        if (etape.idActionAuDebut == idAction) return true;
+        if (etape.idActionAFin == idAction) return true;
+        if (etape.repliques != null)
+        {
+            foreach (var r in etape.repliques)
+            {
+                if (!string.IsNullOrEmpty(r.idActionADeclencher)
+                    && r.idActionADeclencher == idAction)
+                    return true;
+            }
+        }
+        return false;
     }
 
     // Vrai pendant qu'un dialogue est en train de defiler.
@@ -203,6 +235,18 @@ public class DialogueTuto : MonoBehaviour
             if (gestionSousTitreRef != null)
                 gestionSousTitreRef.MasquerSousTitre();
 
+            // Signal d'action en fin de cette replique (avant la pause).
+            // Permet d'enchainer une tuile/banniere/chapitre pendant le
+            // dialogue, sans attendre la fin de l'etape entiere.
+            if (!string.IsNullOrEmpty(rep.idActionADeclencher)
+                && gestionChapitres.Instance != null)
+            {
+                Debug.Log($"[DialogueTuto] Replique {i} signale: " +
+                    $"{rep.idActionADeclencher}");
+                gestionChapitres.Instance.SignalerAction(
+                    rep.idActionADeclencher);
+            }
+
             // Pause entre les repliques (sautee aussi par ESC)
             skipLigneDemande = false;
             float p = 0f;
@@ -316,6 +360,12 @@ public class RepliqueDialogue
     [Tooltip("Pause en secondes apres la disparition de cette replique, " +
         "avant que la suivante n'apparaisse.")]
     public float pauseApres = 0.4f;
+
+    [Tooltip("(Optionnel) ID d'action signalee A LA FIN de cette replique " +
+        "(juste apres que la bulle disparaisse, avant la pause). Permet " +
+        "de declencher une tuile/banniere/chapitre PENDANT une etape de " +
+        "dialogue, sans attendre la fin de l'etape entiere.")]
+    public string idActionADeclencher;
 }
 
 /// <summary>

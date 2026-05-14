@@ -241,6 +241,24 @@ public class gestionChapitres : MonoBehaviour
         return tutoActuel != null;
     }
 
+    /// <summary>
+    /// Active un GameObject et remonte la hierarchie pour activer
+    /// tous ses ancetres inactifs. Utilise pour les detecteurs et
+    /// snap points dont le parent peut etre desactive par defaut
+    /// (pour qu'ils n'apparaissent qu'au bon moment du tutoriel).
+    /// </summary>
+    private void ActiverAvecAncetres(GameObject go)
+    {
+        if (go == null) return;
+        Transform t = go.transform;
+        while (t != null)
+        {
+            if (!t.gameObject.activeSelf)
+                t.gameObject.SetActive(true);
+            t = t.parent;
+        }
+    }
+
     private void AfficherTuto(DonneesTutoriel tuto)
     {
         // Bloquer le tutoriel quand on n'est pas dans la sc�ne du menu
@@ -267,7 +285,12 @@ public class gestionChapitres : MonoBehaviour
             {
                 if (d.IdAction == tuto.idActionRequise)
                 {
-                    d.gameObject.SetActive(true);
+                    // Active le detecteur ET tous ses ancetres dans
+                    // la hierarchie. Sans ca, si l'utilisateur a
+                    // desactive le GameObject parent (ex: snap_table)
+                    // pour qu'il n'apparaisse pas trop tot, l'enfant
+                    // ne pourrait jamais devenir visible.
+                    ActiverAvecAncetres(d.gameObject);
                     Debug.Log($"[Chapitre] Detecteur active pour idActionRequise={tuto.idActionRequise} (obj={d.name})");
                     break;
                 }
@@ -285,7 +308,11 @@ public class gestionChapitres : MonoBehaviour
         {
             foreach (var d in dialogues)
             {
-                if (d.IdAction == tuto.idActionRequise)
+                // PeutSignaler regarde aussi les repliques (en plus de
+                // idActionAuDebut / idActionAFin), donc un PNJ est
+                // deverrouille meme si la tuile est fermee par un
+                // idActionADeclencher d'une replique du milieu.
+                if (d.PeutSignaler(tuto.idActionRequise))
                 {
                     d.ReactiverInteraction();
                     Debug.Log($"[Chapitre] DialogueTuto deverrouille pour idActionRequise={tuto.idActionRequise} (obj={d.name})");

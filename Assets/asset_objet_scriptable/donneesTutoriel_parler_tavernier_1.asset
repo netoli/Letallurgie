@@ -15,5 +15,5 @@ MonoBehaviour:
   idDeclencheur: parler_tavernier_1
   idActionRequise: dialogue_tav1_debute
   titre: Parler au tavernier
-  explication: "Clique sur le tavernier pour entamer la conversation."
+  explication: Clique sur le tavernier pour entamer la conversation.
   image: {fileID: 0}

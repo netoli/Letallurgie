@@ -789,7 +789,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6776086196154546848, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
       propertyPath: idActionRequise
-      value: deplacement
+      value: verre_depose_comptoir
       objectReference: {fileID: 0}
     - target: {fileID: 7040878903828833459, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
       propertyPath: m_Size.x
@@ -8253,7 +8253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 40
+    m_Left: 30
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
@@ -20428,7 +20428,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6776086196154546848, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
       propertyPath: idActionRequise
-      value: deplacement
+      value: bouteille_deposee_table
       objectReference: {fileID: 0}
     - target: {fileID: 7040878903828833459, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
       propertyPath: m_Size.x
@@ -39759,79 +39759,94 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 63e6c137924e64a949594020be58286e, type: 3}
       duree: 3
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Bonsoir, patron. Tout va bien ?
       clipAudio: {fileID: 8300000, guid: cc3bdd9b20420454494b93cc5cd3ce05, type: 3}
       duree: 3
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: Mes vieilles jambes me trahissent ce soir.
       clipAudio: {fileID: 8300000, guid: 91b61e58cc0ec4252ad2d7db448a9a11, type: 3}
       duree: 3.5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Que puis-je pour vous ?
       clipAudio: {fileID: 8300000, guid: dbc23fe350db547bd9d57577d0571d63, type: 3}
       duree: 2.5
       pauseApres: 0.4
+      idActionADeclencher: demande_aide_faite
     - interlocuteur: Tavernier
       texte: "Cette bouteille sur le comptoir doit aller \xE0 la table l\xE0-bas."
       clipAudio: {fileID: 8300000, guid: 089b4f2af7e7b4f3caaab543bfbf6b70, type: 3}
       duree: 5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: Un client l'attend. Tu m'aiderais bien.
       clipAudio: {fileID: 8300000, guid: d12adef9f2cc545dd993cf0a706de924, type: 3}
       duree: 4
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: "Bien s\xFBr. Je m'en occupe."
       clipAudio: {fileID: 8300000, guid: 1e85477bc0ca04efab70c1385cb47ff4, type: 3}
       duree: 3
       pauseApres: 0.3
+      idActionADeclencher: 
     idActionAuDebut: dialogue_tav1_debute
-    idActionAFin: dialogue_tav1_fini
+    idActionAFin: 
   - repliques:
     - interlocuteur: Tavernier
       texte: "Ah, merci \xE0 toi, moussaillon !"
       clipAudio: {fileID: 8300000, guid: b4f7a8692d2a74d7aaa291ad3abbb89d, type: 3}
       duree: 2.5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Pas de quoi.
       clipAudio: {fileID: 8300000, guid: 42dacb9fd5de34d40bf98e8e3c1964a5, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "Tu m'as bien tir\xE9 d'affaire."
       clipAudio: {fileID: 8300000, guid: f1a97dd9333d244d8a554fbe0e11893c, type: 3}
       duree: 3
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "Dis-moi\u2026 ton carnet, tu l'as toujours sur toi ?"
       clipAudio: {fileID: 8300000, guid: 6d6a095c6323046ddbf1f608f462203b, type: 3}
       duree: 4
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Toujours, oui.
       clipAudio: {fileID: 8300000, guid: 970c250a0358042faa5bf73a9a0449cc, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "Jette-y un \u0153il. J'y ai not\xE9 quelque chose."
       clipAudio: {fileID: 8300000, guid: 69f0cfe07717d40e3b4fbeb34ef428b2, type: 3}
       duree: 4
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: "\xC0 quel sujet ?"
       clipAudio: {fileID: 8300000, guid: 822fd4812d2cf40cfacb385927481025, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: Tu verras bien. Lis, et reviens me voir.
       clipAudio: {fileID: 8300000, guid: 241f3aab4c2ca4877a5bd37950501f36, type: 3}
       duree: 4
       pauseApres: 0.3
+      idActionADeclencher: 
     idActionAuDebut: 
     idActionAFin: dialogue_tav2_fini
   - repliques:
@@ -39840,51 +39855,61 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 1a8afc7aa797641e58c0d30b2c500828, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Oui. Que vouliez-vous me dire ?
       clipAudio: {fileID: 8300000, guid: e4d40c371f6854b6cabaf0cdf4dab992, type: 3}
       duree: 3.5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: Approche. Ce que je vais te dire ne sort pas d'ici.
       clipAudio: {fileID: 8300000, guid: 4f7946e015caa4081af4808e2dabd72d, type: 3}
       duree: 4.5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Vous avez ma parole.
       clipAudio: {fileID: 8300000, guid: fa99bfe17a8fb46c6aa85ffaf7422926, type: 3}
       duree: 2.5
       pauseApres: 0.5
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "Les disparitions\u2026 ce n'est pas le hasard."
       clipAudio: {fileID: 8300000, guid: c971c9c6e8fcf4a29ad386b74d23ea56, type: 3}
       duree: 4
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: "Comment \xE7a ?"
       clipAudio: {fileID: 8300000, guid: 1ece25d6ed6024d0eb4e80d6c71711dd, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: Les gouvernants nous cachent quelque chose.
       clipAudio: {fileID: 8300000, guid: 3d58dc9f64e824e4088e7e1dfdab5230, type: 3}
       duree: 4
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "J'ai entendu des bruits de couloir\u2026"
       clipAudio: {fileID: 8300000, guid: 05cde02f4ee574d43b804a4b149aa2e8, type: 3}
       duree: 3.5
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Personnage
       texte: Que disent-ils ?
       clipAudio: {fileID: 8300000, guid: 704733e3765ba45b2a70fe2011bb7ac9, type: 3}
       duree: 2
       pauseApres: 0.4
+      idActionADeclencher: 
     - interlocuteur: Tavernier
       texte: "Ils pr\xE9pareraient\u2026"
       clipAudio: {fileID: 8300000, guid: 67284e7e1dc934a68b8d9fb92cf2b27c, type: 3}
       duree: 3
       pauseApres: 0
+      idActionADeclencher: 
     idActionAuDebut: 
     idActionAFin: dialogue_tav3_fini
   gestionSousTitreRef: {fileID: 1630720418}
@@ -51443,10 +51468,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1282213980}
+  - component: {fileID: 1282213984}
   - component: {fileID: 1282213979}
   - component: {fileID: 1282213978}
-  - component: {fileID: 1282213981}
   m_Layer: 0
   m_Name: audio_manager
   m_TagString: Untagged
@@ -51564,7 +51588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GestionAudio
   sourceMusique: {fileID: 1282213978}
-  sourceSFX: {fileID: 33720381}
+  sourceSFX: {fileID: 0}
   musiquesIntro:
   - clip: {fileID: 8300000, guid: 4deb65076bdd9db46aebecf4b65c9942, type: 3}
     volume: 0.01
@@ -51592,11 +51616,26 @@ MonoBehaviour:
   musiquesManoir: []
   dureeTransition: 1.5
   volumeMax: 1
---- !u!4 &1282213980
+--- !u!4 &1282213980 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2724355049131622337, guid: 3952189a56dba10459f851512c93162f, type: 3}
   m_PrefabInstance: {fileID: 2998872349486031648}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1282213984
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282213977}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &1284357291 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 5335582032740238387, guid: 1943c1680d26848efa86da31f9867d39, type: 3}
@@ -89377,7 +89416,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5466795554288612545, guid: 21da39bcd0bc9da4c9861933083be73b, type: 3}
       propertyPath: speed
-      value: 8.4
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 8339809678790988124, guid: 21da39bcd0bc9da4c9861933083be73b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -89432,6 +89471,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1282213984}
   - {fileID: 1986218353}
   - {fileID: 1734999802}
   - {fileID: 1156335884}
