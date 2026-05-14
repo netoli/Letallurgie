@@ -49,6 +49,7 @@ public class comportementAntagoniste : MonoBehaviour
 
     [Header("Caméra intro")]
     [SerializeField] private CinemachineCamera _vcamIntroManoir;
+    [SerializeField] private float _delaiAvantAnimation = 1f;
     [SerializeField] private float _dureeAvantRevealObjet = 2f;
     [SerializeField] private float _dureeApresRevealAvantJoueur = 1.5f;
 
@@ -73,6 +74,12 @@ public class comportementAntagoniste : MonoBehaviour
         // 1. Activer la caméra intro
         if (_vcamIntroManoir != null)
             _vcamIntroManoir.Priority = 60;
+
+        // Attendre que Cinemachine finisse son lerp vers la caméra intro
+        yield return new WaitForSeconds(_delaiAvantAnimation);
+
+        if (_animateur != null)
+            _animateur.SetTrigger("DeclencherEntree");
 
         // 2. Animation d'entrée du boss
         if (_animateur != null)
@@ -103,11 +110,13 @@ public class comportementAntagoniste : MonoBehaviour
         yield return new WaitForSeconds(_dureeApresRevealAvantJoueur);
 
         // 9. Rendre le contrôle au joueur
-        if (_vcamIntroManoir != null)
-            _vcamIntroManoir.Priority = 0;
+        Debug.Log("[Intro] Étape 9 atteinte — on baisse la priorité");
 
-        Debug.Log("[ComportementAntagoniste] Intro terminée " +
-                  "— contrôle rendu au joueur");
+        if (_vcamIntroManoir != null)
+        {
+            _vcamIntroManoir.Priority = 0;
+            Debug.Log($"[Intro] Priority vcamIntro={_vcamIntroManoir.Priority}");
+        }
     }
 
     private IEnumerator AppliquerImpact(impactAntagoniste impact)
