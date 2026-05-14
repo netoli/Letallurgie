@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class gestionAffichageInventaire : MonoBehaviour
@@ -173,7 +174,11 @@ public class gestionAffichageInventaire : MonoBehaviour
         if (onglet == null) return;
         bool aDuContenu = gestionInventaire.Instance
             .ObtenirParCategorie(categorie).Count > 0;
-        onglet.gameObject.SetActive(aDuContenu);
+
+        bool forcerVisible = categorie == CategorieObjet.Alchimie
+            && SceneManager.GetActiveScene().name == "SCENE4-Manoir";
+
+        onglet.gameObject.SetActive(aDuContenu || forcerVisible);
     }
 
     private CategorieObjet? TrouverPremiereCategorieAvecObjets()

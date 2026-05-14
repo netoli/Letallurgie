@@ -36,6 +36,7 @@ public class compteurInventaireHud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (texteNombreObjetsHud != null && gestionInventaire.Instance != null)
+            texteNombreObjetsHud.text = gestionInventaire.Instance.ObtenirTotalObjets().ToString();
     }
 }

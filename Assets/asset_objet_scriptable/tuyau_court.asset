@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyaux court
   icone: {fileID: 21300000, guid: 4db985d80f5c3ac4c8448da235e57eed, type: 3}
-  categorie: 0
+  categorie: 1
   quantiteMax: 5
   prefab3D: {fileID: 0}
   id: 

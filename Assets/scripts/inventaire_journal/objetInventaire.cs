@@ -3,17 +3,20 @@
 // ------------------------------------------------------------
 // Auteur      : Olivier Vernet
 // Date cr      :
-// Derniere modification : 12/05/2026 - fusion enigme tuyaux
+// Derniere modification : 14/05/2026 - merge integration_prototype_build_2
 // ------------------------------------------------------------
 // Description :
 //   ScriptableObject decrivant un item d'inventaire.
-//   Fusion entre la version tutoriel (enum Tuto + champ id) et la
-//   version enigme (prefabModele3D, estLeurre, descriptionInspection).
+//   Fusion des versions tutoriel + enigme tuyaux + enigme balance.
+//   Conserve les deux champs prefab3D et prefabModele3D pendant la
+//   periode de transition (l'enigme balance utilise prefab3D, les
+//   tuyaux et le tutoriel utilisent prefabModele3D).
 // ------------------------------------------------------------
 // Dependances :
 //   - utilise par objetRamassable / gestionInventaire /
 //     pointAncrageTuyau / controleurPlacementTuyau /
-//     iconeFlottanteCurseur / slotObjetInventaire
+//     iconeFlottanteCurseur / slotObjetInventaire /
+//     DEBUGBalancePlateau / controleurDeposeObjet
 // ============================================================
 
 using UnityEngine;
@@ -28,13 +31,18 @@ public class objetInventaire : ScriptableObject
     public CategorieObjet categorie;
     public int quantiteMax;
 
-    [Header("Specifique aux tuyaux (laisser vide pour autres categories)")]
+    [Header("Specifique aux tuyaux et au drag-and-drop tuto")]
     [Tooltip("Prefab 3D instancie quand l'objet est place dans un " +
-        "pointAncrageTuyau (et utilise comme ghost). Utilise aussi " +
-        "pour drag-and-drop depuis l'inventaire.")]
+        "pointAncrageTuyau (utilise aussi comme ghost). Utilise par " +
+        "le tutoriel pour la bouteille/verre.")]
     public GameObject prefabModele3D;
     public bool estLeurre;
     public string descriptionInspection;
+
+    [Header("Specifique a l'enigme balance (legacy)")]
+    [Tooltip("Prefab 3D utilise par l'enigme balance (SCENE4-Manoir). " +
+        "A terme, fusionner avec prefabModele3D.")]
+    public GameObject prefab3D;
 
     [Header("Identifiant unique (sauvegarde, references)")]
     public string id;

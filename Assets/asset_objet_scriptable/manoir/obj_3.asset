@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41c9488488914f3fa2b9c487407363c, type: 3}
+  m_Name: obj_3
+  m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
+  nomObjet: Vase
+  icone: {fileID: 21300000, guid: d44c5beacb165024ea9f49246040530d, type: 3}
+  categorie: 2
+  quantiteMax: 1
+  prefab3D: {fileID: 8044323432651137688, guid: 5a4314ce544152344ad2b777fdbc4874, type: 3}
+  id: 
