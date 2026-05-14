@@ -28,9 +28,12 @@ public class comportementAntagoniste : MonoBehaviour
     [Header("Références")]
     [SerializeField] private ListeImpacts _listeImpacts;
     [SerializeField] private Animator _animateur;
-    [SerializeField] private ParticleSystem _particulesTransformation;
     [SerializeField] private objetPesable _objetSurBalance;
     [SerializeField] private ZoneDepotAntagoniste _zoneAdverse;
+
+    [Header("Particules")]
+    [SerializeField] private ParticleSystem _particulesPortail;
+    [SerializeField] private ParticleSystem _particulesExplosion;
 
     [Header("Paramètres visuels")]
     [SerializeField] private float _delaiAvantParticules = 0.6f;
@@ -104,8 +107,10 @@ public class comportementAntagoniste : MonoBehaviour
         yield return new WaitForSeconds(_delaiAvantParticules);
 
         // 3. Particules
-        if (_particulesTransformation != null)
-            _particulesTransformation.Play();
+        if (_particulesPortail != null)
+            _particulesPortail.Play();
+        if (_particulesExplosion != null)
+            _particulesExplosion.Play();
 
         // 4. Modifier le poids et l'échelle visuelle
         _objetSurBalance.ModifierPoids(impact.multiplicateur);
@@ -114,14 +119,10 @@ public class comportementAntagoniste : MonoBehaviour
         // 5. Notifier la zone que le poids a changé
         _zoneAdverse.NotifierChangementPoids();
 
-        Debug.Log($"[ComportementAntagoniste] Impact appliqué : " +
-                  $"×{impact.multiplicateur} — " +
-                  $"nouveau poids={_objetSurBalance.valeurPoids}");
-
-        // 6. Attendre la fin des particules
-        if (_particulesTransformation != null)
-            yield return new WaitUntil(
-                () => !_particulesTransformation.isPlaying);
+        // 6. Attendre la fin des deux particules
+        yield return new WaitUntil(() =>
+            (_particulesPortail == null || !_particulesPortail.isPlaying) &&
+            (_particulesExplosion == null || !_particulesExplosion.isPlaying));
 
         // 7. Notifier le gestionnaire
         OnActionTerminee?.Invoke();
