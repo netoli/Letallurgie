@@ -18,7 +18,7 @@
 using System;
 using UnityEngine;
 
-public class GestionnaireEnigmeBalance : MonoBehaviour
+public class gestionnaireEnigmeBalance : MonoBehaviour
 {
     // ===================== INSPECTEUR =====================
     [Header("Références")]
