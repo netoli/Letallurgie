@@ -38,6 +38,12 @@ public class gestionInputsJeu : MonoBehaviour
     [SerializeField] private GameObject ensembleMenuInventaire;
     [SerializeField] private CanvasGroup groupeContenuHud;
 
+    [Tooltip("GameObject du pointeur central (reticule de visee). " +
+        "Sera cache automatiquement quand l'inventaire est ouvert " +
+        "pour eviter d'avoir deux pointeurs a l'ecran (le pointeur " +
+        "fixe au centre + le curseur libre pour cliquer).")]
+    [SerializeField] private GameObject pointeurCentre;
+
     [Header("Effets HUD")]
     [SerializeField] private ParticleSystem[] fxHud;
 
@@ -746,6 +752,13 @@ public class gestionInputsJeu : MonoBehaviour
 
         DeverrouillerSouris();
         MontrerContenuHud();
+
+        // Cacher le pointeur central : sans ca, le joueur voit deux
+        // pointeurs simultanement (le reticule fixe au centre + le
+        // curseur Windows qui bouge librement), ce qui est trompeur
+        // surtout quand l'icone flottante suit le curseur Windows.
+        if (pointeurCentre != null) pointeurCentre.SetActive(false);
+
         ensembleMenuInventaire.SetActive(true);
 
         if (gestionFlou != null)
@@ -753,9 +766,12 @@ public class gestionInputsJeu : MonoBehaviour
 
     }
 
-    private void FermerInventaire()
+    public void FermerInventaire()
     {
         ensembleMenuInventaire.SetActive(false);
+
+        // Reafficher le pointeur central (cache pendant l'inventaire).
+        if (pointeurCentre != null) pointeurCentre.SetActive(true);
 
         // D�tection d'action - Tutoriel (Fermer inventaire)
         if (gestionChapitres.Instance != null)

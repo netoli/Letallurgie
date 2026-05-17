@@ -206,7 +206,31 @@ public class gestionChapitres : MonoBehaviour
     public void FermerTutoParEsc()
     {
         if (tutoActuel == null) return;
-        FermerTutoActuel(true);
+        // ESC sur une tuile : cache juste l'UI sans faire avancer
+        // dans la sequence du chapitre. Le detecteur (active par
+        // AfficherTuto) reste actif, et le joueur doit toujours
+        // executer l'action attendue pour passer a la tuile suivante.
+        MasquerUITutoSansAvancer();
+    }
+
+    /// <summary>
+    /// Cache l'UI de la tuile actuelle SANS la marquer comme vue
+    /// et SANS passer a la tuile suivante. L'etat logique (tutoActuel,
+    /// detecteur actif, idActionRequise) reste inchange. Utilise par
+    /// ESC et par l'auto-close de la tuile "Passer un dialogue" pour
+    /// que le joueur n'ait pas besoin de la voir, mais doive quand
+    /// meme executer l'action pour avancer.
+    /// </summary>
+    private void MasquerUITutoSansAvancer()
+    {
+        if (tutoActuel == null) return;
+        if (gestionTutoriel != null)
+        {
+            gestionTutoriel.FermerTuto();
+        }
+        Debug.Log($"[Chapitre] UI tuile masquee : " +
+            $"'{tutoActuel.idDeclencheur}'. Le detecteur reste actif. " +
+            $"Action attendue: '{tutoActuel.idActionRequise}'.");
     }
 
     /// <summary>
@@ -227,13 +251,19 @@ public class gestionChapitres : MonoBehaviour
         DonneesTutoriel tuileCible, float delai)
     {
         yield return new WaitForSecondsRealtime(delai);
-        // Securite : on ferme uniquement si la tuile est toujours
+
+        // Securite : on agit uniquement si la tuile est toujours
         // la meme (le joueur peut avoir avance d'une etape entre-temps)
-        if (tutoActuel == tuileCible)
-        {
-            Debug.Log($"[Chapitre] Fermeture auto de '{tuileCible.idDeclencheur}' apres delai de {delai}s (1er ESC).");
-            FermerTutoActuel(true);
-        }
+        if (tutoActuel != tuileCible) yield break;
+
+        Debug.Log($"[Chapitre] Auto-masquage UI de " +
+            $"'{tuileCible.idDeclencheur}' apres delai de {delai}s.");
+        // On cache juste l'UI sans avancer dans la sequence : le
+        // joueur doit toujours signaler l'action attendue (ex:
+        // 'demande_aide_faite' pour la tuile "Passer un dialogue"
+        // qui sera signalee par la derniere replique R7). Le
+        // detecteur de la tuile reste actif.
+        MasquerUITutoSansAvancer();
     }
 
     public bool TutoEstAffiche()

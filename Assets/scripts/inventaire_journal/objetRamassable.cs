@@ -22,26 +22,30 @@ public class objetRamassable : MonoBehaviour
 
     public void Ramasser()
     {
-        // Gating tutoriel : si cet objet est associe a une etape de tuto
-        // (idActionADeclencher non vide), refuser le ramassage tant que
-        // la tuile en cours n'attend pas justement cette action. Sinon
-        // le joueur peut "griller" un step (ramasser la bouteille avant
-        // que la tuile "Ramasser une bouteille" s'affiche, ce qui rend
-        // le tuto bloque ensuite).
+        // Gating tutoriel STRICT : si cet objet est associe a une etape
+        // de tuto (idActionADeclencher non vide), on EXIGE que la tuile
+        // correspondante soit affichee. Sinon le joueur peut "griller"
+        // un step (ramasser la bouteille avant meme que la tuile
+        // "Ramasser une bouteille" s'affiche, ce qui rend le tuto
+        // bloque ensuite ou cree un decalage visuel).
+        //
+        // Cas couverts :
+        //   - tuile pas encore affichee (debut de jeu)          -> BLOQUE
+        //   - tuile autre affichee                              -> BLOQUE
+        //   - bonne tuile affichee                              -> AUTORISE
+        //   - aucune tuile (entre 2 tuiles, ou tuto fini)       -> BLOQUE
+        //
+        // Pour autoriser un objet hors tuto, laisse simplement
+        // idActionADeclencher vide.
         if (!string.IsNullOrEmpty(idActionADeclencher)
             && gestionChapitres.Instance != null)
         {
             string attendu = gestionChapitres.Instance.IdActionAttenduActuelle;
-            // Si une tuile est active et qu'elle attend une autre action
-            // que la notre, on bloque. Si aucune tuile active (tuto fini),
-            // on autorise normalement.
-            if (!string.IsNullOrEmpty(attendu)
-                && attendu != idActionADeclencher)
+            if (attendu != idActionADeclencher)
             {
-                Debug.Log($"[Pickup] Ramassage refuse : la tuile en cours " +
-                    $"attend '{attendu}', cet objet declenche " +
-                    $"'{idActionADeclencher}'. Joueur doit attendre la " +
-                    $"bonne tuile de tuto.");
+                Debug.Log($"[Pickup] Ramassage refuse : tuile attendue=" +
+                    $"'{attendu}', cet objet requiert '{idActionADeclencher}'. " +
+                    $"La tuile tuto correspondante doit etre affichee.");
                 return;
             }
         }

@@ -33,6 +33,22 @@ public class iconeFlottanteCurseur : MonoBehaviour
         if (groupeCanvas != null)
         {
             groupeCanvas.alpha = 0f;
+            // Empeche l'icone flottante de capturer les clics : sans
+            // ca, elle bloque les clics destines aux slots d'inventaire
+            // (le curseur Windows est souvent sur l'icone elle-meme
+            // a cause de l'offset minime), rendant impossible la
+            // deselection par re-clic.
+            groupeCanvas.blocksRaycasts = false;
+            groupeCanvas.interactable = false;
+        }
+
+        // Securite supplementaire : forcer raycastTarget = false sur
+        // tous les Graphics enfants (Image, Text) pour s'assurer qu'ils
+        // sont transparents aux clics meme si le CanvasGroup est mal
+        // configure.
+        foreach (var g in GetComponentsInChildren<Graphic>(true))
+        {
+            g.raycastTarget = false;
         }
     }
 

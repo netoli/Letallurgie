@@ -158,8 +158,21 @@ public class slotObjetInventaire : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        Debug.Log($"[Slot] Selection de '{objetAffiche.nomObjet}'.");
-        gestionSelectionInventaire.Instance.Selectionner(objetAffiche);
+        // Toggle : si cet objet est deja celui qui est selectionne,
+        // un re-clic le deselectionne. Sinon on le selectionne.
+        objetInventaire selectionActuelle =
+            gestionSelectionInventaire.Instance.ObtenirSelection();
+
+        if (selectionActuelle == objetAffiche)
+        {
+            Debug.Log($"[Slot] Deselection de '{objetAffiche.nomObjet}'.");
+            gestionSelectionInventaire.Instance.Deselectionner();
+        }
+        else
+        {
+            Debug.Log($"[Slot] Selection de '{objetAffiche.nomObjet}'.");
+            gestionSelectionInventaire.Instance.Selectionner(objetAffiche);
+        }
     }
 
     private void SurSelectionChangee(objetInventaire nouvelle)

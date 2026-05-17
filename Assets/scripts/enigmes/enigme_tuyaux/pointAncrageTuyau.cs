@@ -55,7 +55,14 @@ public class pointAncrageTuyau : MonoBehaviour
                 Quaternion.Euler(0f, 0f, orientation.EnDegres()),
                 transform);
 
+            // Applique l'echelle definie sur l'asset objetInventaire,
+            // tout en compensant la scale du parent (le snap). Ainsi
+            // la taille finale reste celle voulue par le designer,
+            // quelle que soit la scale du snap.
+            AppliquerEchelleAuPlacement(ghostInstancie, piece);
+
             DesactiverColliders(ghostInstancie);
+            DesactiverCamerasEtLights(ghostInstancie);
         }
         else
         {
@@ -98,6 +105,78 @@ public class pointAncrageTuyau : MonoBehaviour
         {
             c.enabled = false;
         }
+    }
+
+    /// <summary>
+    /// Desactive toutes les Camera et Light enfants de l'instance.
+    /// Necessaire pour les meshes importes depuis Blender qui
+    /// embarquent souvent une FbxCamera et une Light dans le .fbx
+    /// (ex: bottle.fbx). Sans cette desactivation, ces objets
+    /// instancies prennent le controle du rendu (la Camera avec un
+    /// depth eleve rend la Game view depuis l'angle de la bouteille,
+    /// rendant le jeu inutilisable).
+    /// </summary>
+    private void DesactiverCamerasEtLights(GameObject instance)
+    {
+        if (instance == null) return;
+
+        Camera[] cams = instance.GetComponentsInChildren<Camera>(true);
+        foreach (Camera c in cams)
+        {
+            c.enabled = false;
+            c.gameObject.SetActive(false);
+        }
+
+        Light[] lights = instance.GetComponentsInChildren<Light>(true);
+        foreach (Light l in lights)
+        {
+            l.enabled = false;
+            l.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Applique au modele instancie la localScale definie sur le root
+    /// de son prefab, en compensant la scale du parent (le snap). Ainsi
+    /// la taille visuelle finale correspond exactement a celle du
+    /// prefab, quelle que soit la scale du snap_table.
+    /// </summary>
+    private void AppliquerEchelleAuPlacement(
+        GameObject instance, objetInventaire piece)
+    {
+        if (instance == null || piece == null) return;
+        if (piece.prefabModele3D == null) return;
+
+        Vector3 echelleCible = piece.prefabModele3D.transform.localScale;
+        Vector3 parentScale = transform.lossyScale;
+
+        instance.transform.localScale = new Vector3(
+            echelleCible.x / Mathf.Max(0.0001f, parentScale.x),
+            echelleCible.y / Mathf.Max(0.0001f, parentScale.y),
+            echelleCible.z / Mathf.Max(0.0001f, parentScale.z));
+
+        // Diagnostic taille : imprime ce qui influence reellement la
+        // taille visuelle finale. Si l'instance apparait trop grosse
+        // malgre ce calcul, les coupables sont generalement les scales
+        // internes du prefab (children) ou le Scale Factor du FBX.
+        Bounds b = CalculerBoundsMonde(instance);
+        Vector3 prefabRootScale = piece.prefabModele3D.transform.localScale;
+        Debug.Log($"[pointAncrageTuyau:{name}] DIAG TAILLE pour " +
+            $"'{piece.nomObjet}' | prefabRoot.localScale={prefabRootScale} " +
+            $"| snap.lossyScale={parentScale} " +
+            $"| instance.localScale={instance.transform.localScale} " +
+            $"| instance.lossyScale={instance.transform.lossyScale} " +
+            $"| bounding box monde={b.size}");
+    }
+
+    private Bounds CalculerBoundsMonde(GameObject go)
+    {
+        Renderer[] rends = go.GetComponentsInChildren<Renderer>();
+        if (rends.Length == 0)
+            return new Bounds(go.transform.position, Vector3.zero);
+        Bounds b = rends[0].bounds;
+        for (int i = 1; i < rends.Length; i++) b.Encapsulate(rends[i].bounds);
+        return b;
     }
 
     public void CacherGhost()
@@ -158,6 +237,9 @@ public class pointAncrageTuyau : MonoBehaviour
                 transform.position,
                 rotation,
                 transform);
+
+            AppliquerEchelleAuPlacement(pieceInstanciee, piece);
+            DesactiverCamerasEtLights(pieceInstanciee);
         }
 
         onRempli.Invoke();

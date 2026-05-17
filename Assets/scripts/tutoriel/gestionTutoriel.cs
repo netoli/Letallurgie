@@ -16,6 +16,13 @@ public class gestionTutoriel : MonoBehaviour
     [Header("Effets")]
     [SerializeField] private GameObject fxBrouillard;
 
+    [Header("Son d'apparition")]
+    [Tooltip("AudioSource qui jouera le son a l'apparition de la " +
+        "tuile. Le clip a jouer est configure directement sur " +
+        "l'AudioSource (champ AudioClip). Si null, aucun son n'est " +
+        "joue.")]
+    [SerializeField] private AudioSource audioSource;
+
     [Header("Parametres")]
     [SerializeField] private float vitesseFade;
 
@@ -71,6 +78,12 @@ public class gestionTutoriel : MonoBehaviour
         }
 
         DesactiverBrouillardSecurise();
+
+        // Joue le son d'apparition (clip configure sur l'AudioSource)
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
 
         if (coroutineFade != null)
             StopCoroutine(coroutineFade);

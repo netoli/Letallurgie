@@ -34,7 +34,8 @@ public class objetInventaire : ScriptableObject
     [Header("Specifique aux tuyaux et au drag-and-drop tuto")]
     [Tooltip("Prefab 3D instancie quand l'objet est place dans un " +
         "pointAncrageTuyau (utilise aussi comme ghost). Utilise par " +
-        "le tutoriel pour la bouteille/verre.")]
+        "le tutoriel pour la bouteille/verre. La taille au placement " +
+        "est definie par la localScale du root du prefab.")]
     public GameObject prefabModele3D;
     public bool estLeurre;
     public string descriptionInspection;

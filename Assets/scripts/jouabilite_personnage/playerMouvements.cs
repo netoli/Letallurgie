@@ -6,6 +6,14 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float gravity = -20f;
 
+    [Header("Sons de pas")]
+    [Tooltip("AudioSource utilisee pour jouer les sons de pas. Le " +
+        "clip est configure directement sur l'AudioSource (champ " +
+        "AudioClip). Pour un clip multi-pas (boucle), coche 'Loop' " +
+        "sur l'AudioSource. Decoche son Play On Awake. Si null, " +
+        "aucun son n'est joue.")]
+    [SerializeField] private AudioSource audioSourcePas;
+
     private CharacterController controller;
     private Vector3 velocity;
     private Animator animator;
@@ -68,10 +76,28 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("strafeDroit", x > 0.1f && enMarche);
         }
 
+        // Sons de pas : on demarre l'AudioSource quand le perso
+        // commence a bouger (au sol), et on l'arrete des qu'il
+        // s'immobilise ou saute. Le clip contient plusieurs pas en
+        // boucle (Loop coche sur l'AudioSource).
+        bool doitJouerPas = enMarche && controller.isGrounded;
+        if (audioSourcePas != null && audioSourcePas.clip != null)
+        {
+            if (doitJouerPas && !audioSourcePas.isPlaying)
+            {
+                audioSourcePas.Play();
+            }
+            else if (!doitJouerPas && audioSourcePas.isPlaying)
+            {
+                audioSourcePas.Stop();
+            }
+        }
+
         // NOTE : on NE signale PLUS automatiquement "deplacement" ici.
         // C'est le detecteurTuto place au pointeur (devant le bar) qui
         // doit fermer la tuile #1 quand le joueur l'atteint. Sinon la
         // tuile se fermait des le premier pas, avant que le joueur
         // n'arrive a la cible.
     }
+
 }

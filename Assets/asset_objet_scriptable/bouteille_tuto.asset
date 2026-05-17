@@ -16,3 +16,8 @@ MonoBehaviour:
   icone: {fileID: 21300000, guid: 510bf4090227f614f9f4efa4395367b0, type: 3}
   categorie: 0
   quantiteMax: 1
+  prefabModele3D: {fileID: 827836749186871765, guid: 51fed5fd6970cfc468e3e7a949e57222, type: 3}
+  estLeurre: 0
+  descriptionInspection: 
+  prefab3D: {fileID: 0}
+  id: 
