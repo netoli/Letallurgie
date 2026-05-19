@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesChapitre
   idChapitre: une_aide_precieuse
   nomAffiche: "Aide pr\xE9cieuse"
-  dureeAffichageBanniere: 4.5
+  dureeAffichageBanniere: 3.6
   delaiApparitionBanniere: 0
-  delaiAvantPremierTuto: 0.3
+  delaiAvantPremierTuto: 0.24
   tutoriels:
   - {fileID: 11400000, guid: 862f459abc78f4605a1a203eea3bd683, type: 2}
   - {fileID: 11400000, guid: b2a3c4d5e6f7081a2b3c4d5e6f7081a2, type: 2}

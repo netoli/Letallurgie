@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesChapitre
   idChapitre: premier_contact
   nomAffiche: Premier contact
-  dureeAffichageBanniere: 4.5
+  dureeAffichageBanniere: 3.6
   delaiApparitionBanniere: 0
-  delaiAvantPremierTuto: 0.3
+  delaiAvantPremierTuto: 0.24
   tutoriels:
   - {fileID: 11400000, guid: 107b609fe14cb423aa0cf4b71db42684, type: 2}
   - {fileID: 11400000, guid: a1f2b3c4d5e6f7081a2b3c4d5e6f7081, type: 2}

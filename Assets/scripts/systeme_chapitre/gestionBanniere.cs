@@ -59,6 +59,12 @@ public class gestionBanniere : MonoBehaviour
         "Decoche pour les activer a chaque banniere.")]
     [SerializeField] private bool particulesSeulementChangementChapitre = true;
 
+    [Tooltip("Delai (s) avant que les particules demarrent. Utile " +
+        "pour les synchroniser avec l'apparition du texte du chapitre " +
+        "(l'Animator du texte prend du temps a faire le fade in). " +
+        "Recommande : 0.2-0.5s selon ton animation. 0 = immediat.")]
+    [SerializeField] private float delaiAvantParticules = 0.3f;
+
     private Vignette vignette;
     private Coroutine vignetteCoroutineActive;
 
@@ -124,6 +130,23 @@ public class gestionBanniere : MonoBehaviour
             FadeVignette(cible, vignetteFadeDuree));
     }
 
+    private IEnumerator DemarrerParticulesApresDelai(float delai)
+    {
+        if (delai > 0f)
+            yield return new WaitForSecondsRealtime(delai);
+
+        if (particulesPleinEcran == null) yield break;
+
+        foreach (var ps in particulesPleinEcran)
+        {
+            if (ps != null)
+            {
+                ps.gameObject.SetActive(true);
+                ps.Play(true);
+            }
+        }
+    }
+
 public IEnumerator AfficherBanniere(
         string nomChapitre, float duree)
     {
@@ -157,22 +180,18 @@ public IEnumerator AfficherBanniere(
         }
 
         // Particules plein ecran : Play sur tous les systemes
-        // configures. Logique controlee par le flag
-        // particulesSeulementChangementChapitre.
+        // configures, AVEC UN DELAI optionnel pour les synchroniser
+        // avec l'apparition du texte (souvent l'animator du texte
+        // met du temps a faire son fade in, et on veut que les
+        // particules apparaissent en meme temps que le texte).
         bool activerParticules = particulesPleinEcran != null
             && particulesPleinEcran.Length > 0
             && (!particulesSeulementChangementChapitre
                 || nombreAffichages >= 2);
         if (activerParticules)
         {
-            foreach (var ps in particulesPleinEcran)
-            {
-                if (ps != null)
-                {
-                    ps.gameObject.SetActive(true);
-                    ps.Play(true);
-                }
-            }
+            StartCoroutine(DemarrerParticulesApresDelai(
+                delaiAvantParticules));
         }
         Debug.Log("[Banniere] Attente "
             + Mathf.Max(0.1f, duree - dureeFadeFinal) + "s");
