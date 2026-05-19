@@ -3,7 +3,7 @@ using UnityEngine;
 public class TestJournal : MonoBehaviour
 {
     // TEST !! A désactiver quand on a le personnage et les collisions
-    public void TestJDB()
+    /* public void TestJDB()
     {
         // Trouve tous les objets avec le tag indice
         GameObject[] objetsIndices = GameObject.FindGameObjectsWithTag("indice");
@@ -15,4 +15,5 @@ public class TestJournal : MonoBehaviour
                 ramasserIndice.SimulerRamassage();
         }
     }
+    */
 }
