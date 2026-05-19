@@ -172,6 +172,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 7954621723751404068}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 4880791969110538692}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
       insertIndex: -1
@@ -179,15 +182,25 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8323013031873029704}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5316588402364924332}
   m_SourcePrefab: {fileID: 100100000, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
 --- !u!1 &8250799173999397240 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}
   m_PrefabInstance: {fileID: 9097785765904987177}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7954621723751404068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8250799173999397240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f3fb34e3c1331445b0cd6462a951003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
+  _valeurPoids: 8
 --- !u!114 &4880791969110538692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,19 +262,6 @@ MonoBehaviour:
   imageJournal: {fileID: 0}
   sonRamasser: {fileID: 8300000, guid: 2219ad211fb290d448551c7794afb3cc, type: 3}
   idActionADeclencher: 
---- !u!114 &5316588402364924332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8250799173999397240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 332076acf3d16b341858c771375072f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
-  _valeurPoids: 8
 --- !u!4 &8776225460433605570 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0e80c954bcd3f9848b6651758ebca929, type: 3}

@@ -20,12 +20,12 @@ using UnityEngine.InputSystem;
 public class gestionInteractionClic : MonoBehaviour
 {
 
-    [Header("Param�tres")]
+    [Header("Paramètres")]
     [SerializeField] private float distObjet = 3f;
     [SerializeField] private LayerMask coucheObjet;
     [Header("Render")]
     [SerializeField] private Camera cam;
-    [Header("Interactivit�")]
+    [Header("Interactivité")]
     [SerializeField] private gestionPointeur pointeur;
 
     private RamasserIndice _indiceVise;
