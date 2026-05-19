@@ -6,6 +6,7 @@ public class lanterne_mouvement : MonoBehaviour
     public GameObject lumiere;
     private Vector3 position_demander;
     private Vector3 og_pos;
+    public float dif=1f;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -22,6 +23,6 @@ public class lanterne_mouvement : MonoBehaviour
     }
     void changer_lumiere_place()
     {
-        position_demander= new Vector3(Random.Range(-0.1f,0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+        position_demander= new Vector3(Random.Range(-0.1f,0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f))*dif;
     }
 }
