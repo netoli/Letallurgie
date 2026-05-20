@@ -173,7 +173,13 @@ public IEnumerator AfficherBanniere(
         // Vignette : on n'active l'effet qu'a partir de la 2e banniere
         // (changement de chapitre). La toute premiere banniere du jeu
         // ne declenche pas la vignette pour ne pas saturer l'entree.
-        bool activerVignettePourCetteBanniere = nombreAffichages >= 2;
+        // Exception : si particulesSeulementChangementChapitre est
+        // decoche (false), on autorise l'effet des la 1ere banniere
+        // (utile dans les scenes hors-tuto comme recherche_indices,
+        // ou la 1ere banniere "Mener l'enquete" doit etre dramatique).
+        bool activerVignettePourCetteBanniere =
+            nombreAffichages >= 2
+            || !particulesSeulementChangementChapitre;
         if (activerVignettePourCetteBanniere)
         {
             DemarrerFadeVignette(vignetteIntensiteCible);

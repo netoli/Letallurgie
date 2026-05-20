@@ -59,6 +59,10 @@ public class gestionChapitres : MonoBehaviour
     private DonneesChapitre chapitreActuel;
     private DonneesTutoriel tutoActuel;
     private HashSet<string> tutosVus = new HashSet<string>();
+    // Toutes les actions signalees depuis le debut de la session.
+    // Permet a une tuile de verifier si son idActionAnnulation a deja
+    // ete signalee AVANT son affichage (auquel cas la tuile est sautee).
+    private HashSet<string> actionsSignalees = new HashSet<string>();
 
     [Header("Cin�matiques")]
     [SerializeField] private VideoClip[] cinematique;
@@ -113,7 +117,7 @@ public class gestionChapitres : MonoBehaviour
         // Bloquer le deplacement WASD tant que la premiere tuile
         // de tuto n'est pas affichee (uniquement dans la scene tuto).
         // Le regard a la souris reste autorise.
-        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
             MouvementAutorise = false;
 
         StartCoroutine(SequenceDemarrageChapitre(chapitre));
@@ -122,11 +126,36 @@ public class gestionChapitres : MonoBehaviour
     private IEnumerator SequenceDemarrageChapitre(DonneesChapitre chapitre)
     {
 
-        // Ne pas afficher de tutoriels si on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
-            yield break;
+        // Comportement par scene :
+        // - scene_taverne_tutoriel : sequence complete (banniere +
+        //   tutoriels). C'est l'usage premier du systeme.
+        // - autres scenes (ex : scene_taverne_recherche_indices) :
+        //   on autorise la banniere annonce-chapitre, mais on
+        //   n'affiche pas les tutoriels (la sequence s'arrete apres
+        //   la banniere). Permet d'annoncer un nouveau chapitre
+        //   narratif (genre "Mener l'enquete") sans devoir y
+        //   accrocher des tuiles tuto.
+        string sceneActuelle = SceneManager.GetActiveScene().name;
+        bool sceneEstTutoriel = sceneActuelle == "scene_taverne_tutoriel";
 
         Debug.Log("[Chapitre] Demarrage: " + chapitre.idChapitre);
+
+        // Bloquer les mouvements du personnage pendant l'affichage
+        // de la banniere annonce-chapitre, SAUF pour le tout premier
+        // chapitre (premier_contact) qui a deja sa propre logique de
+        // blocage (DemarrerChapitre met deja MouvementAutorise=false
+        // pour ce chapitre, et le reactive a la 1ere tuile de tuto).
+        // Pour les chapitres suivants (aide_precieuse, mener_enquete,
+        // et les bannières "Reparler/Ecouter au tavernier" affichées
+        // comme bannières), on fige le joueur pendant la bannière et
+        // on re-autorise les mouvements une fois la bannière terminée.
+        bool bloquerMouvementsPourBanniere =
+            chapitre.idChapitre != "premier_contact";
+        bool mouvementsEtaientAutorises = MouvementAutorise;
+        if (bloquerMouvementsPourBanniere)
+        {
+            MouvementAutorise = false;
+        }
 
         yield return new WaitForSecondsRealtime(chapitre.delaiApparitionBanniere);
 
@@ -137,6 +166,21 @@ public class gestionChapitres : MonoBehaviour
             chapitre.dureeAffichageBanniere));
 
         Debug.Log("[Chapitre] Banniere terminee");
+
+        // Restaurer l'état des mouvements après la bannière. Si on
+        // n'avait pas bloqué, on ne change rien (le 1er chapitre
+        // garde sa propre logique). Sinon on remet l'état tel qu'il
+        // était avant pour ne pas écraser un autre verrou éventuel.
+        if (bloquerMouvementsPourBanniere)
+        {
+            MouvementAutorise = mouvementsEtaientAutorises;
+        }
+
+        // Si on n'est pas dans la scene tutoriel, la sequence s'arrete
+        // ici : on ne deroule pas les tuiles de tuto (le chapitre sert
+        // juste a annoncer une nouvelle phase narrative).
+        if (!sceneEstTutoriel)
+            yield break;
 
         yield return new WaitForSecondsRealtime(chapitre.delaiAvantPremierTuto);
 
@@ -180,6 +224,11 @@ public class gestionChapitres : MonoBehaviour
     {
         if (string.IsNullOrEmpty(idAction)) return;
 
+        // Memoriser l'action pour les futures verifications
+        // d'idActionAnnulation (une tuile pas encore affichee peut
+        // etre sautee si son action d'annulation a deja eu lieu).
+        actionsSignalees.Add(idAction);
+
         // Notifier les abonnes (declencheurAction etc.) AVANT de
         // traiter la tuile. Comme ca l'event passe meme si aucune
         // tuile n'est active (cas des etapes silencieuses : audio
@@ -194,6 +243,20 @@ public class gestionChapitres : MonoBehaviour
         if (!string.IsNullOrEmpty(tutoActuel.idActionRequise)
             && tutoActuel.idActionRequise == idAction)
         {
+            FermerTutoActuel(true);
+            return;
+        }
+
+        // Si l'action correspond a l'idActionAnnulation de la tuile
+        // actuellement affichee, on la ferme aussi (et on la marque
+        // comme vue pour ne pas la reafficher). Cas typique : tuile
+        // menu_pause affichee, mais le joueur laisse le dialogue
+        // progresser sans ouvrir le menu pause -> tuile sautee.
+        if (!string.IsNullOrEmpty(tutoActuel.idActionAnnulation)
+            && tutoActuel.idActionAnnulation == idAction)
+        {
+            Debug.Log($"[Chapitre] Tuile '{tutoActuel.idDeclencheur}' " +
+                $"annulee par action '{idAction}'.");
             FermerTutoActuel(true);
         }
 
@@ -289,18 +352,76 @@ public class gestionChapitres : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Coroutine qui affiche une banniere annonce-chapitre tout en
+    /// bloquant les mouvements WASD du joueur pendant l'animation.
+    /// Utilise pour les tuiles tuto marquees "afficherCommeBanniere"
+    /// (typiquement des indications narratives comme "Reparler au
+    /// tavernier"). Apres la banniere, on REAUTORISE les mouvements
+    /// afin que le joueur puisse aller interagir avec ce que la
+    /// banniere demande (parler au tavernier, etc.).
+    /// </summary>
+    private IEnumerator AfficherBanniereEtBloquerMouvements(
+        string titre, float duree)
+    {
+        MouvementAutorise = false;
+        yield return StartCoroutine(
+            gestionBanniere.AfficherBanniere(titre, duree));
+        // Toujours reautoriser les mouvements apres la banniere :
+        // le joueur a besoin de bouger pour faire l'action que la
+        // banniere indique (ex : reparler au tavernier).
+        MouvementAutorise = true;
+    }
+
     private void AfficherTuto(DonneesTutoriel tuto)
     {
         // Bloquer le tutoriel quand on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
             return;
 
-        // Des qu'une tuile de tuto s'affiche, autoriser le deplacement
-        // WASD du joueur (le regard a la souris etait deja autorise).
-        MouvementAutorise = true;
+        // SKIP : si l'idActionAnnulation de cette tuile a deja ete
+        // signalee avant son affichage, on la saute (et on passe a la
+        // prochaine du chapitre). Ex : tuile menu_pause/options avec
+        // idActionAnnulation="demande_aide_faite" ne s'affiche pas si
+        // la 1ere etape du dialogue est deja terminee.
+        if (!string.IsNullOrEmpty(tuto.idActionAnnulation)
+            && actionsSignalees.Contains(tuto.idActionAnnulation))
+        {
+            Debug.Log($"[Chapitre] Tuile '{tuto.idDeclencheur}' " +
+                $"sautee : action d'annulation '{tuto.idActionAnnulation}' " +
+                $"deja signalee.");
+            tutosVus.Add(tuto.idDeclencheur);
+            SauvegarderTutosVus();
+            // Avancer immediatement a la tuile suivante du chapitre
+            AvancerVersProchaineTuile();
+            return;
+        }
 
         tutoActuel = tuto;
-        gestionTutoriel.AfficherTuto(tuto);
+
+        // Branche : si l'etape est marquee comme "afficher comme
+        // banniere" (typiquement les etapes narratives qui ne sont
+        // pas du tutoriel a proprement parler, ex : "Reparler au
+        // tavernier"), on utilise la banniere annonce-chapitre au
+        // lieu d'une tuile tutoriel. L'idActionRequise continue de
+        // fonctionner normalement pour fermer l'etape.
+        // Sous cette branche, on BLOQUE les mouvements pendant la
+        // banniere (et on les laisse bloques jusqu'a la prochaine
+        // tuile tuto qui les reautorisera).
+        if (tuto.afficherCommeBanniere && gestionBanniere != null)
+        {
+            MouvementAutorise = false;
+            StartCoroutine(AfficherBanniereEtBloquerMouvements(
+                tuto.titre, tuto.dureeBanniere));
+        }
+        else
+        {
+            // Tuile de tuto classique : on autorise les mouvements
+            // (premier_contact bloque jusqu'a cette ligne via la
+            // logique de DemarrerChapitre).
+            MouvementAutorise = true;
+            gestionTutoriel.AfficherTuto(tuto);
+        }
 
         // ----- Detecteurs (triggers de zone) -----
         // On desactive tous les detecteurs, puis on active celui qui
@@ -350,6 +471,42 @@ public class gestionChapitres : MonoBehaviour
                 }
             }
         }
+
+        // ----- Auto-fermeture des tuiles informatives -----
+        // Si dureeAuto > 0, on demarre un timer qui fermera la tuile
+        // automatiquement et passera a l'etape suivante du chapitre.
+        // Cela permet aux tuiles "informatives" (ex : menu_pause,
+        // options) de ne pas bloquer le tutoriel : le joueur les voit
+        // pendant quelques secondes puis le tuto continue meme s'il
+        // n'a pas effectue l'action.
+        if (tuto.dureeAuto > 0f && !tuto.afficherCommeBanniere)
+        {
+            StartCoroutine(AutoFermerTuileApresDelai(
+                tuto, tuto.dureeAuto));
+        }
+    }
+
+    /// <summary>
+    /// Ferme automatiquement la tuile tutoriel apres un delai donne,
+    /// si elle est toujours affichee. Ne ferme pas si l'utilisateur a
+    /// deja avance (autre tuto, idActionRequise signalee, etc.).
+    /// </summary>
+    private IEnumerator AutoFermerTuileApresDelai(
+        DonneesTutoriel cible, float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+
+        // Verifier qu'on est toujours sur la meme tuile (le joueur n'a
+        // pas avance entre-temps en accomplissant l'action ou en
+        // appuyant sur ESC).
+        if (tutoActuel == cible)
+        {
+            Debug.Log($"[Chapitre] Auto-fermeture tuile informative " +
+                $"'{cible.idDeclencheur}' apres {delai}s.");
+            // Ferme la tuile et marque-la comme vue pour passer a la
+            // suivante du chapitre.
+            FermerTutoActuel(true);
+        }
     }
 
     private void FermerTutoActuel(bool marquerVu)
@@ -368,6 +525,16 @@ public class gestionChapitres : MonoBehaviour
         gestionTutoriel.FermerTuto();
         tutoActuel = null;
 
+        AvancerVersProchaineTuile();
+    }
+
+    /// <summary>
+    /// Cherche la prochaine tuile non vue du chapitre courant et
+    /// l'affiche apres un petit delai. Si aucune tuile n'est en
+    /// attente, enchaine sur le prochain chapitre ou la cinematique.
+    /// </summary>
+    private void AvancerVersProchaineTuile()
+    {
         // S'il reste un tuto a afficher, l'afficher
         if (chapitreActuel == null) return;
 
@@ -385,31 +552,82 @@ public class gestionChapitres : MonoBehaviour
         // D�lai pour laisser du temps au fade out
         if (prochain != null)
         {
-            Debug.Log($"[Chapitre] Passage � la prochaine �tape: {prochain.idDeclencheur}");
-            // Petite attente pour laisser le fade out se faire
-            StartCoroutine(AfficherProchainTutoApresDelai(prochain, 0.25f));
+            Debug.Log($"[Chapitre] Passage � la prochaine �tape: {prochain.idDeclencheur} (delai {prochain.delaiAvantApparition}s)");
+            // Le delai est configurable par tuile (defaut 0.25s) pour
+            // permettre des respirations narratives plus longues sur
+            // certaines tuiles informatives.
+            StartCoroutine(AfficherProchainTutoApresDelai(prochain, prochain.delaiAvantApparition));
         }
         else
         {
             Debug.Log("[Chapitre] Aucune etape suivante non vue dans ce chapitre.");
 
-            // S'il y a un prochain chapitre, l'enchainer (sa banniere
-            // s'affichera). Sinon, jouer la cinematique de fin.
-            if (chapitreActuel.prochainChapitre != null)
+            // Verifier s'il faut attendre une action de fin de chapitre
+            // avant d'enchainer (ex: fin de la 1ere etape du dialogue
+            // tav_1 dans premier_contact). Sans cette attente, le
+            // dureeAuto des tuiles ferait demarrer le prochain chapitre
+            // pendant que le dialogue est encore en cours.
+            string idAttenteFin = chapitreActuel.idActionRequiseFinChapitre;
+            if (!string.IsNullOrEmpty(idAttenteFin)
+                && !actionsSignalees.Contains(idAttenteFin))
             {
-                Debug.Log($"[Chapitre] Enchainement vers: {chapitreActuel.prochainChapitre.idChapitre}");
-                StartCoroutine(EnchainerChapitreApresDelai(
-                    chapitreActuel.prochainChapitre,
-                    chapitreActuel.delaiAvantProchainChapitre));
+                Debug.Log($"[Chapitre] Tuiles fermees mais attente de " +
+                    $"'{idAttenteFin}' avant d'enchainer le prochain " +
+                    $"chapitre.");
+                StartCoroutine(AttendreActionPuisEnchainer(idAttenteFin));
             }
             else
             {
-                string nomCine = string.IsNullOrEmpty(chapitreActuel.nomCinematiqueAuFin)
-                    ? "cinematique1"
-                    : chapitreActuel.nomCinematiqueAuFin;
-                Debug.Log($"[Chapitre] Lancement cinematique de fin: {nomCine}");
-                StartCoroutine(JouerCinematique(nomCine, 3f));
+                EnchainerOuLancerCinematique();
             }
+        }
+    }
+
+    /// <summary>
+    /// Attend qu'une action specifique soit signalee avant d'enchainer
+    /// sur le prochain chapitre (ou la cinematique). Utilise quand une
+    /// tuile s'est fermee via dureeAuto mais qu'un evenement narratif
+    /// (ex: fin d'une etape de dialogue) doit encore se produire avant
+    /// que la suite s'enchaine.
+    /// </summary>
+    private IEnumerator AttendreActionPuisEnchainer(string idAction)
+    {
+        while (!actionsSignalees.Contains(idAction))
+        {
+            yield return null;
+        }
+        Debug.Log($"[Chapitre] Action '{idAction}' signalee, " +
+            $"enchainement du prochain chapitre.");
+        EnchainerOuLancerCinematique();
+    }
+
+    /// <summary>
+    /// Demarre le prochainChapitre s'il existe, sinon lance la
+    /// cinematique de fin. Centralise la logique de transition pour
+    /// pouvoir l'appeler depuis plusieurs endroits (fin normale ou
+    /// fin avec attente d'action).
+    /// </summary>
+    private void EnchainerOuLancerCinematique()
+    {
+        if (chapitreActuel == null) return;
+
+        if (chapitreActuel.prochainChapitre != null)
+        {
+            Debug.Log($"[Chapitre] Enchainement vers: " +
+                $"{chapitreActuel.prochainChapitre.idChapitre}");
+            StartCoroutine(EnchainerChapitreApresDelai(
+                chapitreActuel.prochainChapitre,
+                chapitreActuel.delaiAvantProchainChapitre));
+        }
+        else
+        {
+            string nomCine = string.IsNullOrEmpty(
+                chapitreActuel.nomCinematiqueAuFin)
+                ? "cinematique1"
+                : chapitreActuel.nomCinematiqueAuFin;
+            Debug.Log($"[Chapitre] Lancement cinematique de fin: " +
+                $"{nomCine}");
+            StartCoroutine(JouerCinematique(nomCine, 1.5f));
         }
     }
 
@@ -483,6 +701,13 @@ public class gestionChapitres : MonoBehaviour
 
     public System.Collections.IEnumerator JouerCinematique(string nomCinematique, float delaiAvantCinematique)
     {
+        // Geler les mouvements du personnage des le debut de la
+        // cinematique (et meme pendant le delai d'attente). Le
+        // PlayerMovement consulte MouvementAutorise pour decider
+        // s'il accepte les inputs WASD. On le remet a true au
+        // chargement de la prochaine scene si necessaire.
+        MouvementAutorise = false;
+
         yield return new WaitForSecondsRealtime(delaiAvantCinematique);
 
         // Faire jouer le video player en lui assignant la vid�o correspondante au nomCinematique
@@ -528,7 +753,26 @@ public class gestionChapitres : MonoBehaviour
             Debug.Log("[Chapitre] indices_jouabilite active.");
         }
 
-        SceneManager.LoadScene("SCENE1-Taverne1");
+        // Capture la position et rotation actuelles du Player avant
+        // le changement de scene, afin de les restaurer dans
+        // scene_taverne_recherche_indices (le joueur garde sa derniere
+        // position au lieu de respawner au point initial du tutoriel).
+        var playerGo = GameObject.FindGameObjectWithTag("Player");
+        if (playerGo == null)
+        {
+            // Fallback : chercher par script si pas de tag "Player"
+            var pm = FindFirstObjectByType<PlayerMovement>(
+                FindObjectsInactive.Include);
+            if (pm != null) playerGo = pm.gameObject;
+        }
+        if (playerGo != null)
+            PositionPlayerEntreScenes.Capturer(playerGo.transform);
+        else
+            Debug.LogWarning(
+                "[Chapitre] Player introuvable avant LoadScene - "
+                + "la position ne sera pas preservee.");
+
+        SceneManager.LoadScene("scene_taverne_recherche_indices");
         gestionAudio.Instance.JouerMusiquesTaverne();
     }
 

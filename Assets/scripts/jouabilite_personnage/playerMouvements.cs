@@ -25,6 +25,14 @@ public class PlayerMovement : MonoBehaviour
 
         if (animator == null)
             Debug.LogWarning("Animator non trouvé !");
+
+        // Si une position a ete capturee avant le precedent LoadScene
+        // (ex : transition tutoriel -> recherche_indices apres la
+        // cinematique), on la restaure ici pour que le joueur garde
+        // sa derniere position. Le CharacterController est
+        // temporairement desactive le temps de la teleportation.
+        PositionPlayerEntreScenes.AppliquerSiDisponible(
+            transform, controller);
     }
 
     void Update()

@@ -33,4 +33,12 @@ public class DonneesChapitre : ScriptableObject
 
     [Tooltip("Délai (s) avant le démarrage du prochain chapitre (laisse le temps au fade out de la dernière tuile).")]
     public float delaiAvantProchainChapitre = 1f;
+
+    [Tooltip("Si renseigne, le chapitre attendra que cette action " +
+        "soit signalee avant d'enchainer sur le prochainChapitre " +
+        "(meme si toutes les tuiles sont fermees). Utile quand des " +
+        "tuiles ont un dureeAuto et finissent avant la vraie fin " +
+        "narrative (ex: dialogue PNJ en cours). Laisser vide pour " +
+        "le comportement par defaut (enchainement immediat).")]
+    public string idActionRequiseFinChapitre;
 }

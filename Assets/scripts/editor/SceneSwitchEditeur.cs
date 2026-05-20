@@ -19,12 +19,12 @@ public class SceneSwitchEditeur : Editor
 
                 if (GUILayout.Button("Charger Scène Principale"))
                 {
-                    SceneManager.LoadScene("SCENE0-Menu-Tuto");
+                    SceneManager.LoadScene("scene_taverne_tutoriel");
                 }
 
                 if (GUILayout.Button("Charger Scène Taverne1"))
                 {
-                    SceneManager.LoadScene("SCENE1-Taverne1");
+                    SceneManager.LoadScene("scene_taverne_recherche_indices");
                 }
 
                 if (GUILayout.Button("Charger Scène Usine"))

@@ -21,6 +21,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 107b609fe14cb423aa0cf4b71db42684, type: 2}
   - {fileID: 11400000, guid: a1f2b3c4d5e6f7081a2b3c4d5e6f7081, type: 2}
   - {fileID: 11400000, guid: 5fa551ed7084f4f129c93d95641b02d9, type: 2}
+  - {fileID: 11400000, guid: c6baf9eb0eb94be982c3d9df25d3de49, type: 2}
   prochainChapitre: {fileID: 11400000, guid: 17b8c9d0e1f2a3b4c5d6e7f8091a2b3c, type: 2}
-  nomCinematiqueAuFin: 
+  nomCinematiqueAuFin:
   delaiAvantProchainChapitre: 1
+  idActionRequiseFinChapitre: demande_aide_faite

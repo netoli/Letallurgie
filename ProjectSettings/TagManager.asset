@@ -14,6 +14,7 @@ TagManager:
   - volumePersonnalise
   - obj_int
   - tavernier
+  - pnj
   layers:
   - Default
   - TransparentFX

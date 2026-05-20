@@ -81,13 +81,13 @@ public class gestionsTransitions : MonoBehaviour
 
     void Start()
     {
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
         {
-            // Désactiver le flou
+            // Dï¿½sactiver le flou
             if (gestionFlou != null)
                 gestionFlou.DesactiverFlou();
 
-            // Activer la caméra de jeu
+            // Activer la camï¿½ra de jeu
             if (vcamJeu != null)
                 vcamJeu.Priority = 50;
 
@@ -97,7 +97,22 @@ public class gestionsTransitions : MonoBehaviour
             // Activer le joueur
             ActiverJoueur();
 
-            // Désactiver complètement ce script pour éviter qu'il interfère
+            // Demarrer le chapitre approprie selon la scene chargee.
+            // Pour scene_taverne_recherche_indices : on annonce la
+            // nouvelle phase narrative via la banniere "Mener l'enquete".
+            // Important : ce code DOIT etre dans Start() (pas dans
+            // DesactiverMenu) car apres une cinematique + LoadScene,
+            // on n'a pas besoin de "quitter le menu" â€” la scene se
+            // charge directement.
+            string sc = SceneManager.GetActiveScene().name;
+            if (sc == "scene_taverne_recherche_indices"
+                && gestionChapitres.Instance != null)
+            {
+                gestionChapitres.Instance.DemarrerChapitre(
+                    "mener_enquete");
+            }
+
+            // Dï¿½sactiver complï¿½tement ce script pour ï¿½viter qu'il interfï¿½re
             this.enabled = false;
             return;
         }
@@ -291,7 +306,7 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+            if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
             {
                 gestionAudio.Instance.JouerMusiquesTutoriel();
             }
@@ -327,7 +342,7 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            if (SceneManager.GetActiveScene().name == "SCENE1-Taverne1")
+            if (SceneManager.GetActiveScene().name == "scene_taverne_recherche_indices")
             {
                 gestionAudio.Instance.JouerMusiquesTaverne();
             }
@@ -586,9 +601,31 @@ public class gestionsTransitions : MonoBehaviour
         Debug.Log("[Transitions] gestionChapitres.Instance = "
             + (gestionChapitres.Instance != null ? "OK" : "NULL"));
 
+        // Demarre le chapitre initial UNIQUEMENT en SCENE0 (tuto).
+        // En scene_taverne_recherche_indices (et autres scenes ulterieures), aucun
+        // chapitre n'est demarre automatiquement ici : ce sera a
+        // un autre declencheur (interaction PNJ, zone, etc.) de
+        // declencher le chapitre approprie.
         if (gestionChapitres.Instance != null)
-            gestionChapitres.Instance.DemarrerChapitre(
-                "premier_contact");
+        {
+            string sceneActuelle = UnityEngine.SceneManagement
+                .SceneManager.GetActiveScene().name;
+            if (sceneActuelle == "scene_taverne_tutoriel")
+            {
+                gestionChapitres.Instance.DemarrerChapitre(
+                    "premier_contact");
+            }
+            // Note : "mener_enquete" pour scene_taverne_recherche_indices
+            // est declenche depuis Start() (pas ici), car DesactiverMenu
+            // n'est appele que depuis le bouton Continuer du menu, pas
+            // apres un LoadScene de cinematique.
+            else
+            {
+                Debug.Log($"[Transitions] Scene '{sceneActuelle}' " +
+                    "non-tuto : aucun chapitre demarre " +
+                    "automatiquement.");
+            }
+        }
     }
 
     private void DesactiverOptionsCredits()

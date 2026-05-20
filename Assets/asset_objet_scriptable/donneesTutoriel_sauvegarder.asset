@@ -15,5 +15,6 @@ MonoBehaviour:
   idDeclencheur: sauvegarder
   idActionRequise: sauvegarde_faite
   titre: Sauvegarder
-  explication: Appuie sur K pour sauvegarder rapidement, ou passe par le menu pause.
+  explication: "<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">k</gradient></font></b></size>
+    pour sauvegarder rapidement."
   image: {fileID: 21300000, guid: 252d5fb27f59b4ef1b33adf6a8895f8c, type: 3}

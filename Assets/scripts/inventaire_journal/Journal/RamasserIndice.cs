@@ -5,21 +5,21 @@
 // Date        : 09/04/2026
 // ------------------------------------------------------------
 // Description :
-//   Attaché sur chaque objet indice dans la scène. Détecte
+//   Attachï¿½ sur chaque objet indice dans la scï¿½ne. Dï¿½tecte
 //   quand le joueur entre en collision avec l'objet, joue un son,
-//   envoie ses données au JournalManager et détruit l'objet (si 
+//   envoie ses donnï¿½es au JournalManager et dï¿½truit l'objet (si 
 //   c'est pas un NPC).
 // ------------------------------------------------------------
-// Dépendances :
+// Dï¿½pendances :
 //   - JournalManager.cs : appelle AjouterEntreeJournal() pour
-//     créer le slot dans le journal
+//     crï¿½er le slot dans le journal
 // ============================================================
 using System.Collections;
 using UnityEngine;
 
 public class RamasserIndice : MonoBehaviour
 {
-    [Header("Données de l'indice")]
+    [Header("Donnï¿½es de l'indice")]
 
     [SerializeField] public string titre;
     [SerializeField] public string description;
@@ -33,33 +33,44 @@ public class RamasserIndice : MonoBehaviour
     {
         if (_dejaInteragi) return;
 
-        Debug.Log("Ramasser() appelé sur : " + gameObject.name);
+        Debug.Log("Ramasser() appelï¿½ sur : " + gameObject.name);
 
-        bool estPnj = gameObject.name.Contains("pnj_mysterieux");
+        // Le dialogue PNJ mysterieux se declenche si le GameObject porte
+        // le nom "pnj_mysterieux" OU "npc" (selon la scene : la collegue
+        // utilise "pnj_mysterieux" dans environnement_taverne1, et le
+        // tutoriel utilise "npc" dans monde_assets). On accepte les deux
+        // pour rester compatible avec les deux organisations de scene.
+        bool estPnj = gameObject.name.Contains("pnj_mysterieux")
+            || gameObject.name == "npc";
 
         // Jouer l'effet sonore au grab
         if (gestionAudio.Instance != null && sonRamasser != null)
             gestionAudio.Instance.JouerSFX(sonRamasser);
 
         Debug.Log("Avant AjouterEntreeJournal - entrees count : " + JournalManager.Instance.entrees.Count);
-        // Créer une instance du prefab de slot dans le journal avec les données rentrées dans l'inspecteur
+        // Crï¿½er une instance du prefab de slot dans le journal avec les donnï¿½es rentrï¿½es dans l'inspecteur
         JournalManager.Instance.AjouterEntreeJournal(img, titre, description, insight);
-        Debug.Log("Après AjouterEntreeJournal - entrees count : " + JournalManager.Instance.entrees.Count);
+        Debug.Log("Aprï¿½s AjouterEntreeJournal - entrees count : " + JournalManager.Instance.entrees.Count);
 
+        _dejaInteragi = true;
+
+        // ARCHITECTURE REFACTOREE (option 1) :
+        // Pour les PNJ, le dialogue n'est PLUS joue par ce script.
+        // C'est le composant DialogueTuto attache au meme GameObject
+        // qui joue le dialogue (systeme uniforme avec le tavernier).
+        // Cette methode Ramasser() est appelee a la fin du dialogue
+        // via un declencheurAction qui ecoute idActionAFin de l'etape.
+        // Ramasser() ajoute donc juste l'entree au journal + SFX,
+        // sans demarrer JouerDialoguePnj (devenue obsolete).
         if (estPnj)
         {
-            gestionSousTitre sousTitre =
-                FindFirstObjectByType<gestionSousTitre>(FindObjectsInactive.Include);
-            if (sousTitre != null)
-                StartCoroutine(JouerDialoguePnj(sousTitre));
-            else
-                Debug.LogWarning("[RamasserIndice] gestionSousTitre introuvable!");
-
-            _dejaInteragi = true;
+            // On ne detruit pas le PNJ - il reste present dans la
+            // scene meme apres avoir donne son indice.
             return;
-        }else
+        }
+        else
         {
-            // Si l'objet sur lequel ce script est attaché ne s'appelle pas "pnj_mysterieux", le détruire
+            // Si l'objet sur lequel ce script est attachï¿½ ne s'appelle pas "pnj_mysterieux", le dï¿½truire
             Destroy(gameObject);
         }
 
@@ -83,25 +94,25 @@ public class RamasserIndice : MonoBehaviour
         sousTitre.gameObject.SetActive(true);
 
         sousTitre.AfficherSousTitre(
-            "Villageois mystérieux",
+            "Villageois mystï¿½rieux",
             "Je n'y crois pas! Le tavernier!",
             3f);
         yield return new WaitForSeconds(3.2f);
 
         sousTitre.AfficherSousTitre(
-            "Villageois mystérieux",
+            "Villageois mystï¿½rieux",
             "Je le connais depuis qu'il est tout petit.",
             3f);
         yield return new WaitForSeconds(3.2f);
 
         sousTitre.AfficherSousTitre(
-            "Villageois mystérieux",
-            "JAMAIS je n'aurais pensé...",
+            "Villageois mystï¿½rieux",
+            "JAMAIS je n'aurais pensï¿½...",
             4f);
         yield return new WaitForSeconds(3.2f);
 
         sousTitre.AfficherSousTitre(
-            "Villageois mystérieux",
+            "Villageois mystï¿½rieux",
             "Que le tavernier serait un criminel!",
             4f);
         yield return new WaitForSeconds(3.5f);

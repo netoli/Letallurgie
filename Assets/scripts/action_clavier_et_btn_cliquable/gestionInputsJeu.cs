@@ -86,10 +86,25 @@ public class gestionInputsJeu : MonoBehaviour
     private bool attenteAction = false;
     private bool sourisVerrouillee = false;
 
+    // Tracking du press long sur ESC. Quand le joueur maintient ESC
+    // au moins escDureeLongPress secondes, on ouvre le menu pause —
+    // peu importe le contexte (dialogue, tuile tuto, etc.). Press
+    // court (relachement avant ce delai) : action contextuelle
+    // (skip dialogue, fermer tuile, back menu).
+    private const float escDureeLongPress = 1f;
+    private float escAppuyeDepuis = -1f;
+    private bool escLongPressDeclenche = false;
+    // True si le long press a effectivement ouvert le menu pause
+    // (on etait EnJeu). Si on etait deja dans un autre etat (EnPause,
+    // DansJournal, etc.), le long press ne fait rien et on doit
+    // permettre au release de faire l'action contextuelle (sinon ESC
+    // pour fermer le menu pause ne marche plus apres 1s d'appui).
+    private bool escMenuOuvertParLongPress = false;
+
     void Start()
     {
         // D�sactiver le menu principal si on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
         {
             if (canvasMenu != null)
                 canvasMenu.SetActive(false);
@@ -388,8 +403,17 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
+            // ESPACE : toggle verrouillage du curseur OS.
+            // Permet au joueur de "lacher" la souris pour cliquer sur
+            // une UI hors-jeu (Editor, autre fenetre), ou de la
+            // reverrouiller au centre pour continuer le gameplay.
             if (etatActuel == EtatJeu.EnJeu)
-                MettreEnPause();
+            {
+                if (sourisVerrouillee)
+                    DeverrouillerSouris();
+                else
+                    VerrouillerSouris();
+            }
         }
 
         if (Keyboard.current.qKey.wasPressedThisFrame)
@@ -400,33 +424,73 @@ public class gestionInputsJeu : MonoBehaviour
             return;
         }
 
+        // === Gestion ESC : short press (contextuel) vs long press (menu pause) ===
+        // Quand ESC est appuye, on enregistre l'instant. Si maintenu
+        // pendant escDureeLongPress (1s), on ouvre le menu pause. Si
+        // relache avant, on execute l'action contextuelle (skip
+        // dialogue, fermer tuile, etc.).
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // Priorite #1 : si un dialogue est en train de defiler,
-            // ESC saute la ligne courante (le joueur a deja lu).
-            if (DialogueTuto.DialogueActif != null
-                && DialogueTuto.DialogueActif.DialogueEnCours)
+            escAppuyeDepuis = Time.unscaledTime;
+            escLongPressDeclenche = false;
+            escMenuOuvertParLongPress = false;
+        }
+        else if (Keyboard.current.escapeKey.isPressed
+            && escAppuyeDepuis > 0
+            && !escLongPressDeclenche)
+        {
+            // Press maintenu : si la duree depasse le seuil, on
+            // declenche le menu pause (uniquement si on est en jeu).
+            if (Time.unscaledTime - escAppuyeDepuis >= escDureeLongPress)
             {
-                DialogueTuto.DialogueActif.SkipLigneCourante();
-                return;
+                escLongPressDeclenche = true;
+                if (etatActuel == EtatJeu.EnJeu)
+                {
+                    escMenuOuvertParLongPress = true;
+                    MettreEnPause();
+                }
+                // Sinon : on etait deja dans un autre etat (EnPause,
+                // DansJournal, etc.). Le long press ne fait rien, mais
+                // on laisse escMenuOuvertParLongPress = false pour que
+                // le release puisse declencher l'action contextuelle
+                // (ex : ESC pour fermer le menu pause).
             }
-
-            // Priorite #2 : si un tuto (tuile) est affiche, ESC le ferme.
-            if (gestionChapitres.Instance != null
-                && gestionChapitres.Instance.TutoEstAffiche())
+        }
+        else if (Keyboard.current.escapeKey.wasReleasedThisFrame
+            && escAppuyeDepuis > 0)
+        {
+            // Press relache : si le long press a effectivement OUVERT
+            // le menu pause, ne rien refaire. Sinon (short press OU
+            // long press hors EnJeu), executer l'action contextuelle.
+            if (!escMenuOuvertParLongPress)
             {
-                gestionChapitres.Instance.FermerTutoParEsc();
-                return;
+                FaireActionEscContextuelle();
             }
+            escAppuyeDepuis = -1f;
+            escLongPressDeclenche = false;
+            escMenuOuvertParLongPress = false;
+        }
+    }
 
+    /// <summary>
+    /// Execute l'action contextuelle d'un ESC court (release avant 1s).
+    /// Si on est dans un menu (hors EnJeu), priorite est de fermer ce
+    /// menu — le dialogue/tuile sous-jacents sont deja figes par
+    /// Time.timeScale=0 et n'ont pas besoin d'etre skippes. Sinon
+    /// (EnJeu), priorite : skip dialogue > fermer tuile tuto > ouvrir
+    /// menu pause.
+    /// </summary>
+    private void FaireActionEscContextuelle()
+    {
+        // Si on est deja dans un menu (EnPause, DansJournal, etc.),
+        // ESC ferme ce menu. C'est la priorite absolue : sans ce
+        // check, un ESC en EnPause irait skipper le dialogue en
+        // arriere-plan (DialogueTuto.DialogueEnCours reste true meme
+        // si Time.timeScale=0) et le menu pause ne se fermerait jamais.
+        if (etatActuel != EtatJeu.EnJeu)
+        {
             switch (etatActuel)
             {
-                case EtatJeu.EnJeu:
-                    if (sourisVerrouillee)
-                        DeverrouillerSouris();
-                    else
-                        VerrouillerSouris();
-                    break;
                 case EtatJeu.EnPause:
                     LancerActionAvecDelai(nameof(Reprendre));
                     break;
@@ -461,7 +525,32 @@ public class gestionInputsJeu : MonoBehaviour
                         nameof(FermerConfirmationReinitialisation));
                     break;
             }
+            return;
         }
+
+        // === EnJeu ===
+        // Priorite #1 : si un dialogue est en train de defiler,
+        // ESC saute la ligne courante (le joueur a deja lu).
+        if (DialogueTuto.DialogueActif != null
+            && DialogueTuto.DialogueActif.DialogueEnCours)
+        {
+            DialogueTuto.DialogueActif.SkipLigneCourante();
+            return;
+        }
+
+        // Priorite #2 : si un tuto (tuile) est affiche, ESC le ferme.
+        if (gestionChapitres.Instance != null
+            && gestionChapitres.Instance.TutoEstAffiche())
+        {
+            gestionChapitres.Instance.FermerTutoParEsc();
+            return;
+        }
+
+        // EnJeu sans rien d'autre a faire : ouvrir le menu pause.
+        // (Le long press 1s a son propre chemin via MettreEnPause()
+        // directe dans Update — ce chemin court est un fallback si
+        // le joueur fait un press court sans dialogue ni tuile.)
+        MettreEnPause();
     }
 
     void LateUpdate()
@@ -567,6 +656,11 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
+
+        // Signal pour le tuto "menu_pause" (idActionRequise =
+        // "menu_pause_ouvert"). Ferme la tuile si elle est affichee.
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.SignalerAction("menu_pause_ouvert");
     }
 
     public void Reprendre()

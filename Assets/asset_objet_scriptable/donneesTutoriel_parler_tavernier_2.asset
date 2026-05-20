@@ -17,3 +17,5 @@ MonoBehaviour:
   titre: Reparler au tavernier
   explication: "Retourne voir le tavernier maintenant que tu l'as aid\xE9."
   image: {fileID: 0}
+  afficherCommeBanniere: 1
+  dureeBanniere: 3.6

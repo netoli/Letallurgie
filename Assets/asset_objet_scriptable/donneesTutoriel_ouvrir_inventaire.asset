@@ -15,5 +15,6 @@ MonoBehaviour:
   idDeclencheur: ouvrir_jdb
   idActionRequise: jdb_ouvert
   titre: Ouvrir le journal de bord
-  explication: "Appuie sur J pour ouvrir ton journal, puis ferme-le pour continuer."
+  explication: "<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">j</gradient></font></b></size>
+    pour ouvrir/fermer le journal."
   image: {fileID: 21300000, guid: 2a61ccdc74efb4d0c813661403f8901a, type: 3}

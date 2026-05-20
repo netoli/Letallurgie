@@ -102,7 +102,18 @@ public class gestionInteractionClic : MonoBehaviour
                 _indiceVise = impact.collider.GetComponentInParent<RamasserIndice>();
                 _objetVise = null;
                 _tavernierVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
+
+                // Si l'indice est porte par un PNJ (le npc / pnj_mysterieux
+                // de la taverne), on affiche le curseur PNJ plutot que
+                // le curseur Interactif generique. Le clic continue
+                // d'appeler RamasserIndice.Ramasser() qui jouera le
+                // dialogue 4-repliques + ajoutera l'entree au journal.
+                bool indiceEstPnj = _indiceVise != null
+                    && (_indiceVise.gameObject.name.Contains("pnj_mysterieux")
+                        || _indiceVise.gameObject.name == "npc");
+                pointeur.ChangerEtat(indiceEstPnj
+                    ? gestionPointeur.EtatPointeur.PNJ
+                    : gestionPointeur.EtatPointeur.Interactif);
                 _highlightVise?.Highlighter(true);
             }
             else if (tag == "obj_int")

@@ -18,3 +18,5 @@ MonoBehaviour:
   explication: "Retourne voir le tavernier. Il a quelque chose d'important \xE0 te
     r\xE9v\xE9ler."
   image: {fileID: 0}
+  afficherCommeBanniere: 1
+  dureeBanniere: 3.6

@@ -15,5 +15,7 @@ MonoBehaviour:
   idDeclencheur: options
   idActionRequise: options_ouvertes
   titre: Options
-  explication: "Appuie sur O pour acc\xE9der aux param\xE8tres \xE0 tout moment."
+  explication: "Appuie sur <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">o</gradient></font></b></size>
+    pour ouvrir/fermer les options."
   image: {fileID: 0}
+  dureeAuto: 5
