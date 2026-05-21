@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: obj_5
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Samovar
-  icone: {fileID: 0}
-  categorie: 3
+  icone: {fileID: 21300000, guid: 165cccd947e304746bc375fc272f3302, type: 3}
+  categorie: 2
   quantiteMax: 1
+  prefabModele3D: {fileID: 0}
+  estLeurre: 0
+  descriptionInspection: 
   prefab3D: {fileID: 1301102836093311446, guid: 34acc55668aaede4fa4c79989c5f094a, type: 3}
   id: 

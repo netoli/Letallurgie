@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: obj_1
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tasse
-  icone: {fileID: 0}
-  categorie: 3
+  icone: {fileID: 21300000, guid: 95d2a36af96f0374a886472851e932e5, type: 3}
+  categorie: 2
   quantiteMax: 1
+  prefabModele3D: {fileID: 0}
+  estLeurre: 0
+  descriptionInspection: 
   prefab3D: {fileID: 1861933866575697353, guid: e6fc92d06b2b4ce48a729beb3c824d74, type: 3}
   id: 

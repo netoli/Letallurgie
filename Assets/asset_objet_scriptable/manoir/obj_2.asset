@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: obj_2
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Corde
-  icone: {fileID: 0}
-  categorie: 3
+  icone: {fileID: 21300000, guid: 39a4c50858ee8f8429e4e77837b9131e, type: 3}
+  categorie: 2
   quantiteMax: 1
+  prefabModele3D: {fileID: 0}
+  estLeurre: 0
+  descriptionInspection: 
   prefab3D: {fileID: 1145059760624445886, guid: 0ab97d12407526a40bc1019f412c6938, type: 3}
   id: 

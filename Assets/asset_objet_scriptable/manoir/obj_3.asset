@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: obj_3
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Vase
-  icone: {fileID: 0}
-  categorie: 3
+  icone: {fileID: 21300000, guid: d44c5beacb165024ea9f49246040530d, type: 3}
+  categorie: 2
   quantiteMax: 1
+  prefabModele3D: {fileID: 0}
+  estLeurre: 0
+  descriptionInspection: 
   prefab3D: {fileID: 8044323432651137688, guid: 5a4314ce544152344ad2b777fdbc4874, type: 3}
   id: 

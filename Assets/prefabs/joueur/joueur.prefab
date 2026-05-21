@@ -106,6 +106,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   speed: 7.5
   gravity: -50
+  audioSourcePas: {fileID: 0}
 --- !u!114 &8569243136821958891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,7 +282,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3306512618393000541, guid: 32246de60b7e9fe438673f77adb4437d, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -2170853941979720984, guid: 32246de60b7e9fe438673f77adb4437d, type: 3}
       insertIndex: -1

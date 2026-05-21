@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: obj_8
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Baril
-  icone: {fileID: 0}
-  categorie: 3
+  icone: {fileID: 21300000, guid: d945f83ad6973f742bcbdf998a6d727f, type: 3}
+  categorie: 2
   quantiteMax: 1
+  prefabModele3D: {fileID: 0}
+  estLeurre: 0
+  descriptionInspection: 
   prefab3D: {fileID: 8250799173999397240, guid: 32f2510ea6ffd924792ae1b867fc0b10, type: 3}
   id: 
