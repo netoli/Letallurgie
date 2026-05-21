@@ -256,4 +256,23 @@ public class snapPointBalance : MonoBehaviour
     /// translucide assigné dans l'Inspecteur.
     /// Si aucun matériau n'est assigné, le ghost reste avec
     /// son matériau d'origine (pas idéal visuellement mais
- 
+    /// fonctionnel).
+    /// </summary>
+    private void AppliquerMateriauGhost(GameObject go)
+    {
+        if (_materiauGhost == null) return;
+
+        foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
+            r.material = _materiauGhost;
+    }
+
+    // ===================== GIZMOS =====================
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = EstOccupe()
+            ? new Color(1f, 0.5f, 0f, 0.6f)  // orange = occupé
+            : new Color(0f, 1f, 0.5f, 0.4f); // vert  = libre
+        Gizmos.DrawWireSphere(transform.position, 0.15f);
+    }
+}

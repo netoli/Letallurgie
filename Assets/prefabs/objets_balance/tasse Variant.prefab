@@ -89,9 +89,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5008451370762511677}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 3601495325150419843}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
       insertIndex: -1
@@ -99,6 +96,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3747596986237367201}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3483694792137404533}
   m_SourcePrefab: {fileID: 100100000, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
 --- !u!4 &1341292379335020403 stripped
 Transform:
@@ -110,19 +110,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3751e89b3d716604c8a314af900f88a7, type: 3}
   m_PrefabInstance: {fileID: 1519827630647322776}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5008451370762511677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1861933866575697353}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f3fb34e3c1331445b0cd6462a951003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
-  _valeurPoids: 1
 --- !u!114 &3601495325150419843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,6 +171,19 @@ MonoBehaviour:
   imageJournal: {fileID: 0}
   sonRamasser: {fileID: 8300000, guid: 2219ad211fb290d448551c7794afb3cc, type: 3}
   idActionADeclencher: 
+--- !u!114 &3483694792137404533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861933866575697353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332076acf3d16b341858c771375072f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
+  _valeurPoids: 1
 --- !u!1001 &7741198915310818501
 PrefabInstance:
   m_ObjectHideFlags: 0
