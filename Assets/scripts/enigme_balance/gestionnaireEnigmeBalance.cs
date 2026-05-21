@@ -24,7 +24,6 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
     [Header("Références")]
     [SerializeField] private controleurBalance _controleurBalance;
     [SerializeField] private comportementAntagoniste _antagoniste;
-    [SerializeField] private ZoneDepotJoueur _zoneJoueur;
 
     // ===================== ÉTAT INTERNE =====================
     public enum PhaseEnigme { Phase1, Phase2, Phase3, Terminee }

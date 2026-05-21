@@ -3837,7 +3837,7 @@ PrefabInstance:
       objectReference: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - target: {fileID: 5355936509973478227, guid: 57970c6bb711ec24b8d98424b1806f3b, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5355936509973478227, guid: 57970c6bb711ec24b8d98424b1806f3b, type: 3}
       propertyPath: m_RenderMode
@@ -10423,6 +10423,31 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 292729689}
   m_CullTransparentMesh: 1
+--- !u!1 &300056107 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5326881238757215760, guid: 837c348b540edd14f8865b0a33aeda26, type: 3}
+  m_PrefabInstance: {fileID: 6587115766506432346}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &300056115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300056107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f78bfdd03640af745a0171a3f855f488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RamasserIndice
+  titre: "Int\xE9ressante conversation"
+  description: "Personne ne conna\xEEt l'\xE2ge de l'habitu\xE9 de la taverne, tout
+    ce qu'on sait, c'est qu'il a tout vu, et que ses potins valent de l'or. "
+  insight: "Les citoyens font confiance au Maire Polivi\xE8re, mais ils commencent
+    \xE0 douter depuis qu'il s'en est pris au tavernier, un pilier de la communaut\xE9.
+    Si lui peut dispara\xEEtre, n'importe qui peut dispara\xEEtre."
+  img: {fileID: 21300000, guid: d2bac556e1bd8de4aa2af21642eaa176, type: 3}
+  sonRamasser: {fileID: 0}
 --- !u!198 &308451383 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 3253641887298733773, guid: 1943c1680d26848efa86da31f9867d39, type: 3}
@@ -38748,7 +38773,7 @@ PrefabInstance:
       objectReference: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
     - target: {fileID: 5355936509973478227, guid: 57970c6bb711ec24b8d98424b1806f3b, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5355936509973478227, guid: 57970c6bb711ec24b8d98424b1806f3b, type: 3}
       propertyPath: m_RenderMode
@@ -72913,7 +72938,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1986218353}
   m_Layer: 0
-  m_Name: --DONTDESTROYONLOAD
+  m_Name: --GESTIONNAIRES
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79617,6 +79642,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 24c7bfefcac054d649cb1caf26e04a74, type: 2}
+    - target: {fileID: 5326881238757215760, guid: 837c348b540edd14f8865b0a33aeda26, type: 3}
+      propertyPath: m_TagString
+      value: indice
+      objectReference: {fileID: 0}
     - target: {fileID: 6585141670955855937, guid: 837c348b540edd14f8865b0a33aeda26, type: 3}
       propertyPath: gestionSousTitreRef
       value: 
@@ -79632,7 +79661,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5326881238757215760, guid: 837c348b540edd14f8865b0a33aeda26, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 300056115}
   m_SourcePrefab: {fileID: 100100000, guid: 837c348b540edd14f8865b0a33aeda26, type: 3}
 --- !u!1 &7368227124877153552
 GameObject:

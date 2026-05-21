@@ -78,9 +78,6 @@ public class comportementAntagoniste : MonoBehaviour
         // Attendre que Cinemachine finisse son lerp vers la caméra intro
         yield return new WaitForSeconds(_delaiAvantAnimation);
 
-        if (_animateur != null)
-            _animateur.SetTrigger("DeclencherEntree");
-
         // 2. Animation d'entrée du boss
         if (_animateur != null)
             _animateur.SetTrigger("DeclencherEntree");
@@ -103,7 +100,7 @@ public class comportementAntagoniste : MonoBehaviour
         // 6. Notifier la zone que l'objet est en place
         _zoneAdverse.DefinirObjet(_objetSurBalance);
 
-        // 7. Attendre la fin des particules
+        // 8. Attendre la fin des particules
         yield return new WaitUntil(() => ParticulesTerminees());
 
         // 8. Attendre un beat avant de rendre le contrôle
@@ -137,13 +134,16 @@ public class comportementAntagoniste : MonoBehaviour
             _animateurObjet.SetTrigger(triggerObjet);
         }
 
-        // 4. Particules + sfx
+        // 4. Ã‰chelle visuelle (grossit ou rapetisse)
+        AppliquerEchelleVisuelle(impact.multiplicateur);
+
+        // 5. Particules + sfx
         JouerParticulesEtSon();
 
-        // 5. Modifier le poids
+        // 6. Modifier le poids
         _objetSurBalance.ModifierPoids(impact.multiplicateur);
 
-        // 6. Notifier la zone
+        // 7. Notifier la zone
         _zoneAdverse.NotifierChangementPoids();
 
         Debug.Log($"[ComportementAntagoniste] Impact appliqué : " +
@@ -153,7 +153,7 @@ public class comportementAntagoniste : MonoBehaviour
         // 7. Attendre la fin des particules
         yield return new WaitUntil(() => ParticulesTerminees());
 
-        // 8. Notifier le gestionnaire
+        // 9. Notifier le gestionnaire
         OnActionTerminee?.Invoke();
     }
 
