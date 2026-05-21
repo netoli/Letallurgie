@@ -107,9 +107,7 @@ public class comportementAntagoniste : MonoBehaviour
         yield return new WaitForSeconds(_dureeApresRevealAvantJoueur);
 
         // 9. Rendre le contrôle au joueur
-        Debug.Log("[Intro] Étape 9 atteinte — on baisse la priorité");
-
-        if (_vcamIntroManoir != null)
+                if (_vcamIntroManoir != null)
         {
             _vcamIntroManoir.Priority = 0;
             Debug.Log($"[Intro] Priority vcamIntro={_vcamIntroManoir.Priority}");

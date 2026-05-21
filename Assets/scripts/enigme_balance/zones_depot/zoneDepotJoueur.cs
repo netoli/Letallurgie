@@ -63,6 +63,25 @@ public class ZoneDepotJoueur : MonoBehaviour
     /// Vide le plateau sans notifier la balance.
     /// Utilis� entre les phases pour reset proprement.
     /// </summary>
+    /// <summary>
+    /// Retire un objet détruit extérieurement (ex: ramassé par objetRamassable).
+    /// Utilise ReferenceEquals car l'opérateur == d'Unity retourne true
+    /// pour les objets détruits, ce qui empêcherait Remove de les trouver.
+    /// </summary>
+    public void SupprimerObjetDetruit(objetPesable objet)
+    {
+        for (int i = _objetsDeposes.Count - 1; i >= 0; i--)
+        {
+            if (object.ReferenceEquals(_objetsDeposes[i], objet))
+            {
+                _objetsDeposes.RemoveAt(i);
+                Debug.Log($"[ZoneDepotJoueur] Objet ramassé détecté. Total={CalculerPoidsTotal()}");
+                NotifierBalance();
+                return;
+            }
+        }
+    }
+
     public void ViderSansNotifier()
     {
         _objetsDeposes.Clear();

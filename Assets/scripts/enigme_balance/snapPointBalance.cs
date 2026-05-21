@@ -48,6 +48,26 @@ public class snapPointBalance : MonoBehaviour
     private objetPesable _objetDepose;
     private objetInventaire _inventaireDepose; // gardé pour le retrait
 
+    // ===================== UNITY =====================
+
+    private void Update()
+    {
+        // Détecte si l'objet déposé a été ramassé par objetRamassable
+        // (Destroy sans passer par Retirer). L'opérateur ! d'Unity
+        // retourne true si l'objet est détruit.
+        if (_inventaireDepose != null && !_objetDepose)
+        {
+            if (_zoneDepot != null)
+                _zoneDepot.SupprimerObjetDetruit(_objetDepose);
+
+            _objetDepose = null;
+            _inventaireDepose = null;
+
+            if (_debugLogs)
+                Debug.Log($"[snapPointBalance:{name}] Objet ramassé directement — état réinitialisé.");
+        }
+    }
+
     // ===================== MÉTHODES PUBLIQUES =====================
 
     /// <summary>
@@ -111,14 +131,9 @@ public class snapPointBalance : MonoBehaviour
     /// </summary>
     public bool Deposer(objetInventaire objet)
     {
-        // LOG TEMPORAIRE diagnostic
-        Debug.Log($"[snapPointBalance:{name}] Deposer() appelé. " +
-            $"objet={objet?.nomObjet} | EstOccupe={EstOccupe()} | _objetDepose={_objetDepose}");
-
         if (objet == null || EstOccupe()) return false;
 
         GameObject prefab = ChoisirPrefab(objet);
-        Debug.Log($"[snapPointBalance:{name}] prefab choisi : {prefab?.name}");
         if (prefab == null)
         {
             Debug.LogWarning($"[snapPointBalance:{name}] " +
@@ -155,19 +170,16 @@ public class snapPointBalance : MonoBehaviour
         if (_objetDepose == null)
             _objetDepose = instance.GetComponentInChildren<objetPesable>();
 
-        Debug.Log($"[snapPointBalance:{name}] objetPesable trouvé : {_objetDepose != null} " +
-            $"| instance={instance?.name}");
-
+        // Fallback : ajouter objetPesable dynamiquement si le prefab
+        // ne l'a pas (ex: parent prefab manquant après un merge).
         if (_objetDepose == null)
         {
-            Debug.LogError($"[snapPointBalance:{name}] " +
-                $"Le prefab de '{objet.nomObjet}' n'a pas de " +
-                "composant objetPesable — dépôt annulé.");
-            Destroy(instance);
-            return false;
+            _objetDepose = instance.AddComponent<objetPesable>();
+            _objetDepose.DefinirPoids(objet.valeurPoidsBalance);
+            Debug.LogWarning($"[snapPointBalance:{name}] " +
+                $"objetPesable absent du prefab '{objet.nomObjet}' — " +
+                $"ajouté dynamiquement (poids={_objetDepose.valeurPoids}).");
         }
-
-        Debug.Log($"[snapPointBalance:{name}] _zoneDepot={_zoneDepot?.name} | poids={_objetDepose.valeurPoids}");
 
         _inventaireDepose = objet;
 

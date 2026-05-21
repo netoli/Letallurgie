@@ -47,7 +47,7 @@ public class controleurDeposeBalance : MonoBehaviour
 
     [Header("Paramètres")]
     [Tooltip("Distance maximale du raycast vers les snap points.")]
-    [SerializeField] private float _distanceRaycast = 10f;
+    [SerializeField] private float _distanceRaycast = 35f;
 
     [Tooltip("Touche clavier pour confirmer le dépôt (utilisée quand l'inventaire est ouvert).")]
     [SerializeField] private UnityEngine.InputSystem.Key _toucheDepot = UnityEngine.InputSystem.Key.E;
@@ -120,7 +120,6 @@ public class controleurDeposeBalance : MonoBehaviour
         if (Keyboard.current != null
             && Keyboard.current[_toucheDepot].wasPressedThisFrame)
         {
-            Debug.Log("[DEPOT] Touche E détectée.");
             TenterDeposer(selection);
         }
 
@@ -150,7 +149,13 @@ public class controleurDeposeBalance : MonoBehaviour
         if (Mouse.current == null || _cameraJoueur == null)
             return null;
 
-        Vector2 posSouris = Mouse.current.position.ReadValue();
+        // En mode verrouillé (FPS), le curseur est au centre de l'écran.
+        // Mouse.current.position peut retourner la dernière position
+        // libre (ex: pendant l'inventaire), d'où l'utilisation explicite
+        // du centre quand le curseur est verrouillé.
+        Vector2 posSouris = Cursor.lockState == CursorLockMode.Locked
+            ? new Vector2(Screen.width * 0.5f, Screen.height * 0.5f)
+            : Mouse.current.position.ReadValue();
         Ray rayon = _cameraJoueur.ScreenPointToRay(posSouris);
 
         if (Physics.Raycast(
@@ -239,30 +244,21 @@ public class controleurDeposeBalance : MonoBehaviour
             ? _snapSousGhost
             : ObtenirSnapSousCurseur();
 
-        // LOG TEMPORAIRE — toujours actif pour diagnostic
-        Debug.Log($"[DEPOT] TenterDeposer appelé. " +
-            $"selection={selection?.nomObjet} | " +
-            $"_snapSousGhost={_snapSousGhost?.name} | " +
-            $"cible={cible?.name}");
-
         if (cible == null)
         {
-            Debug.LogWarning("[DEPOT] Aucun snap sous le curseur.");
+            if (_debugLogs)
+                Debug.Log("[controleurDeposeBalance] Aucun snap sous le curseur.");
             return;
         }
 
         if (cible.EstOccupe())
         {
-            Debug.LogWarning($"[DEPOT] '{cible.name}' est déjà occupé.");
+            if (_debugLogs)
+                Debug.Log($"[controleurDeposeBalance] '{cible.name}' est déjà occupé.");
             return;
         }
 
-        Debug.Log($"[DEPOT] Appel Deposer() sur {cible.name} " +
-            $"avec {selection.nomObjet}...");
-
         bool succes = cible.Deposer(selection);
-
-        Debug.Log($"[DEPOT] Deposer() retourne : {succes}");
 
         if (succes)
         {
@@ -274,7 +270,8 @@ public class controleurDeposeBalance : MonoBehaviour
 
             FermerInventaireSiOuvert();
 
-            Debug.Log($"[DEPOT] '{selection.nomObjet}' déposé avec succès !");
+            if (_debugLogs)
+                Debug.Log($"[controleurDeposeBalance] '{selection.nomObjet}' déposé.");
         }
     }
 

@@ -20,4 +20,5 @@ MonoBehaviour:
   estLeurre: 0
   descriptionInspection: 
   prefab3D: {fileID: 1301102836093311446, guid: 34acc55668aaede4fa4c79989c5f094a, type: 3}
+  valeurPoidsBalance: 5
   id: 
