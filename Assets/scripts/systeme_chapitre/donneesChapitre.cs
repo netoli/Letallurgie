@@ -41,4 +41,11 @@ public class DonneesChapitre : ScriptableObject
         "narrative (ex: dialogue PNJ en cours). Laisser vide pour " +
         "le comportement par defaut (enchainement immediat).")]
     public string idActionRequiseFinChapitre;
+
+    [Header("Apparence banniere")]
+    [Tooltip("Taille de la typo du titre dans la banniere annonce-chapitre. " +
+        "0 = utilise la taille configuree sur le TMP_Text dans Unity (defaut). " +
+        "Utile pour adapter les titres longs (ex: 'Mener l'enquete') qui " +
+        "depassent l'effet de particules en arriere-plan.")]
+    public float tailleTitre = 0f;
 }

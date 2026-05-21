@@ -48,6 +48,13 @@ public class gestionChapitres : MonoBehaviour
     // qui se produisent ENTRE deux tuiles.
     public event System.Action<string> OnActionSignalee;
 
+    // Event broadcast quand la banniere annonce-chapitre d'un chapitre
+    // se termine (apres AfficherBanniere). Le parametre est idChapitre.
+    // Utilise notamment par gestionGlowIndices pour activer les effets
+    // glow sur les indices apres que la banniere "Mener l'enquete" se
+    // soit affichee.
+    public event System.Action<string> OnBanniereChapitreTerminee;
+
     [Header("References")]
     [SerializeField] private gestionBanniere gestionBanniere;
     [SerializeField] private gestionTutoriel gestionTutoriel;
@@ -163,9 +170,14 @@ public class gestionChapitres : MonoBehaviour
 
         yield return StartCoroutine(gestionBanniere.AfficherBanniere(
             chapitre.nomAffiche,
-            chapitre.dureeAffichageBanniere));
+            chapitre.dureeAffichageBanniere,
+            chapitre.tailleTitre));
 
         Debug.Log("[Chapitre] Banniere terminee");
+
+        // Notifier les abonnes (ex: gestionGlowIndices) que la
+        // banniere annonce-chapitre de ce chapitre vient de se terminer.
+        OnBanniereChapitreTerminee?.Invoke(chapitre.idChapitre);
 
         // Restaurer l'état des mouvements après la bannière. Si on
         // n'avait pas bloqué, on ne change rien (le 1er chapitre
@@ -627,7 +639,9 @@ public class gestionChapitres : MonoBehaviour
                 : chapitreActuel.nomCinematiqueAuFin;
             Debug.Log($"[Chapitre] Lancement cinematique de fin: " +
                 $"{nomCine}");
-            StartCoroutine(JouerCinematique(nomCine, 1.5f));
+            // Delai 1s apres la derniere replique du tavernier pour
+            // un petit temps de respiration narratif avant la video.
+            StartCoroutine(JouerCinematique(nomCine, 1f));
         }
     }
 
@@ -708,6 +722,13 @@ public class gestionChapitres : MonoBehaviour
         // chargement de la prochaine scene si necessaire.
         MouvementAutorise = false;
 
+        // Activer le mode cinematique IMMEDIATEMENT (avant le delai)
+        // pour bloquer les inputs clavier et nettoyer l'UI (menus,
+        // HUD, sous-titres, tuiles tuto). Sans ca, pendant le delai
+        // d'attente avant la video, le joueur pourrait encore ouvrir
+        // un menu (ESC long press, K, J, I, O).
+        FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(true);
+
         yield return new WaitForSecondsRealtime(delaiAvantCinematique);
 
         // Faire jouer le video player en lui assignant la vid�o correspondante au nomCinematique
@@ -715,8 +736,6 @@ public class gestionChapitres : MonoBehaviour
         VideoClip clip = System.Array.Find(cinematique, c => c.name == nomCinematique);
         if (clip != null)
         {
-            FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(true);
-
             // Arr�ter la musique de fond si elle est encore en train de jouer
             var musique = FindObjectOfType<gestionAudio>();
                 if (musique != null)

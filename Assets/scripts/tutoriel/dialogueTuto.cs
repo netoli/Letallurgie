@@ -97,6 +97,11 @@ public class DialogueTuto : MonoBehaviour
     private Coroutine coroutineDialogue;
     private bool skipLigneDemande = false;
     private bool premierSkipFait = false;
+    // Vrai quand un menu externe (pause, options) suspend le dialogue.
+    // Les boucles d'attente verifient ce flag a chaque frame et
+    // n'incrementent leur compteur de temps que s'il est false. L'audio
+    // est aussi mis en pause / repris via AudioSource.Pause()/UnPause().
+    private bool dialoguePauseExterne = false;
 
     [Header("Skip (ESC)")]
     [Tooltip("Delai (s) apres le 1er ESC avant que la tuile " +
@@ -219,12 +224,17 @@ public class DialogueTuto : MonoBehaviour
                 dureeReplique = rep.duree;
             }
 
-            // Attente avec possibilite de skip par ESC
+            // Attente avec possibilite de skip par ESC.
+            // Si dialoguePauseExterne est actif (menu pause/options
+            // ouvert), on suspend le compteur : t n'avance pas, donc
+            // la replique reste affichee et l'audio est en pause
+            // (gere par MettreEnPauseExterne).
             skipLigneDemande = false;
             float t = 0f;
             while (t < dureeReplique && !skipLigneDemande)
             {
-                t += Time.unscaledDeltaTime;
+                if (!dialoguePauseExterne)
+                    t += Time.unscaledDeltaTime;
                 yield return null;
             }
 
@@ -247,12 +257,14 @@ public class DialogueTuto : MonoBehaviour
                     rep.idActionADeclencher);
             }
 
-            // Pause entre les repliques (sautee aussi par ESC)
+            // Pause entre les repliques (sautee aussi par ESC).
+            // Meme logique pour dialoguePauseExterne que ci-dessus.
             skipLigneDemande = false;
             float p = 0f;
             while (p < rep.pauseApres && !skipLigneDemande)
             {
-                p += Time.unscaledDeltaTime;
+                if (!dialoguePauseExterne)
+                    p += Time.unscaledDeltaTime;
                 yield return null;
             }
         }
@@ -317,6 +329,37 @@ public class DialogueTuto : MonoBehaviour
     public void DesactiverInteraction()
     {
         interactionActive = false;
+    }
+
+    /// <summary>
+    /// Met le dialogue en pause depuis un contexte externe (ouverture
+    /// du menu pause ou du menu options pendant que le dialogue defile).
+    /// Suspend l'avancement des repliques et met en pause l'audio de
+    /// la voix. Appele depuis gestionInputsJeu.MettreEnPause() et
+    /// OuvrirOptionsDepuisJeu().
+    /// </summary>
+    public void MettreEnPauseExterne()
+    {
+        if (!dialogueOuvert) return;
+        if (dialoguePauseExterne) return;
+        dialoguePauseExterne = true;
+        if (audioSourceVoix != null && audioSourceVoix.isPlaying)
+            audioSourceVoix.Pause();
+        Debug.Log($"[DialogueTuto] {name} : pause externe activee.");
+    }
+
+    /// <summary>
+    /// Reprend le dialogue suspendu par MettreEnPauseExterne. Reprend
+    /// l'audio la ou il avait ete mis en pause. Appele depuis
+    /// gestionInputsJeu.Reprendre() et FermerOptionsVersJeu().
+    /// </summary>
+    public void ReprendreExterne()
+    {
+        if (!dialoguePauseExterne) return;
+        dialoguePauseExterne = false;
+        if (audioSourceVoix != null)
+            audioSourceVoix.UnPause();
+        Debug.Log($"[DialogueTuto] {name} : reprise apres pause externe.");
     }
 
     void OnDisable()

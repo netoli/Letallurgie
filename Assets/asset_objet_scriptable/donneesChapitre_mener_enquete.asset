@@ -15,7 +15,7 @@ MonoBehaviour:
   idChapitre: mener_enquete
   nomAffiche: "Mener l'enqu\xEAte"
   dureeAffichageBanniere: 3.6
-  delaiApparitionBanniere: 0.5
+  delaiApparitionBanniere: 6
   delaiAvantPremierTuto: 0.24
   tutoriels: []
   prochainChapitre: {fileID: 0}

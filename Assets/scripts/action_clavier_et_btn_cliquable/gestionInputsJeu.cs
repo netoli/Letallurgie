@@ -155,6 +155,10 @@ public class gestionInputsJeu : MonoBehaviour
         canvasJournal.SetActive(false);
         canvasConfirmerReinitialisation.SetActive(false);
         ensembleMenuInventaire.SetActive(false);
+        // Reactiver le canvas_hud principal (peut avoir ete desactive
+        // par ModeCinematique(true) ou manuellement dans l'Inspector
+        // pour les scenes post-cinematique).
+        if (canvasHud != null) canvasHud.SetActive(true);
         attenteAction = false;
         VerrouillerSouris();
         MontrerContenuHud();
@@ -657,6 +661,13 @@ public class gestionInputsJeu : MonoBehaviour
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
 
+        // Si un dialogue est en cours, le mettre en pause aussi.
+        // Sinon il continuerait a defiler en arriere-plan (Time.unscaled)
+        // et la voix continuerait a jouer (AudioSource n'est pas affecte
+        // par Time.timeScale=0).
+        if (DialogueTuto.DialogueActif != null)
+            DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
         // Signal pour le tuto "menu_pause" (idActionRequise =
         // "menu_pause_ouvert"). Ferme la tuile si elle est affichee.
         if (gestionChapitres.Instance != null)
@@ -677,6 +688,10 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.DesactiverFlou();
+
+        // Reprendre le dialogue si on l'avait mis en pause.
+        if (DialogueTuto.DialogueActif != null)
+            DialogueTuto.DialogueActif.ReprendreExterne();
     }
 
     // ===== OPTIONS DEPUIS PAUSE =====
@@ -738,6 +753,12 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
+
+        // Met en pause un dialogue eventuellement en cours (meme logique
+        // que MettreEnPause). Sans ca, le dialogue continuerait pendant
+        // que le menu options est affiche.
+        if (DialogueTuto.DialogueActif != null)
+            DialogueTuto.DialogueActif.MettreEnPauseExterne();
     }
 
     private void FermerOptionsVersJeu()
@@ -758,6 +779,10 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (gestionFlou != null)
             gestionFlou.DesactiverFlou();
+
+        // Reprendre le dialogue si on l'avait mis en pause.
+        if (DialogueTuto.DialogueActif != null)
+            DialogueTuto.DialogueActif.ReprendreExterne();
     }
 
     // ===== TUTO =====
@@ -1231,7 +1256,7 @@ public class gestionInputsJeu : MonoBehaviour
     {
         if (actif)
         {
-            // D�sactiver curseur
+            // === Bloquer inputs et curseur ===
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             var pointeur = FindObjectOfType<gestionPointeur>(true);
@@ -1241,8 +1266,66 @@ public class gestionInputsJeu : MonoBehaviour
             if (testP != null)
                 testP.enabled = false;
 
-            // Bloquer les inputs
             jeuActif = false;
+            attenteAction = false;
+
+            // Remettre le temps a 1 si on etait en pause (sinon la
+            // video player et certaines animations pourraient etre
+            // figees pendant la cinematique).
+            Time.timeScale = 1f;
+
+            // === Nettoyer toute l'UI : la cinematique doit etre la
+            // SEULE chose visible a l'ecran. ===
+
+            // Fermer tous les menus eventuellement ouverts
+            if (canvasMenuPause != null)
+                canvasMenuPause.SetActive(false);
+            if (canvasOptions != null)
+                canvasOptions.SetActive(false);
+            if (canvasJournal != null)
+                canvasJournal.SetActive(false);
+            if (canvasCredits != null)
+                canvasCredits.SetActive(false);
+            if (canvasRetournerMenuPrincipal != null)
+                canvasRetournerMenuPrincipal.SetActive(false);
+            if (canvasQuitter != null)
+                canvasQuitter.SetActive(false);
+            if (canvasConfirmerReinitialisation != null)
+                canvasConfirmerReinitialisation.SetActive(false);
+            if (ensembleMenuInventaire != null)
+                ensembleMenuInventaire.SetActive(false);
+            if (ensembleTuileTutoEtBoutonRetour != null)
+                ensembleTuileTutoEtBoutonRetour.SetActive(false);
+
+            // Cacher le HUD (alpha 0 + non-interactable, sans
+            // desactiver le GameObject qui vit dans --DontDestroyOnLoad).
+            CacherContenuHud();
+
+            // Desactiver la vignette / flou eventuels
+            if (gestionFlou != null)
+                gestionFlou.DesactiverFlou();
+
+            // Cacher les sous-titres si un dialogue les laissait
+            // affiches (cas d'erreur ; normalement le dialogue est
+            // fini avant la cinematique de fin).
+            var sousTitre = FindFirstObjectByType<gestionSousTitre>(
+                FindObjectsInactive.Include);
+            if (sousTitre != null)
+                sousTitre.MasquerSousTitre();
+
+            // Mettre en pause un dialogue eventuellement encore en
+            // cours (stoppe l'audio et fige la coroutine). Securite :
+            // normalement aucun dialogue n'est actif a ce stade.
+            if (DialogueTuto.DialogueActif != null)
+                DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
+            // Reset etat : on est dans une "pseudo-EnJeu" sans inputs.
+            etatActuel = EtatJeu.EnJeu;
+
+            // Stopper toutes nos coroutines en attente (fade out de
+            // menus, delais d'actions, etc.) pour eviter qu'elles
+            // reactivent un canvas pendant la cinematique.
+            StopAllCoroutines();
         }
         else
         {

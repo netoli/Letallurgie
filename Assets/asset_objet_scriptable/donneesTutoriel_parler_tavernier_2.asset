@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
   m_Name: donneesTutoriel_parler_tavernier_2
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
-  idDeclencheur: parler_tavernier_2
-  idActionRequise: dialogue_tav2_fini
-  titre: Reparler au tavernier
-  explication: "Retourne voir le tavernier maintenant que tu l'as aid\xE9."
+  idDeclencheur: les_retrouvailles
+  idActionRequise: dialogue_retrouvailles_fini
+  titre: Les retrouvailles
+  explication: "Retourne voir le tavernier."
   image: {fileID: 0}
   afficherCommeBanniere: 1
   dureeBanniere: 3.6
+  delaiAvantApparition: 4.5

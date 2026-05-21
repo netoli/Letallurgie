@@ -18,4 +18,4 @@ MonoBehaviour:
   explication: "Appuie sur <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">o</gradient></font></b></size>
     pour ouvrir/fermer les options."
   image: {fileID: 0}
-  dureeAuto: 5
+  delaiAvantApparition: 3

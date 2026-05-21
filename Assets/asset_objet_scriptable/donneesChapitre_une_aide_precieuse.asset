@@ -18,12 +18,10 @@ MonoBehaviour:
   delaiApparitionBanniere: 0
   delaiAvantPremierTuto: 0.24
   tutoriels:
-  - {fileID: 11400000, guid: e681ff06a42ea49dca7867c2943745b3, type: 2}
   - {fileID: 11400000, guid: 862f459abc78f4605a1a203eea3bd683, type: 2}
+  - {fileID: 11400000, guid: e681ff06a42ea49dca7867c2943745b3, type: 2}
   - {fileID: 11400000, guid: b5df855e79c648929fc08d5968100ef2, type: 2}
   - {fileID: 11400000, guid: e5a6f7081a2b3c4d5e6f7081a2b3c4d5, type: 2}
-  - {fileID: 11400000, guid: 2422f572a8b9f4253b168407d8f7bc95, type: 2}
-  - {fileID: 11400000, guid: f6a7081a2b3c4d5e6f7081a2b3c4d5e6, type: 2}
   prochainChapitre: {fileID: 0}
   nomCinematiqueAuFin: cinematique1
   delaiAvantProchainChapitre: 0

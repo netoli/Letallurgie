@@ -148,14 +148,21 @@ public class gestionBanniere : MonoBehaviour
     }
 
 public IEnumerator AfficherBanniere(
-        string nomChapitre, float duree)
+        string nomChapitre, float duree, float tailleTitre = 0f)
     {
         Debug.Log("[Banniere] AfficherBanniere: " + nomChapitre);
 
         gameObject.SetActive(true);
 
         if (texteNomChapitre != null)
+        {
             texteNomChapitre.text = nomChapitre;
+            // Si une taille specifique est fournie par le chapitre,
+            // on l'applique. Sinon on garde la taille configuree sur
+            // le TMP_Text dans Unity (defaut : 66).
+            if (tailleTitre > 0f)
+                texteNomChapitre.fontSize = tailleTitre;
+        }
 
         if (animatorBanniere != null
             && !string.IsNullOrEmpty(triggerApparition))
