@@ -102,12 +102,74 @@ public class DialogueTuto : MonoBehaviour
     // n'incrementent leur compteur de temps que s'il est false. L'audio
     // est aussi mis en pause / repris via AudioSource.Pause()/UnPause().
     private bool dialoguePauseExterne = false;
+    // Vrai quand le joueur est trop loin et que le dialogue est en
+    // pause distance. Distinct de dialoguePauseExterne pour pouvoir
+    // les combiner (ex: menu pause + trop loin = double pause).
+    private bool dialoguePauseDistance = false;
+    // Distance enregistree au moment ou la pause distance s'est
+    // declenchee. Sert a calculer le seuil de reprise (* ratio).
+    private float distanceLorsDePauseDistance = 0f;
+    // True si gestion distance est desactivee pour cette session de
+    // dialogue (le joueur a fait au moins 1 ESC pour skipper).
+    private bool gestionDistanceDesactiveeParSkip = false;
+    // Vrai si le dialogue est effectivement en pause (externe OU
+    // distance). Utilise par les boucles d'attente.
+    private bool DialogueEffectivementEnPause =>
+        dialoguePauseExterne || dialoguePauseDistance;
+
+    public bool EstEnPauseDistance => dialoguePauseDistance;
 
     [Header("Skip (ESC)")]
     [Tooltip("Delai (s) apres le 1er ESC avant que la tuile " +
         "\"ESC pour passer un dialogue\" se ferme automatiquement. " +
         "Le joueur a compris la mecanique, on retire l'indice.")]
     [SerializeField] private float delaiFermetureTuileEsc = 3f;
+
+    [Header("Volume voix selon distance")]
+    [Tooltip("Si coche, le volume de la voix diminue avec la distance " +
+        "entre joueur et PNJ, et le dialogue se met en pause si le " +
+        "joueur s'eloigne trop. Decoche pour un comportement classique " +
+        "(volume constant, pas de pause distance).")]
+    [SerializeField] private bool gestionDistanceActive = true;
+
+    [Tooltip("Reference au Transform du Player. Si null, sera trouve " +
+        "automatiquement via tag 'Player' au Start.")]
+    [SerializeField] private Transform refPlayer;
+
+    [Tooltip("Distance (m) en deca de laquelle le volume reste a 100%.")]
+    [SerializeField] private float distanceVolumeMax = 3f;
+
+    [Tooltip("Distance (m) au-dela de laquelle le volume tombe a 0%. " +
+        "Entre distanceVolumeMax et cette valeur, le volume decroit " +
+        "lineairement.")]
+    [SerializeField] private float distanceVolumeMin = 8f;
+
+    [Tooltip("Distance (m) au-dela de laquelle le dialogue se met " +
+        "automatiquement en PAUSE (le joueur est trop loin pour " +
+        "entendre). Doit etre >= distanceVolumeMin.")]
+    [SerializeField] private float distancePauseAuto = 10f;
+
+    [Tooltip("Pour reprendre le dialogue apres une pause distance, le " +
+        "joueur doit se rapprocher a ce ratio de la distance qui a " +
+        "declenche la pause. Ex: 0.3 = 30% de distancePauseAuto.")]
+    [Range(0.05f, 1f)]
+    [SerializeField] private float ratioReprisePause = 0.3f;
+
+    [Tooltip("(Optionnel) AudioClip joue 1 fois quand le dialogue se " +
+        "met en pause distance (ex: voix du PNJ qui appelle 'Reviens !'). " +
+        "Joue via audioSourceRappel, non spatial pour etre audible " +
+        "meme loin.")]
+    [SerializeField] private AudioClip clipRappelTropLoin;
+
+    [Tooltip("(Optionnel) AudioSource utilise pour jouer clipRappelTropLoin. " +
+        "Doit etre configure non-spatial (spatialBlend=0) pour etre " +
+        "entendu partout. Si vide, sera cree automatiquement.")]
+    [SerializeField] private AudioSource audioSourceRappel;
+
+    [Tooltip("(Optionnel) Message a afficher dans le bandeau info " +
+        "quand le dialogue se met en pause distance. Ex: 'Reviens " +
+        "vers le tavernier'. Laisse vide pour ne rien afficher.")]
+    [SerializeField] private string messageBandeauTropLoin;
 
     void Start()
     {
@@ -130,6 +192,113 @@ public class DialogueTuto : MonoBehaviour
                 audioSourceVoix.spatialBlend = 0f; // 2D par defaut
             }
         }
+
+        // Trouver le Player si refPlayer n'est pas assigne
+        if (gestionDistanceActive && refPlayer == null)
+        {
+            var playerGo = GameObject.FindGameObjectWithTag("Player");
+            if (playerGo != null)
+                refPlayer = playerGo.transform;
+            else
+                Debug.LogWarning($"[DialogueTuto] {name} : Player " +
+                    "introuvable (tag 'Player'). gestionDistanceActive " +
+                    "ne fonctionnera pas.");
+        }
+
+        // Creer un AudioSource non-spatial pour le son de rappel
+        // "trop loin" si l'utilisateur n'en a pas fourni un.
+        if (clipRappelTropLoin != null && audioSourceRappel == null)
+        {
+            audioSourceRappel = gameObject.AddComponent<AudioSource>();
+            audioSourceRappel.playOnAwake = false;
+            audioSourceRappel.spatialBlend = 0f; // 2D pour entendre partout
+        }
+    }
+
+    void Update()
+    {
+        if (!gestionDistanceActive) return;
+        if (gestionDistanceDesactiveeParSkip) return;
+        if (!dialogueOuvert) return;
+        if (refPlayer == null) return;
+
+        float distance = Vector3.Distance(
+            refPlayer.position, transform.position);
+
+        // 1) Ajuster le volume de la voix selon la distance.
+        //    - distance <= distanceVolumeMax : volume 100%
+        //    - distance >= distanceVolumeMin : volume 0%
+        //    - entre les deux : decroissance lineaire
+        if (audioSourceVoix != null)
+        {
+            float volume;
+            if (distance <= distanceVolumeMax)
+                volume = 1f;
+            else if (distance >= distanceVolumeMin)
+                volume = 0f;
+            else
+            {
+                float t = (distance - distanceVolumeMax)
+                    / (distanceVolumeMin - distanceVolumeMax);
+                volume = 1f - t;
+            }
+            audioSourceVoix.volume = volume;
+        }
+
+        // 2) Pause distance : declenchement et reprise automatique
+        if (!dialoguePauseDistance && distance > distancePauseAuto)
+        {
+            DeclencherPauseDistance(distance);
+        }
+        else if (dialoguePauseDistance)
+        {
+            float seuilReprise =
+                distanceLorsDePauseDistance * ratioReprisePause;
+            if (distance <= seuilReprise)
+            {
+                SortiePauseDistance();
+            }
+        }
+    }
+
+    private void DeclencherPauseDistance(float distance)
+    {
+        dialoguePauseDistance = true;
+        distanceLorsDePauseDistance = distance;
+        if (audioSourceVoix != null && audioSourceVoix.isPlaying)
+            audioSourceVoix.Pause();
+
+        // Jouer le son de rappel non-spatial si configure
+        if (clipRappelTropLoin != null && audioSourceRappel != null)
+        {
+            audioSourceRappel.Stop();
+            audioSourceRappel.clip = clipRappelTropLoin;
+            audioSourceRappel.Play();
+        }
+
+        // Afficher message dans le bandeau info si configure
+        if (!string.IsNullOrEmpty(messageBandeauTropLoin))
+        {
+            gestionBandeauInfo.Afficher(messageBandeauTropLoin, 5f);
+        }
+
+        Debug.Log($"[DialogueTuto] {name} : pause distance declenchee " +
+            $"(distance={distance:F1}). Seuil reprise : " +
+            $"{distanceLorsDePauseDistance * ratioReprisePause:F1}m.");
+    }
+
+    /// <summary>
+    /// Sortir de la pause distance. Appelee automatiquement quand le
+    /// joueur revient assez pres, ou manuellement par
+    /// declencheurDialogue quand le joueur re-entre dans le trigger.
+    /// </summary>
+    public void SortiePauseDistance()
+    {
+        if (!dialoguePauseDistance) return;
+        dialoguePauseDistance = false;
+        if (audioSourceVoix != null && !dialoguePauseExterne)
+            audioSourceVoix.UnPause();
+        Debug.Log($"[DialogueTuto] {name} : sortie de pause distance.");
     }
 
     /// <summary>
@@ -188,6 +357,13 @@ public class DialogueTuto : MonoBehaviour
         DialogueActif = this;
         interactionActive = false;
         premierSkipFait = false;
+        // Reset des flags lies a cette session de dialogue. Si une
+        // etape precedente avait desactive la gestion distance via
+        // skip, on la reactive pour cette nouvelle etape.
+        gestionDistanceDesactiveeParSkip = false;
+        dialoguePauseDistance = false;
+        distanceLorsDePauseDistance = 0f;
+        if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
 
         // Signal du debut : ferme la tuile "Parler avec le tavernier".
         if (!string.IsNullOrEmpty(etape.idActionAuDebut)
@@ -225,15 +401,14 @@ public class DialogueTuto : MonoBehaviour
             }
 
             // Attente avec possibilite de skip par ESC.
-            // Si dialoguePauseExterne est actif (menu pause/options
-            // ouvert), on suspend le compteur : t n'avance pas, donc
-            // la replique reste affichee et l'audio est en pause
-            // (gere par MettreEnPauseExterne).
+            // Si DialogueEffectivementEnPause (menu pause/options OU
+            // pause distance), on suspend le compteur : t n'avance pas,
+            // donc la replique reste affichee et l'audio est en pause.
             skipLigneDemande = false;
             float t = 0f;
             while (t < dureeReplique && !skipLigneDemande)
             {
-                if (!dialoguePauseExterne)
+                if (!DialogueEffectivementEnPause)
                     t += Time.unscaledDeltaTime;
                 yield return null;
             }
@@ -258,12 +433,12 @@ public class DialogueTuto : MonoBehaviour
             }
 
             // Pause entre les repliques (sautee aussi par ESC).
-            // Meme logique pour dialoguePauseExterne que ci-dessus.
+            // Meme logique pour DialogueEffectivementEnPause.
             skipLigneDemande = false;
             float p = 0f;
             while (p < rep.pauseApres && !skipLigneDemande)
             {
-                if (!dialoguePauseExterne)
+                if (!DialogueEffectivementEnPause)
                     p += Time.unscaledDeltaTime;
                 yield return null;
             }
@@ -303,6 +478,23 @@ public class DialogueTuto : MonoBehaviour
         if (!dialogueOuvert) return;
         skipLigneDemande = true;
         Debug.Log("[DialogueTuto] Skip ligne demande par ESC.");
+
+        // Le joueur veut skipper : on desactive la gestion distance
+        // pour ne pas mettre le dialogue en pause s'il s'eloigne, et
+        // pour ne pas interferer avec son envie d'avancer vite.
+        // Aussi : si une pause distance etait deja active, on en sort
+        // (sinon le skip ne ferait rien tant qu'il est encore loin).
+        if (gestionDistanceActive && !gestionDistanceDesactiveeParSkip)
+        {
+            gestionDistanceDesactiveeParSkip = true;
+            if (dialoguePauseDistance)
+                SortiePauseDistance();
+            // Remettre le volume a 100% pour que le joueur entende
+            // la fin du dialogue meme s'il s'eloigne.
+            if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
+            Debug.Log("[DialogueTuto] gestion distance desactivee " +
+                "pour le reste de la session (joueur a skippe).");
+        }
 
         // Au 1er ESC du dialogue : le joueur a compris la mecanique,
         // on ferme la tuile "ESC pour passer un dialogue" apres un
@@ -352,14 +544,19 @@ public class DialogueTuto : MonoBehaviour
     /// Reprend le dialogue suspendu par MettreEnPauseExterne. Reprend
     /// l'audio la ou il avait ete mis en pause. Appele depuis
     /// gestionInputsJeu.Reprendre() et FermerOptionsVersJeu().
+    /// Si une pause distance est encore active, l'audio reste en pause.
     /// </summary>
     public void ReprendreExterne()
     {
         if (!dialoguePauseExterne) return;
         dialoguePauseExterne = false;
-        if (audioSourceVoix != null)
+        // Ne relancer l'audio que si l'autre source de pause (distance)
+        // n'est pas active. Sinon l'audio reste en pause jusqu'a ce que
+        // le joueur revienne assez pres.
+        if (audioSourceVoix != null && !dialoguePauseDistance)
             audioSourceVoix.UnPause();
-        Debug.Log($"[DialogueTuto] {name} : reprise apres pause externe.");
+        Debug.Log($"[DialogueTuto] {name} : reprise apres pause externe " +
+            $"(pauseDistance encore active : {dialoguePauseDistance}).");
     }
 
     void OnDisable()
