@@ -13,17 +13,19 @@
 //   sfx, modifie le poids.
 //   Idles aléatoires : cycle avec poids configurables dans
 //   l'Inspector — le Taunt rare a un poids faible.
+//   Dialogue : JouerDialogue(int) déclenche Talking/Yelling
+//   depuis le système de sous-titres, séparé des idles aléatoires.
 //   Défaite : séquence Angry → Defeat Idle → Brutal Assassination.
 // ------------------------------------------------------------
 // Paramètres Animator attendus :
 //   Triggers : DeclencherEntree, DeclencherMagie,
-//              DeclencherIdleSpecial, DeclencherDefaite,
-//              DeclencherMort
-//   Ints     : TypeMagie (0=apparaître, 1=grossir, 2=rétrécir)
-//              IdleType  (1=Bored, 2=DizzyIdle, 3=DrunkIdle,
-//                         4=FightIdle, 5=StandingIdle, 6=Taunt,
-//                         7=Talking, 8=Talking2, 9=Yelling,
-//                         10=Loser, 11=Battlecry, 12=Threatening)
+//              DeclencherIdleSpecial, DeclencherDialogue,
+//              DeclencherDefaite, DeclencherMort
+//   Ints     : TypeMagie    (0=apparaître, 1=grossir, 2=rétrécir)
+//              IdleType     (1=Bored, 2=DizzyIdle, 3=DrunkIdle,
+//                            4=FightIdle, 5=StandingIdle, 6=Taunt,
+//                            7=Loser, 8=Battlecry, 9=Threatening)
+//              DialogueType (1=Talking, 2=Talking1, 3=Yelling)
 // ============================================================
 
 using System;
@@ -60,6 +62,11 @@ public class comportementAntagoniste : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource _sourceAudio;
     [SerializeField] private AudioClip _sfxTransformation;
+    [Tooltip("Sons du boss pendant les idles spéciaux. Index = IdleType (1=Bored … 9=Threatening). " +
+             "Laisser vide tant que les SFX ne sont pas prêts — aucun son ne joue si le slot est null.")]
+    [SerializeField] private AudioClip[] _sfxIdles = new AudioClip[10]; // index 0 ignoré
+    [Tooltip("Son du boss pendant le dialogue (optionnel — peut être géré par le système de sous-titres).")]
+    [SerializeField] private AudioClip _sfxDialogue;
 
     [Header("Paramètres visuels")]
     [SerializeField] private float _delaiAvantParticules = 0.6f;
@@ -77,21 +84,19 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _intervalleIdleSpecial = 8f;
     [Tooltip("Durée minimale à attendre après un idle spécial avant d'en déclencher un autre.")]
     [SerializeField] private float _dureeMinEntreIdles = 3f;
-    [Tooltip("Liste des idles spéciaux avec leur poids de probabilité.")]
+    [Tooltip("Liste des idles spéciaux avec leur poids de probabilité.\n" +
+             "Talking / Yelling sont gérés séparément via JouerDialogue() — ne pas les inclure ici.")]
     [SerializeField] private IdleAleatoire[] _idles = new IdleAleatoire[]
     {
-        new IdleAleatoire { idleType = 1,  nom = "Bored",             poids = 15 },
-        new IdleAleatoire { idleType = 2,  nom = "Dizzy Idle",        poids = 10 },
-        new IdleAleatoire { idleType = 3,  nom = "Drunk Idle",        poids = 10 },
-        new IdleAleatoire { idleType = 4,  nom = "Fight Idle",        poids = 15 },
-        new IdleAleatoire { idleType = 5,  nom = "Standing Idle",     poids = 15 },
-        new IdleAleatoire { idleType = 6,  nom = "Taunt (rare)",      poids = 3  },
-        new IdleAleatoire { idleType = 7,  nom = "Talking",           poids = 12 },
-        new IdleAleatoire { idleType = 8,  nom = "Talking (1)",       poids = 12 },
-        new IdleAleatoire { idleType = 9,  nom = "Yelling",           poids = 10 },
-        new IdleAleatoire { idleType = 10, nom = "Loser",             poids = 8  },
-        new IdleAleatoire { idleType = 11, nom = "Battlecry",         poids = 8  },
-        new IdleAleatoire { idleType = 12, nom = "Threatening",       poids = 12 },
+        new IdleAleatoire { idleType = 1, nom = "Bored",         poids = 15 },
+        new IdleAleatoire { idleType = 2, nom = "Dizzy Idle",    poids = 10 },
+        new IdleAleatoire { idleType = 3, nom = "Drunk Idle",    poids = 10 },
+        new IdleAleatoire { idleType = 4, nom = "Fight Idle",    poids = 15 },
+        new IdleAleatoire { idleType = 5, nom = "Standing Idle", poids = 15 },
+        new IdleAleatoire { idleType = 6, nom = "Taunt (rare)",  poids = 3  },
+        new IdleAleatoire { idleType = 7, nom = "Loser",         poids = 8  },
+        new IdleAleatoire { idleType = 8, nom = "Battlecry",     poids = 8  },
+        new IdleAleatoire { idleType = 9, nom = "Threatening",   poids = 12 },
     };
 
     [Header("Défaite")]
@@ -234,6 +239,9 @@ public class comportementAntagoniste : MonoBehaviour
             _animateur.SetInteger("IdleType", idleChoisi.idleType);
             _animateur.SetTrigger("DeclencherIdleSpecial");
 
+            // Jouer le son correspondant si assigné dans l'Inspector
+            JouerSfxIdle(idleChoisi.idleType);
+
             Debug.Log($"[ComportementAntagoniste] Idle spécial : " +
                       $"{idleChoisi.nom} (IdleType={idleChoisi.idleType})");
 
@@ -328,7 +336,40 @@ public class comportementAntagoniste : MonoBehaviour
         StartCoroutine(JouerDefaiteSequence());
     }
 
+    /// <summary>
+    /// Déclenche une animation de dialogue (Talking, Talking1, Yelling).
+    /// À appeler depuis le système de sous-titres quand une ligne de dialogue commence.
+    /// Le boss retourne automatiquement à Idle 0 via Has Exit Time.
+    /// </summary>
+    /// <param name="dialogueType">1 = Talking, 2 = Talking (1), 3 = Yelling</param>
+    public void JouerDialogue(int dialogueType)
+    {
+        if (_animateur == null) return;
+
+        _animateur.SetInteger("DialogueType", dialogueType);
+        _animateur.SetTrigger("DeclencherDialogue");
+
+        if (_sourceAudio != null && _sfxDialogue != null)
+            _sourceAudio.PlayOneShot(_sfxDialogue);
+
+        Debug.Log($"[ComportementAntagoniste] Dialogue déclenché : DialogueType={dialogueType}");
+    }
+
     // ===================== MÉTHODES PRIVÉES =====================
+
+    /// <summary>
+    /// Joue le SFX correspondant à l'IdleType donné, si le clip est assigné.
+    /// _sfxIdles est indexé par IdleType (index 0 ignoré, 1-9 utilisés).
+    /// </summary>
+    private void JouerSfxIdle(int idleType)
+    {
+        if (_sourceAudio == null || _sfxIdles == null) return;
+        if (idleType < 1 || idleType >= _sfxIdles.Length) return;
+
+        AudioClip clip = _sfxIdles[idleType];
+        if (clip != null)
+            _sourceAudio.PlayOneShot(clip);
+    }
 
     private void JouerParticulesEtSon()
     {
