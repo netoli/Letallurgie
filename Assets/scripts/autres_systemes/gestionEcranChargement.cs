@@ -6,22 +6,33 @@
 // ------------------------------------------------------------
 // Description :
 //   Manager singleton DontDestroyOnLoad qui affiche un écran
-//   de chargement animé entre chaque changement de scène.
+//   de chargement vidéo (MP4) entre chaque changement de scène.
 //
 //   Setup Unity :
 //     1. Créer un GameObject vide "gestion_ecran_chargement"
 //        dans SCENE0-Menu-Tuto (scène de départ).
-//     2. Y ajouter ce script + un Canvas enfant avec ton
-//        animation de loading (Animator avec trigger "Jouer").
-//     3. Assigner le Canvas et l'Animator dans l'Inspector.
-//     4. Tous les changements de scène du projet doivent
-//        appeler gestionEcranChargement.ChargerScene("NomScene")
-//        au lieu de SceneManager.LoadScene directement.
+//     2. Créer un Canvas enfant "canvas_ecran_chargement" :
+//          - Sort Order : 999 (par-dessus tout)
+//          - Désactivé par défaut
+//     3. Dans ce Canvas, créer un RawImage plein écran (Anchor : stretch).
+//     4. Créer un RenderTexture (Assets > Create > Render Texture).
+//          - Assigner la RenderTexture au champ Texture du RawImage.
+//     5. Sur "gestion_ecran_chargement", ajouter un VideoPlayer :
+//          - Source          : Video Clip → ton MP4
+//          - Render Mode     : Render Texture → la même RenderTexture
+//          - Loop            : ✓
+//          - Play On Awake   : ✗
+//     6. Assigner dans l'Inspector de ce script :
+//          - canvasChargement  → le Canvas enfant
+//          - lecteurChargement → le VideoPlayer
+//     7. Tous les changements de scène appellent
+//        gestionEcranChargement.ChargerScene("NomScene").
 // ============================================================
 
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class gestionEcranChargement : MonoBehaviour
 {
@@ -29,12 +40,12 @@ public class gestionEcranChargement : MonoBehaviour
 
     [Header("Références")]
     [Tooltip("Canvas racine de l'écran de chargement. " +
-             "Doit être désactivé par défaut.")]
+             "Doit être désactivé par défaut. Sort Order 999.")]
     [SerializeField] private GameObject canvasChargement;
 
-    [Tooltip("Animator sur le Canvas (optionnel). " +
-             "Si assigné, le trigger 'Jouer' sera déclenché.")]
-    [SerializeField] private Animator animateurChargement;
+    [Tooltip("VideoPlayer qui joue le MP4 de chargement. " +
+             "Loop ✓, Play On Awake ✗, Render Mode → Render Texture.")]
+    [SerializeField] private VideoPlayer lecteurChargement;
 
     [Header("Paramètres")]
     [Tooltip("Durée minimale d'affichage de l'écran (secondes). " +
@@ -79,15 +90,21 @@ public class gestionEcranChargement : MonoBehaviour
     /// À utiliser partout dans le projet à la place de
     /// SceneManager.LoadScene().
     /// </summary>
-    public void ChargerScene(string nomScene)
+    /// <param name="nomScene">Nom exact de la scène à charger.</param>
+    /// <param name="onSceneChargee">Callback facultatif exécuté une frame
+    /// après le LoadScene (scène prête, avant le fade out). Utiliser pour
+    /// démarrer la musique, initialiser des systèmes, etc.</param>
+    public void ChargerScene(string nomScene,
+        System.Action onSceneChargee = null)
     {
         if (_chargementEnCours) return;
-        StartCoroutine(SequenceChargement(nomScene));
+        StartCoroutine(SequenceChargement(nomScene, onSceneChargee));
     }
 
     // ── Coroutines ────────────────────────────────────────────
 
-    private IEnumerator SequenceChargement(string nomScene)
+    private IEnumerator SequenceChargement(string nomScene,
+        System.Action onSceneChargee)
     {
         _chargementEnCours = true;
 
@@ -103,25 +120,31 @@ public class gestionEcranChargement : MonoBehaviour
             }
         }
 
-        // 2. Déclencher l'animation si disponible
-        if (animateurChargement != null)
-            animateurChargement.SetTrigger("Jouer");
+        // 2. Lancer la vidéo de chargement
+        if (lecteurChargement != null)
+            lecteurChargement.Play();
 
-        // 3. Attendre la durée minimale
+        // 3. Attendre la durée minimale (la vidéo joue pendant ce temps)
         yield return new WaitForSecondsRealtime(dureeMinimale);
 
-        // 4. Charger la scène
+        // 4. Charger la scène (le loading screen reste visible par-dessus)
         SceneManager.LoadScene(nomScene);
 
-        // 5. Attendre une frame pour que la scène soit chargée
+        // 5. Attendre une frame pour que la scène soit initialisée
         yield return null;
 
-        // 6. Fade out et cacher l'écran
+        // 6. Callback post-chargement (musique, init, etc.)
+        onSceneChargee?.Invoke();
+
+        // 7. Fade out, arrêter la vidéo et cacher l'écran
         if (canvasChargement != null && _groupeCanvas != null)
         {
             yield return StartCoroutine(FaderVers(0f, dureeFade));
             canvasChargement.SetActive(false);
         }
+
+        if (lecteurChargement != null)
+            lecteurChargement.Stop();
 
         _chargementEnCours = false;
     }

@@ -740,14 +740,15 @@ public class gestionChapitres : MonoBehaviour
 
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
-        Debug.Log("[Chapitre] Cinematique terminee, retour au jeu");
+        Debug.Log("[Chapitre] Cinematique terminee, chargement SCENE1");
 
+        // Sortir du mode cinématique (réactive curseur, etc.)
+        // Le gestionInputsJeu de SCENE0 sera détruit au LoadScene —
+        // c'est sans conséquence, SCENE1 repart de son propre Start().
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
 
-        // Reprendre la musique de fond apres la cinematique
-        var musique = FindObjectOfType<gestionAudio>();
-        if (musique != null)
-            musique.ReprendreMusique();
+        // NE PAS reprendre la musique ici : on change de scène
+        // immédiatement, la musique de SCENE1 démarrera via le callback.
 
         // Le tutoriel est complete : on active les indices de
         // jouabilite (UI persistante du HUD) pour le vrai gameplay.
@@ -778,8 +779,18 @@ public class gestionChapitres : MonoBehaviour
                 "[Chapitre] Player introuvable avant LoadScene - "
                 + "la position ne sera pas preservee.");
 
-        SceneManager.LoadScene("SCENE1-Taverne1");
-        gestionAudio.Instance.JouerMusiquesTaverne();
+        // Passer par l'écran de chargement si disponible.
+        // La musique de taverne est démarrée via le callback, une frame
+        // APRÈS que la scène soit chargée — pas pendant la cinématique.
+        if (gestionEcranChargement.Instance != null)
+            gestionEcranChargement.Instance.ChargerScene(
+                "SCENE1-Taverne1",
+                () => gestionAudio.Instance?.JouerMusiquesTaverne());
+        else
+        {
+            SceneManager.LoadScene("SCENE1-Taverne1");
+            gestionAudio.Instance?.JouerMusiquesTaverne();
+        }
     }
 
 }
