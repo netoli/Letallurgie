@@ -466,6 +466,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 585299863072785969}
+  - component: {fileID: 7006569367585597270}
   m_Layer: 0
   m_Name: taverne1-envtriste
   m_TagString: Untagged
@@ -511,6 +512,30 @@ Transform:
   - {fileID: 3190171522951213185}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7006569367585597270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7599226127380918411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c418541c15bceb44b96bd9a29084dddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::sfxAmbiancePnj
+  _sourcesAmbiance:
+  - {fileID: 6047536376189848173}
+  - {fileID: 861490976511273588}
+  - {fileID: 3039223044689872267}
+  - {fileID: 2142127917332967220}
+  - {fileID: 689758838755741478}
+  - {fileID: 3108086248450216998}
+  - {fileID: 6884291841217974236}
+  - {fileID: 5146794633189027164}
+  _volumeJeu: 1
+  _volumeMute: 0
+  _vitesseFade: 1.5
 --- !u!1 &8472357350515666843
 GameObject:
   m_ObjectHideFlags: 0
@@ -6967,9 +6992,49 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+--- !u!82 &689758838755741478 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 7734010793019494331, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &861490976511273588 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 7580293393996491497, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1648359531785837268 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8369407289923689033, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &2142127917332967220 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 9186323070654754729, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &3039223044689872267 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 5254364399516632342, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &3108086248450216998 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 5324413839430177979, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &5146794633189027164 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2714311199386791361, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &6047536376189848173 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 3542951501095930608, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+  m_PrefabInstance: {fileID: 7117444244302594205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &6884291841217974236 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 4417986295933226817, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
   m_PrefabInstance: {fileID: 7117444244302594205}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7160226299315836466

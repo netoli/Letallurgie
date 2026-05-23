@@ -78,6 +78,13 @@ public class gestionInputsJeu : MonoBehaviour
     }
 
     private EtatJeu etatActuel = EtatJeu.EnJeu;
+
+    /// <summary>
+    /// True si le joueur est en gameplay actif, sans aucun menu,
+    /// journal, options ou cinématique ouvert. Utilisé par les scripts
+    /// d'ambiance sonore (sfxAmbiancePnj) pour savoir quand atténuer.
+    /// </summary>
+    public bool JeuEnCoursActif => jeuActif && etatActuel == EtatJeu.EnJeu;
     private EtatJeu etatAvantConfirmation = EtatJeu.EnJeu;
     private EtatJeu etatAvantJournal = EtatJeu.EnJeu;
     private EtatJeu etatAvantInventaire = EtatJeu.EnJeu;
@@ -104,7 +111,7 @@ public class gestionInputsJeu : MonoBehaviour
     void Start()
     {
         // D�sactiver le menu principal si on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
         {
             if (canvasMenu != null)
                 canvasMenu.SetActive(false);

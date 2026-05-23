@@ -124,7 +124,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -273,6 +273,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5737048323228639981}
+    - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4292923503504279272}
   m_SourcePrefab: {fileID: 100100000, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
 --- !u!4 &1519780900167734052 stripped
 Transform:
@@ -297,7 +300,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 54929e5d04d7a42449266cc0136d8b6f, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -381,6 +384,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4292923503504279272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2187773059696134558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6dabbeb967829c4c88311c2c8797370, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::sfxLoopAleatoire
+  _source: {fileID: 5737048323228639981}
+  _delaiMin: 3
+  _delaiMax: 8
+  _delaiAuDemarrage: 1
 --- !u!1001 &3835495485159224436
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -466,7 +485,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -636,7 +655,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -808,7 +827,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -949,6 +968,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7669218559818450957}
+    - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6699228807057079763}
   m_SourcePrefab: {fileID: 100100000, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
 --- !u!4 &8231548517545229357 stripped
 Transform:
@@ -975,7 +997,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.5
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1057,6 +1079,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6699228807057079763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8752611112624416407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6dabbeb967829c4c88311c2c8797370, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::sfxLoopAleatoire
+  _source: {fileID: 7669218559818450957}
+  _delaiMin: 3
+  _delaiMax: 8
+  _delaiAuDemarrage: 1
 --- !u!1001 &7089641484549697851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1140,9 +1178,9 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 2d6bd2b966ff1774e82e3c386f946d42, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.7
+  m_Volume: 0.8
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1283,6 +1321,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6914594313759071235}
+    - targetCorrespondingSourceObject: {fileID: 1872243893171741283, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7287827037048546433}
   m_SourcePrefab: {fileID: 100100000, guid: 54a0569e1a821964c82465baabf72d18, type: 3}
 --- !u!4 &7131825013663291850 stripped
 Transform:
@@ -1391,3 +1432,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7287827037048546433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7616296965576655728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6dabbeb967829c4c88311c2c8797370, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::sfxLoopAleatoire
+  _source: {fileID: 6914594313759071235}
+  _delaiMin: 3
+  _delaiMax: 8
+  _delaiAuDemarrage: 1
