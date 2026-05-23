@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/scenes/scene_taverne_tutoriel.unity
+    path: Assets/scenes/SCENE0-Menu-Tuto.unity
     guid: 3f829e3722cee2244b7b9a79993a84eb
   - enabled: 1
     path: Assets/scenes/SCENE1-Taverne1.unity
