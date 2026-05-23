@@ -708,6 +708,12 @@ public class gestionChapitres : MonoBehaviour
         // chargement de la prochaine scene si necessaire.
         MouvementAutorise = false;
 
+        // Fermer toutes les fenêtres UI IMMÉDIATEMENT, avant le délai
+        // d'attente. Sans ça, le joueur peut ouvrir le journal ou
+        // l'inventaire pendant le délai et l'UI reste visible au
+        // démarrage de la vidéo.
+        FindObjectOfType<gestionInputsJeu>()?.FermerToutesLesFenetres();
+
         yield return new WaitForSecondsRealtime(delaiAvantCinematique);
 
         // Faire jouer le video player en lui assignant la vid�o correspondante au nomCinematique
