@@ -6,9 +6,9 @@
 // ------------------------------------------------------------
 // Description :
 //   Gère les réactions de l'antagoniste entre les phases.
-//   Intro : cache l'objet, joue l'animation d'entrée du boss,
-//   puis révèle l'objet avec particules + sfx avant de rendre
-//   le contrôle au joueur. Phases 1 et 2 : anime le boss,
+//   Intro : cache l'objet, joue la voix éerie du boss puis son
+//   animation d'entrée, révèle l'objet avec particules + sfx
+//   avant de rendre le contrôle au joueur. Phases 1 et 2 : anime le boss,
 //   déclenche grossit ou rapetisser sur la gold bar, particules,
 //   sfx, modifie le poids.
 //   Idles aléatoires : cycle avec poids configurables dans
@@ -62,6 +62,9 @@ public class comportementAntagoniste : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource _sourceAudio;
     [SerializeField] private AudioClip _sfxTransformation;
+    [Tooltip("Voix éerie du boss qui joue au début de la scène intro, avant l'animation d'entrée. " +
+             "Laisser vide pour ne rien jouer.")]
+    [SerializeField] private AudioClip _sfxVoixIntro;
     [Tooltip("Sons du boss pendant les idles spéciaux. Index = IdleType (1=Bored … 9=Threatening). " +
              "Laisser vide tant que les SFX ne sont pas prêts — aucun son ne joue si le slot est null.")]
     [SerializeField] private AudioClip[] _sfxIdles = new AudioClip[10]; // index 0 ignoré
@@ -128,6 +131,10 @@ public class comportementAntagoniste : MonoBehaviour
         // 1. Activer la caméra intro
         if (_vcamIntroManoir != null)
             _vcamIntroManoir.Priority = 60;
+
+        // Voix éerie du boss dès le début de l'intro
+        if (_sourceAudio != null && _sfxVoixIntro != null)
+            _sourceAudio.PlayOneShot(_sfxVoixIntro);
 
         // Attendre que Cinemachine finisse son lerp vers la caméra intro
         yield return new WaitForSeconds(_delaiAvantAnimation);
