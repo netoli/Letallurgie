@@ -15,5 +15,5 @@ MonoBehaviour:
   idDeclencheur: deposer_bouteille_table
   idActionRequise: bouteille_deposee_table
   titre: "D\xE9poser la bouteille"
-  explication: "Apporte la bouteille sur une table et d\xE9pose-la sur le point d'accroche."
+  explication: "Apporte la bouteille jusqu'\xE0 une table libre, puis d\xE9pose-la sur l'emplacement marqu\xE9."
   image: {fileID: 0}

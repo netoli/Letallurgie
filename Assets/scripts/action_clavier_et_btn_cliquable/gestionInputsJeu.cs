@@ -668,6 +668,10 @@ public class gestionInputsJeu : MonoBehaviour
         if (DialogueTuto.DialogueActif != null)
             DialogueTuto.DialogueActif.MettreEnPauseExterne();
 
+        // Pause aussi le bandeau info en cours d'affichage (il
+        // reapparaitra avec le temps restant a la fermeture du menu).
+        gestionBandeauInfo.MettreEnPauseExterne();
+
         // Signal pour le tuto "menu_pause" (idActionRequise =
         // "menu_pause_ouvert"). Ferme la tuile si elle est affichee.
         if (gestionChapitres.Instance != null)
@@ -692,6 +696,9 @@ public class gestionInputsJeu : MonoBehaviour
         // Reprendre le dialogue si on l'avait mis en pause.
         if (DialogueTuto.DialogueActif != null)
             DialogueTuto.DialogueActif.ReprendreExterne();
+
+        // Reprendre le bandeau info qu'on avait mis en pause externe.
+        gestionBandeauInfo.ReprendreExterne();
     }
 
     // ===== OPTIONS DEPUIS PAUSE =====
@@ -759,6 +766,9 @@ public class gestionInputsJeu : MonoBehaviour
         // que le menu options est affiche.
         if (DialogueTuto.DialogueActif != null)
             DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
+        // Pause aussi le bandeau info (temps gele, reapparait apres).
+        gestionBandeauInfo.MettreEnPauseExterne();
     }
 
     private void FermerOptionsVersJeu()
@@ -783,6 +793,9 @@ public class gestionInputsJeu : MonoBehaviour
         // Reprendre le dialogue si on l'avait mis en pause.
         if (DialogueTuto.DialogueActif != null)
             DialogueTuto.DialogueActif.ReprendreExterne();
+
+        // Reprendre le bandeau info qu'on avait mis en pause externe.
+        gestionBandeauInfo.ReprendreExterne();
     }
 
     // ===== TUTO =====
@@ -828,6 +841,12 @@ public class gestionInputsJeu : MonoBehaviour
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
 
+        // Met en pause un dialogue en cours (le journal cache l'ecran).
+        if (DialogueTuto.DialogueActif != null)
+            DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
+        // Pause aussi le bandeau info (temps gele, reapparait apres).
+        gestionBandeauInfo.MettreEnPauseExterne();
     }
 
     public void FermerJournal()
@@ -846,6 +865,8 @@ public class gestionInputsJeu : MonoBehaviour
             etatActuel = EtatJeu.EnPause;
             StartCoroutine(
                 AfficherMenuPauseApresDelai(delaiEffets + 0.05f));
+            // On reste en EnPause donc dialogue reste en pause aussi.
+            // ReprendreExterne sera appele dans Reprendre() plus tard.
         }
         else
         {
@@ -856,6 +877,13 @@ public class gestionInputsJeu : MonoBehaviour
 
             if (gestionFlou != null)
                 gestionFlou.DesactiverFlou();
+
+            // Reprendre le dialogue qu'on avait mis en pause.
+            if (DialogueTuto.DialogueActif != null)
+                DialogueTuto.DialogueActif.ReprendreExterne();
+
+            // Reprendre le bandeau info qu'on avait mis en pause externe.
+            gestionBandeauInfo.ReprendreExterne();
         }
     }
 
@@ -953,6 +981,16 @@ public class gestionInputsJeu : MonoBehaviour
             Time.timeScale = 0f;
             CacherContenuHud();
             DeverrouillerSouris();
+
+            // Mettre en pause un dialogue eventuellement en cours
+            // (si on vient de EnJeu, le dialogue n'est pas encore en
+            // pause externe). Si on vient de EnPause, le dialogue est
+            // deja en pause par MettreEnPause() precedent.
+            if (DialogueTuto.DialogueActif != null)
+                DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
+            // Pause aussi le bandeau info (temps gele).
+            gestionBandeauInfo.MettreEnPauseExterne();
         }
 
         if (etatActuel == EtatJeu.EnPause)
@@ -1049,6 +1087,13 @@ public class gestionInputsJeu : MonoBehaviour
 
             if (gestionFlou != null)
                 gestionFlou.DesactiverFlou();
+
+            // Reprendre le dialogue si on l'avait mis en pause.
+            if (DialogueTuto.DialogueActif != null)
+                DialogueTuto.DialogueActif.ReprendreExterne();
+
+            // Reprendre le bandeau info qu'on avait mis en pause externe.
+            gestionBandeauInfo.ReprendreExterne();
         }
         else if (etatActuel == EtatJeu.EnPause)
         {
@@ -1058,6 +1103,7 @@ public class gestionInputsJeu : MonoBehaviour
 
             if (gestionFlou != null)
                 gestionFlou.ActiverFlou();
+            // On reste en EnPause donc le dialogue reste en pause.
         }
     }
 
@@ -1318,6 +1364,11 @@ public class gestionInputsJeu : MonoBehaviour
             // normalement aucun dialogue n'est actif a ce stade.
             if (DialogueTuto.DialogueActif != null)
                 DialogueTuto.DialogueActif.MettreEnPauseExterne();
+
+            // Effacer completement le bandeau info (vide la file et
+            // masque l'UI). Pendant la cinematique, on ne veut aucun
+            // bandeau en arriere-plan.
+            gestionBandeauInfo.Effacer();
 
             // Reset etat : on est dans une "pseudo-EnJeu" sans inputs.
             etatActuel = EtatJeu.EnJeu;

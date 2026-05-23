@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
   idDeclencheur: se_deplacer
   idActionRequise: deplacement
+  idActionAnnulation: 
   titre: "Se d\xE9placer"
-  explication: "<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">wasd</gradient></font></b></size>
-    pour bouger, souris pour la vue."
+  explication: "Utilise les touches <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">wasd</gradient></font></b></size>
+    pour te d\xE9placer et la souris pour regarder autour de toi."
   image: {fileID: 21300000, guid: 18b51c816d733408198ee129067f97b2, type: 3}
+  afficherCommeBanniere: 0
+  dureeBanniere: 3
+  dureeAuto: 0
+  delaiAvantApparition: 0.3
+  afficherCommeBandeau: 0

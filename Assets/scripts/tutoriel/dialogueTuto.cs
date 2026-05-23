@@ -97,6 +97,18 @@ public class DialogueTuto : MonoBehaviour
     private Coroutine coroutineDialogue;
     private bool skipLigneDemande = false;
     private bool premierSkipFait = false;
+    // Action que le dialogue attend AVANT d'avancer a la replique
+    // suivante. Mise a jour pour chaque replique qui a un
+    // idActionRequiseAvancement. Si elle est signalee par
+    // gestionChapitres.SignalerAction, le flag attendActionEffectue
+    // devient true et la boucle d'attente debloque la replique.
+    private string idActionAvancementEnAttente = "";
+    private bool attentActionEffectue = false;
+    // Replique actuellement affichee a l'ecran (sous-titre). Sert a
+    // re-afficher le sous-titre apres une pause externe (menu pause,
+    // options, journal) sans avoir a relancer toute la replique.
+    private string interlocuteurCourant = "";
+    private string texteCourant = "";
     // Vrai quand un menu externe (pause, options) suspend le dialogue.
     // Les boucles d'attente verifient ce flag a chaque frame et
     // n'incrementent leur compteur de temps que s'il est false. L'audio
@@ -112,6 +124,13 @@ public class DialogueTuto : MonoBehaviour
     // True si gestion distance est desactivee pour cette session de
     // dialogue (le joueur a fait au moins 1 ESC pour skipper).
     private bool gestionDistanceDesactiveeParSkip = false;
+    // True si le joueur a ete au moins une fois dans la zone audible
+    // (distance <= distanceVolumeMin) pendant ce dialogue. Necessaire
+    // pour eviter de declencher la pause distance immediatement si le
+    // joueur a clique sur le PNJ de loin (raycast longue distance).
+    // La pause distance ne se declenche que APRES que le joueur ait
+    // ete proche au moins une fois.
+    private bool joueurDejaProche = false;
     // Vrai si le dialogue est effectivement en pause (externe OU
     // distance). Utilise par les boucles d'attente.
     private bool DialogueEffectivementEnPause =>
@@ -119,18 +138,36 @@ public class DialogueTuto : MonoBehaviour
 
     public bool EstEnPauseDistance => dialoguePauseDistance;
 
+    /// <summary>
+    /// Vrai si le dialogue est actuellement bloque entre 2 repliques
+    /// en attente d'une action joueur (idActionRequiseAvancement). Dans
+    /// cet etat, audio et sous-titre sont deja arretes : il ne faut pas
+    /// appliquer la pause externe par-dessus (sinon la reprise
+    /// reafficherait le sous-titre de la replique deja terminee).
+    /// </summary>
+    public bool EstEnAttenteAction =>
+        !string.IsNullOrEmpty(idActionAvancementEnAttente);
+
     [Header("Skip (ESC)")]
     [Tooltip("Delai (s) apres le 1er ESC avant que la tuile " +
         "\"ESC pour passer un dialogue\" se ferme automatiquement. " +
         "Le joueur a compris la mecanique, on retire l'indice.")]
     [SerializeField] private float delaiFermetureTuileEsc = 3f;
 
+    [Header("Reprise apres action joueur")]
+    [Tooltip("Delai (s) entre le signal de l'action attendue " +
+        "(idActionRequiseAvancement) et la reprise effective du " +
+        "dialogue. Laisse un temps de respiration apres que le joueur " +
+        "ferme le menu/inventaire/journal. Default 2s.")]
+    [SerializeField] private float delaiAvantRepriseApresAction = 2f;
+
     [Header("Volume voix selon distance")]
     [Tooltip("Si coche, le volume de la voix diminue avec la distance " +
         "entre joueur et PNJ, et le dialogue se met en pause si le " +
         "joueur s'eloigne trop. Decoche pour un comportement classique " +
-        "(volume constant, pas de pause distance).")]
-    [SerializeField] private bool gestionDistanceActive = true;
+        "(volume constant, pas de pause distance). Default: false pour " +
+        "ne pas casser les dialogues si le clic est fait de loin.")]
+    [SerializeField] private bool gestionDistanceActive = false;
 
     [Tooltip("Reference au Transform du Player. Si null, sera trouve " +
         "automatiquement via tag 'Player' au Start.")]
@@ -174,6 +211,11 @@ public class DialogueTuto : MonoBehaviour
     void Start()
     {
         interactionActive = interactifAuDemarrage;
+
+        // S'abonner aux actions signalees pour pouvoir debloquer une
+        // replique qui attend une action specifique (idActionRequiseAvancement).
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.OnActionSignalee += AuActionSignalee;
 
         if (gestionSousTitreRef == null)
             gestionSousTitreRef = FindFirstObjectByType<gestionSousTitre>(
@@ -224,6 +266,28 @@ public class DialogueTuto : MonoBehaviour
 
         float distance = Vector3.Distance(
             refPlayer.position, transform.position);
+
+        // Tant que le joueur n'a pas ete proche au moins une fois, on
+        // ne fait rien : ni reduction de volume ni pause distance. Ca
+        // evite de casser le debut du dialogue quand le clic est fait
+        // de loin (raycast). Le joueur doit d'abord "venir voir" le
+        // PNJ pour que le systeme s'enclenche.
+        if (!joueurDejaProche)
+        {
+            if (distance <= distanceVolumeMin)
+            {
+                joueurDejaProche = true;
+                Debug.Log($"[DialogueTuto] {name} : joueur entre dans " +
+                    "zone audible, gestion distance activee.");
+            }
+            else
+            {
+                // Encore loin du PNJ : on garde le volume max et on
+                // attend que le joueur s'approche.
+                if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
+                return;
+            }
+        }
 
         // 1) Ajuster le volume de la voix selon la distance.
         //    - distance <= distanceVolumeMax : volume 100%
@@ -363,6 +427,7 @@ public class DialogueTuto : MonoBehaviour
         gestionDistanceDesactiveeParSkip = false;
         dialoguePauseDistance = false;
         distanceLorsDePauseDistance = 0f;
+        joueurDejaProche = false;
         if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
 
         // Signal du debut : ferme la tuile "Parler avec le tavernier".
@@ -377,6 +442,11 @@ public class DialogueTuto : MonoBehaviour
         for (int i = 0; i < etape.repliques.Length; i++)
         {
             RepliqueDialogue rep = etape.repliques[i];
+
+            // Memoriser la replique courante pour pouvoir la re-afficher
+            // apres une pause externe (menu ouvert -> sous-titre cache).
+            interlocuteurCourant = rep.interlocuteur;
+            texteCourant = rep.texte;
 
             if (gestionSousTitreRef != null)
             {
@@ -441,6 +511,30 @@ public class DialogueTuto : MonoBehaviour
                 if (!DialogueEffectivementEnPause)
                     p += Time.unscaledDeltaTime;
                 yield return null;
+            }
+
+            // Attente d'une action joueur AVANT de passer a la replique
+            // suivante (ex: le tavernier dit "Ouvre ton journal" puis le
+            // dialogue attend que le joueur appuie sur J avant de
+            // continuer). Le skip ESC ne court-circuite PAS cette attente :
+            // c'est une etape pedagogique obligatoire. Sous-titre cache et
+            // texte du bandeau "attente" affiche si configure.
+            if (!string.IsNullOrEmpty(rep.idActionRequiseAvancement))
+            {
+                idActionAvancementEnAttente = rep.idActionRequiseAvancement;
+                attentActionEffectue = false;
+                Debug.Log($"[DialogueTuto] {name} : attente action " +
+                    $"'{rep.idActionRequiseAvancement}' avant de passer " +
+                    "a la replique suivante.");
+
+                while (!attentActionEffectue)
+                {
+                    yield return null;
+                }
+
+                idActionAvancementEnAttente = "";
+                Debug.Log($"[DialogueTuto] {name} : reprise du dialogue " +
+                    "apres action joueur.");
             }
         }
 
@@ -525,25 +619,42 @@ public class DialogueTuto : MonoBehaviour
 
     /// <summary>
     /// Met le dialogue en pause depuis un contexte externe (ouverture
-    /// du menu pause ou du menu options pendant que le dialogue defile).
-    /// Suspend l'avancement des repliques et met en pause l'audio de
-    /// la voix. Appele depuis gestionInputsJeu.MettreEnPause() et
-    /// OuvrirOptionsDepuisJeu().
+    /// du menu pause, options, journal, etc.). Suspend l'avancement
+    /// des repliques, met en pause l'audio de la voix, et MASQUE le
+    /// sous-titre pour ne pas etre distrayant pendant que le menu est
+    /// affiche par dessus.
     /// </summary>
     public void MettreEnPauseExterne()
     {
         if (!dialogueOuvert) return;
         if (dialoguePauseExterne) return;
+        // Cas special : si le dialogue est deja en attente d'une action
+        // joueur (ex: idActionRequiseAvancement = 'jdb_ouvert' qui se
+        // declenche en ouvrant le journal), on N'APPLIQUE PAS la pause
+        // externe. Audio et sous-titre sont deja arretes. Sinon, la
+        // reprise reafficherait le sous-titre de la replique deja
+        // terminee, ce qui n'a aucun sens.
+        if (EstEnAttenteAction)
+        {
+            Debug.Log($"[DialogueTuto] {name} : pause externe IGNOREE " +
+                $"(dialogue en attente action " +
+                $"'{idActionAvancementEnAttente}').");
+            return;
+        }
         dialoguePauseExterne = true;
         if (audioSourceVoix != null && audioSourceVoix.isPlaying)
             audioSourceVoix.Pause();
+        // Cacher le sous-titre pendant que le menu est ouvert. On le
+        // re-affichera dans ReprendreExterne avec les memes textes.
+        if (gestionSousTitreRef != null)
+            gestionSousTitreRef.MasquerSousTitre();
         Debug.Log($"[DialogueTuto] {name} : pause externe activee.");
     }
 
     /// <summary>
     /// Reprend le dialogue suspendu par MettreEnPauseExterne. Reprend
-    /// l'audio la ou il avait ete mis en pause. Appele depuis
-    /// gestionInputsJeu.Reprendre() et FermerOptionsVersJeu().
+    /// l'audio la ou il avait ete mis en pause et re-affiche le
+    /// sous-titre de la replique qui etait en cours.
     /// Si une pause distance est encore active, l'audio reste en pause.
     /// </summary>
     public void ReprendreExterne()
@@ -555,6 +666,16 @@ public class DialogueTuto : MonoBehaviour
         // le joueur revienne assez pres.
         if (audioSourceVoix != null && !dialoguePauseDistance)
             audioSourceVoix.UnPause();
+        // Re-afficher le sous-titre de la replique en cours (cache lors
+        // de la pause). On ne le fait que si l'autre source de pause
+        // (distance) n'est pas active, sinon ce serait incoherent.
+        if (gestionSousTitreRef != null
+            && !dialoguePauseDistance
+            && !string.IsNullOrEmpty(texteCourant))
+        {
+            gestionSousTitreRef.AfficherSousTitre(
+                interlocuteurCourant, texteCourant, -1f);
+        }
         Debug.Log($"[DialogueTuto] {name} : reprise apres pause externe " +
             $"(pauseDistance encore active : {dialoguePauseDistance}).");
     }
@@ -562,6 +683,38 @@ public class DialogueTuto : MonoBehaviour
     void OnDisable()
     {
         if (DialogueActif == this) DialogueActif = null;
+    }
+
+    void OnDestroy()
+    {
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.OnActionSignalee -= AuActionSignalee;
+    }
+
+    /// <summary>
+    /// Appele a chaque action signalee dans gestionChapitres. Sert a
+    /// debloquer une replique qui attend une action specifique
+    /// (idActionRequiseAvancement). Le flag attentActionEffectue est
+    /// consomme par la boucle d'attente dans JouerDialogue.
+    /// </summary>
+    private void AuActionSignalee(string idAction)
+    {
+        if (string.IsNullOrEmpty(idActionAvancementEnAttente)) return;
+        if (idAction == idActionAvancementEnAttente)
+        {
+            Debug.Log($"[DialogueTuto] {name} : action attendue " +
+                $"'{idAction}' signalee, reprise dans " +
+                $"{delaiAvantRepriseApresAction}s.");
+            StartCoroutine(RepriseApresDelai());
+        }
+    }
+
+    private IEnumerator RepriseApresDelai()
+    {
+        if (delaiAvantRepriseApresAction > 0f)
+            yield return new WaitForSecondsRealtime(
+                delaiAvantRepriseApresAction);
+        attentActionEffectue = true;
     }
 }
 
@@ -606,6 +759,16 @@ public class RepliqueDialogue
         "de declencher une tuile/banniere/chapitre PENDANT une etape de " +
         "dialogue, sans attendre la fin de l'etape entiere.")]
     public string idActionADeclencher;
+
+    [Tooltip("(Optionnel) ID d'action que le joueur DOIT effectuer " +
+        "AVANT que le dialogue puisse passer a la replique suivante. " +
+        "Le dialogue reste bloque (audio/voix arretes, sous-titre " +
+        "masque) jusqu'a ce que cette action soit signalee. Permet " +
+        "d'imposer une etape pedagogique au milieu d'un dialogue " +
+        "(ex: 'jdb_ouvert' = le tavernier dit 'Ouvre ton journal' et " +
+        "le dialogue attend que le joueur appuie sur J avant de " +
+        "continuer). Laisse vide pour ne pas bloquer.")]
+    public string idActionRequiseAvancement;
 }
 
 /// <summary>

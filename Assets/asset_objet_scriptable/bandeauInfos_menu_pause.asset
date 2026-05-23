@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5fe283b7bec54868951d0806ec0832c, type: 3}
+  m_Name: bandeauInfos_menu_pause
+  m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
+  idBandeau: menu_pause
+  texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">esc</gradient></font></b></size>
+    pour ouvrir/fermer le menu pause (maintiens 1s en dialogue)."
+  dureeAffichage: 5
+  idActionDeclenchement: retrouvailles_banniere_terminee
+  delaiAvantApparition: 2
+  idActionAnnulation:
+  autoriserMultipleAffichages: 0

@@ -79,6 +79,15 @@ public class gestionBanniere : MonoBehaviour
         if (groupeBanniere != null)
             groupeBanniere.alpha = 0f;
 
+        // Si volumeGlobal n'est pas assigne (cas du prefab instancie
+        // dans une nouvelle scene ou la reference ne pointe nulle part),
+        // on cherche le Volume principal de la scene automatiquement.
+        if (volumeGlobal == null)
+        {
+            volumeGlobal = FindFirstObjectByType<Volume>(
+                FindObjectsInactive.Include);
+        }
+
         // Initialisation de la vignette (ajoute le override au
         // profil URP s'il n'existe pas deja, et le laisse desactive).
         // On configure aussi smoothness, roundness et couleur pour

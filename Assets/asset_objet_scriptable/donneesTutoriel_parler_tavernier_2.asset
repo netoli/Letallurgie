@@ -19,4 +19,5 @@ MonoBehaviour:
   image: {fileID: 0}
   afficherCommeBanniere: 1
   dureeBanniere: 3.6
+  idActionApresBanniere: retrouvailles_banniere_terminee
   delaiAvantApparition: 4.5

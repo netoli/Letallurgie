@@ -13,7 +13,6 @@
 //   - RamasserIndice.cs
 // ============================================================
 
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,8 +23,15 @@ public class gestionInteractionClic : MonoBehaviour
     [SerializeField] private float distObjet = 3f;
     [SerializeField] private LayerMask coucheObjet;
     [Header("Render")]
+    [Tooltip("Camera utilisee pour le raycast d'interaction. Si laisse " +
+        "vide, sera trouvee automatiquement au Start (Camera.main, puis " +
+        "FindFirstObjectByType<Camera>). Permet d'utiliser ce script " +
+        "dans un PREFAB instancie dans plusieurs scenes (chaque scene " +
+        "ayant sa propre camera).")]
     [SerializeField] private Camera cam;
     [Header("Interactivité")]
+    [Tooltip("gestionPointeur a utiliser. Si laisse vide, sera trouve " +
+        "automatiquement au Start via FindFirstObjectByType.")]
     [SerializeField] private gestionPointeur pointeur;
 
     private RamasserIndice _indiceVise;
@@ -34,15 +40,48 @@ public class gestionInteractionClic : MonoBehaviour
     private DialogueTuto _tavernierVise;
 
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        // Auto-resolution des references si elles n'ont pas ete assignees
+        // dans l'Inspector. Permet l'utilisation en prefab cross-scenes.
+        if (cam == null)
+        {
+            cam = Camera.main;
+            if (cam == null)
+                cam = FindFirstObjectByType<Camera>(
+                    FindObjectsInactive.Include);
+            if (cam == null)
+                Debug.LogWarning("[gestionInteractionClic] Aucune Camera " +
+                    "trouvee. Le raycast d'interaction ne fonctionnera pas.");
+        }
+        if (pointeur == null)
+        {
+            pointeur = FindFirstObjectByType<gestionPointeur>(
+                FindObjectsInactive.Include);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Garde-fou : si la camera ou le pointeur n'ont pas pu etre
+        // trouves au Start, on ne peut pas faire le raycast ni changer
+        // l'etat du pointeur. On retente une fois pour gerer les cas
+        // ou la scene n'avait pas encore charge ses objets au Start.
+        if (cam == null)
+        {
+            cam = Camera.main ?? FindFirstObjectByType<Camera>(
+                FindObjectsInactive.Include);
+            if (cam == null) return;
+        }
+        if (pointeur == null)
+        {
+            pointeur = FindFirstObjectByType<gestionPointeur>(
+                FindObjectsInactive.Include);
+            // Si toujours pas trouve, on continue quand meme : le raycast
+            // marchera mais les changements d'etat pointeur sont skip.
+        }
+
         _DetecterObjet();
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
@@ -56,6 +95,14 @@ public class gestionInteractionClic : MonoBehaviour
         }
 
 
+    }
+
+    // Helper : ne change l'etat du pointeur que s'il est present.
+    // Evite les NRE quand le prefab est utilise dans une scene sans
+    // gestionPointeur (cas degrade).
+    private void SetPointeur(gestionPointeur.EtatPointeur etat)
+    {
+        if (pointeur != null) pointeur.ChangerEtat(etat);
     }
 
     private void _DetecterObjet()
@@ -111,7 +158,7 @@ public class gestionInteractionClic : MonoBehaviour
                 bool indiceEstPnj = _indiceVise != null
                     && (_indiceVise.gameObject.name.Contains("pnj_mysterieux")
                         || _indiceVise.gameObject.name == "npc");
-                pointeur.ChangerEtat(indiceEstPnj
+                SetPointeur(indiceEstPnj
                     ? gestionPointeur.EtatPointeur.PNJ
                     : gestionPointeur.EtatPointeur.Interactif);
                 _highlightVise?.Highlighter(true);
@@ -121,14 +168,14 @@ public class gestionInteractionClic : MonoBehaviour
                 _objetVise = impact.collider.GetComponentInParent<objetRamassable>();
                 _indiceVise = null;
                 _tavernierVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Interactif);
+                SetPointeur(gestionPointeur.EtatPointeur.Interactif);
             }
             else if (tag == "tavernier" || tag == "pnj")
             {
                 _tavernierVise = impact.collider.GetComponentInParent<DialogueTuto>();
                 _indiceVise = null;
                 _objetVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.PNJ);
+                SetPointeur(gestionPointeur.EtatPointeur.PNJ);
                 _highlightVise?.Highlighter(true);
             }
             else
@@ -140,7 +187,7 @@ public class gestionInteractionClic : MonoBehaviour
                 _indiceVise = null;
                 _objetVise = null;
                 _tavernierVise = null;
-                pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Mecanique);
+                SetPointeur(gestionPointeur.EtatPointeur.Mecanique);
             }
         }
         else
@@ -148,7 +195,7 @@ public class gestionInteractionClic : MonoBehaviour
             _indiceVise = null;
             _objetVise = null;
             _tavernierVise = null;
-            pointeur.ChangerEtat(gestionPointeur.EtatPointeur.Defaut);
+            SetPointeur(gestionPointeur.EtatPointeur.Defaut);
             if (_highlightVise != null)
             {
                 _highlightVise.Highlighter(false);

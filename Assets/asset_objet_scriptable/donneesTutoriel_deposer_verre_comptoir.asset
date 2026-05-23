@@ -15,5 +15,5 @@ MonoBehaviour:
   idDeclencheur: deposer_verre_comptoir
   idActionRequise: verre_depose_comptoir
   titre: Rapporter le verre
-  explication: "Apporte le verre au comptoir du tavernier et d\xE9pose-le."
+  explication: "Apporte le verre jusqu'au comptoir du tavernier et d\xE9pose-le d\xE9licatement."
   image: {fileID: 0}

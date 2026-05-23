@@ -65,10 +65,15 @@ public class gestionAudio : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Debug.Log($"[gestionAudio] Doublon ('{name}'), destruction.");
             Destroy(gameObject);
             return;
         }
         Instance = this;
+        // gestionAudio a besoin de persister entre scenes : sinon la
+        // musique de fond se relance/coupe a chaque chargement de scene.
+        // On reste sur DontDestroyOnLoad(gameObject) car ce GameObject
+        // est attendu en tant que ROOT (jamais sous un parent UI).
         DontDestroyOnLoad(gameObject);
     }
 

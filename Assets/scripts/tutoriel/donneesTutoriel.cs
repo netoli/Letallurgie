@@ -48,6 +48,14 @@ public class DonneesTutoriel : ScriptableObject
         "declenche (typiquement la fin d'un dialogue PNJ).")]
     public float dureeBanniere = 3.6f;
 
+    [Tooltip("(Optionnel) ID d'action signalee a la FIN de la banniere " +
+        "(juste apres que la banniere disparaisse). Permet a d'autres " +
+        "systemes (ex: gestionDeclencheurBandeau pour les bandeaux info) " +
+        "de se synchroniser sur la fin de la banniere. Utilise " +
+        "uniquement si afficherCommeBanniere est coche. Laisse vide pour " +
+        "ne rien signaler.")]
+    public string idActionApresBanniere;
+
     [Tooltip("Si > 0, la tuile tutoriel se ferme automatiquement " +
         "apres ce delai (s), MEME si idActionRequise n'a pas ete " +
         "signalee. Utile pour les tuiles purement informatives " +
@@ -62,4 +70,13 @@ public class DonneesTutoriel : ScriptableObject
         "informative pour qu'elle apparaisse a un moment narratif " +
         "specifique (ex: 3s apres la fermeture de la tuile precedente).")]
     public float delaiAvantApparition = 0.25f;
+
+    [Tooltip("Si coche, cette etape s'affiche dans le BANDEAU INFO " +
+        "horizontal (gestionBandeauInfo) au lieu d'une tuile tutoriel " +
+        "classique. Non-bloquant : la tuile est marquee vue " +
+        "immediatement, la sequence continue. Utilise dureeAuto comme " +
+        "duree d'affichage dans le bandeau (defaut 5s si 0). Ideal " +
+        "pour les rappels contextuels non-critiques (ex: 'maintiens " +
+        "esc 1s pour ouvrir le menu pause').")]
+    public bool afficherCommeBandeau = false;
 }

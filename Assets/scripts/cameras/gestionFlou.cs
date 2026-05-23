@@ -6,6 +6,11 @@ using UnityEngine.SceneManagement;
 public class gestionFlou : MonoBehaviour
 {
     [Header("References")]
+    [Tooltip("Reference au Global Volume de la scene. Si laisse vide, " +
+        "sera trouve automatiquement au runtime (FindFirstObjectByType). " +
+        "Cette tolerance permet d'utiliser ce script dans un PREFAB qui " +
+        "serait instancie dans plusieurs scenes (la reference perdrait " +
+        "sinon sa cible specifique a chaque chargement de scene).")]
     public Volume volumeGlobal;
 
     [Header("Parametres flou")]
@@ -17,6 +22,30 @@ public class gestionFlou : MonoBehaviour
 
     void Awake()
     {
+        // Si volumeGlobal n'est pas assigne (cas du prefab instancie
+        // dans une nouvelle scene), on cherche le Volume principal de
+        // la scene automatiquement.
+        if (volumeGlobal == null)
+        {
+            volumeGlobal = FindFirstObjectByType<Volume>(
+                FindObjectsInactive.Include);
+            if (volumeGlobal == null)
+            {
+                Debug.LogWarning("[gestionFlou] Aucun Volume trouve " +
+                    "dans la scene. Le flou ne pourra pas fonctionner.");
+                return;
+            }
+        }
+
+        // Securite supplementaire : si le Volume n'a pas de profile
+        // assigne, on ne peut rien faire. Sort proprement.
+        if (volumeGlobal.profile == null)
+        {
+            Debug.LogWarning("[gestionFlou] Le Volume trouve n'a pas " +
+                "de profile assigne. Le flou ne pourra pas fonctionner.");
+            return;
+        }
+
         if (volumeGlobal.profile.TryGet(out DepthOfField d))
             dof = d;
         else
@@ -24,7 +53,7 @@ public class gestionFlou : MonoBehaviour
 
         dof.mode.Override(DepthOfFieldMode.Bokeh);
 
-        // Désactiver par défaut, sauf dans la scène principale
+        // Dï¿½sactiver par dï¿½faut, sauf dans la scï¿½ne principale
         if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
         {
             DesactiverFlou();

@@ -15,6 +15,6 @@ MonoBehaviour:
   idDeclencheur: ramasser_bouteille
   idActionRequise: bouteille_ramassee
   titre: Ramasser une bouteille
-  explication: "<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">Clique
-    gauche</gradient></font></b></size> sur la bouteille pour la ramasser."
+  explication: "Approche-toi de la bouteille puis fais un <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">Clique
+    gauche</gradient></font></b></size> dessus pour la ramasser."
   image: {fileID: 21300000, guid: a3c065dff05ba4887870cdbbc9c09b34, type: 3}

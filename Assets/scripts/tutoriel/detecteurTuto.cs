@@ -4,22 +4,22 @@ public class detecteurTuto : MonoBehaviour
 {
 
     [Header("Identification")]
-    [Tooltip("ID de l'action attendue (doit correspondre à DonneesTutoriel.idActionRequise)")]
+    [Tooltip("ID de l'action attendue (doit correspondre Ã  DonneesTutoriel.idActionRequise)")]
     [SerializeField] private string idActionRequise;
 
-    // lecture publique, écriture privée
+    // lecture publique, Ã©criture privÃ©e
     public string IdAction => idActionRequise;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -30,15 +30,15 @@ public class detecteurTuto : MonoBehaviour
 
         if (gestionChapitres.Instance != null)
         {
-            // Notifie le gestionnaire de chapitres que l'action a été réalisée
+            // Notifie le gestionnaire de chapitres que l'action a Ã©tÃ© rÃ©alisÃ©e
             gestionChapitres.Instance.SignalerAction(IdAction);
 
-            //désactiver ce détecteur pour éviter retriggers
+            //dÃ©sactiver ce dÃ©tecteur pour Ã©viter retriggers
             gameObject.SetActive(false);
         }
         else
         {
-            Debug.LogWarning("[DetecteurTuto] gestionChapitres introuvable (singleton non initialisé?)");
+            Debug.LogWarning("[DetecteurTuto] gestionChapitres introuvable (singleton non initialisÃ©?)");
         }
     }
 

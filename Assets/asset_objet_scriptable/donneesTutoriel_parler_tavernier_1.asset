@@ -15,6 +15,6 @@ MonoBehaviour:
   idDeclencheur: parler_tavernier_1
   idActionRequise: dialogue_tav1_debute
   titre: Parler au tavernier
-  explication: "<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">Clique</gradient></font></b></size>
-    sur le tavernier pour entamer la conversation."
+  explication: "Approche-toi du tavernier et fais un <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">Clique
+    gauche</gradient></font></b></size> sur lui pour entamer la conversation."
   image: {fileID: 0}

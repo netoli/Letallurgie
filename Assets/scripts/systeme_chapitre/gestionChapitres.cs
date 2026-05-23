@@ -158,13 +158,27 @@ public class gestionChapitres : MonoBehaviour
         // on re-autorise les mouvements une fois la bannière terminée.
         bool bloquerMouvementsPourBanniere =
             chapitre.idChapitre != "premier_contact";
-        bool mouvementsEtaientAutorises = MouvementAutorise;
+
+        // IMPORTANT : on NE bloque PAS le mouvement au demarrage du
+        // chapitre. Le joueur doit pouvoir bouger librement pendant le
+        // delaiApparitionBanniere (ex : 6s pour mener_enquete apres la
+        // cinematique). Le blocage ne s'applique QU'AU MOMENT ou la
+        // banniere apparait, pour figer le joueur pendant qu'il lit le
+        // titre du chapitre. La reprise se fait 1s plus tard.
+        // Exception : premier_contact a sa propre logique de blocage
+        // dans DemarrerChapitre (le joueur est fige des le tout debut
+        // du jeu, jusqu'a la 1ere tuile de tuto qui le libere).
+
+        yield return new WaitForSecondsRealtime(chapitre.delaiApparitionBanniere);
+
+        // Maintenant que la banniere va apparaitre : on bloque le
+        // mouvement et on programme sa reprise 1s plus tard. Comme ca
+        // le joueur ne peut pas bouger pendant qu'il decouvre le titre.
         if (bloquerMouvementsPourBanniere)
         {
             MouvementAutorise = false;
+            StartCoroutine(ReautoriserMouvementApresDelai(1f));
         }
-
-        yield return new WaitForSecondsRealtime(chapitre.delaiApparitionBanniere);
 
         Debug.Log("[Chapitre] Lancement banniere");
 
@@ -179,14 +193,18 @@ public class gestionChapitres : MonoBehaviour
         // banniere annonce-chapitre de ce chapitre vient de se terminer.
         OnBanniereChapitreTerminee?.Invoke(chapitre.idChapitre);
 
-        // Restaurer l'état des mouvements après la bannière. Si on
-        // n'avait pas bloqué, on ne change rien (le 1er chapitre
-        // garde sa propre logique). Sinon on remet l'état tel qu'il
-        // était avant pour ne pas écraser un autre verrou éventuel.
-        if (bloquerMouvementsPourBanniere)
-        {
-            MouvementAutorise = mouvementsEtaientAutorises;
-        }
+        // Signaler une action standardisee pour pouvoir declencher
+        // des bandeaux info, activer des indicateurs, etc. depuis
+        // l'editeur sans ecrire de code dedie. Convention :
+        // "chapitre_<idChapitre>_banniere_terminee".
+        // Ex : "chapitre_mener_enquete_banniere_terminee" pour
+        // declencher le bandeau "Va voir le client" + activer le
+        // pointeur visuel devant la table du npc.
+        SignalerAction(
+            $"chapitre_{chapitre.idChapitre}_banniere_terminee");
+
+        // Note : plus besoin de restaurer MouvementAutorise ici. La
+        // coroutine ReautoriserMouvementApresDelai s'en occupe apres 1s.
 
         // Si on n'est pas dans la scene tutoriel, la sequence s'arrete
         // ici : on ne deroule pas les tuiles de tuto (le chapitre sert
@@ -366,22 +384,53 @@ public class gestionChapitres : MonoBehaviour
 
     /// <summary>
     /// Coroutine qui affiche une banniere annonce-chapitre tout en
-    /// bloquant les mouvements WASD du joueur pendant l'animation.
+    /// bloquant les mouvements WASD du joueur pendant 1 seconde.
     /// Utilise pour les tuiles tuto marquees "afficherCommeBanniere"
     /// (typiquement des indications narratives comme "Reparler au
-    /// tavernier"). Apres la banniere, on REAUTORISE les mouvements
-    /// afin que le joueur puisse aller interagir avec ce que la
-    /// banniere demande (parler au tavernier, etc.).
+    /// tavernier"). Le mouvement est reautorise apres 1s (pas a la fin
+    /// de la banniere) pour que le joueur puisse commencer a bouger
+    /// vers le tavernier des qu'il voit le titre s'afficher.
     /// </summary>
     private IEnumerator AfficherBanniereEtBloquerMouvements(
         string titre, float duree)
     {
         MouvementAutorise = false;
+        // Reautoriser le mouvement apres 1s, en parallele de la banniere.
+        StartCoroutine(ReautoriserMouvementApresDelai(1f));
         yield return StartCoroutine(
             gestionBanniere.AfficherBanniere(titre, duree));
-        // Toujours reautoriser les mouvements apres la banniere :
-        // le joueur a besoin de bouger pour faire l'action que la
-        // banniere indique (ex : reparler au tavernier).
+    }
+
+    /// <summary>
+    /// Surcharge avec signalement d'action a la fin de la banniere.
+    /// Permet a d'autres systemes (bandeaux info) de se synchroniser sur
+    /// la fin precise de la banniere d'une tuile (ex: bandeau menu_pause
+    /// apparait 2s apres que la banniere "Les retrouvailles" disparaisse).
+    /// </summary>
+    private IEnumerator AfficherBanniereEtBloquerMouvements(
+        string titre, float duree, string idActionApres)
+    {
+        MouvementAutorise = false;
+        StartCoroutine(ReautoriserMouvementApresDelai(1f));
+        yield return StartCoroutine(
+            gestionBanniere.AfficherBanniere(titre, duree));
+
+        if (!string.IsNullOrEmpty(idActionApres))
+        {
+            Debug.Log($"[Chapitre] Banniere terminee, signal action " +
+                $"'{idActionApres}'.");
+            SignalerAction(idActionApres);
+        }
+    }
+
+    /// <summary>
+    /// Reautorise le mouvement du joueur apres un delai donne. Utilise
+    /// pour libérer le joueur 1s apres le debut d'une banniere, plutot
+    /// que d'attendre la fin de la banniere (3-4s typiquement).
+    /// </summary>
+    private IEnumerator ReautoriserMouvementApresDelai(float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
         MouvementAutorise = true;
     }
 
@@ -409,6 +458,22 @@ public class gestionChapitres : MonoBehaviour
             return;
         }
 
+        // BANDEAU INFO : si la tuile est marquee afficherCommeBandeau,
+        // on l'envoie au systeme gestionBandeauInfo (non-bloquant) au
+        // lieu d'afficher une tuile tutoriel. La sequence continue
+        // immediatement vers la prochaine tuile.
+        if (tuto.afficherCommeBandeau)
+        {
+            float dureeBandeau = tuto.dureeAuto > 0f ? tuto.dureeAuto : 5f;
+            Debug.Log($"[Chapitre] Tuile '{tuto.idDeclencheur}' " +
+                $"affichee comme BANDEAU INFO ({dureeBandeau}s).");
+            gestionBandeauInfo.Afficher(tuto.explication, dureeBandeau);
+            tutosVus.Add(tuto.idDeclencheur);
+            SauvegarderTutosVus();
+            AvancerVersProchaineTuile();
+            return;
+        }
+
         tutoActuel = tuto;
 
         // Branche : si l'etape est marquee comme "afficher comme
@@ -424,7 +489,7 @@ public class gestionChapitres : MonoBehaviour
         {
             MouvementAutorise = false;
             StartCoroutine(AfficherBanniereEtBloquerMouvements(
-                tuto.titre, tuto.dureeBanniere));
+                tuto.titre, tuto.dureeBanniere, tuto.idActionApresBanniere));
         }
         else
         {

@@ -33,6 +33,15 @@ public class pointAncrageTuyau : MonoBehaviour
     public UnityEvent onRempli;
     public UnityEvent<resultatPlacement> onPlacementTente;
 
+    [Header("Disparition apres placement")]
+    [Tooltip("Si coche, ce snap point se desactive automatiquement " +
+        "(SetActive false) une fois que l'objet a ete depose. Utile " +
+        "pour les snap d'aide visuelle qui n'ont plus de raison " +
+        "d'etre visibles apres l'action (ex : snap_table_bouteille). " +
+        "Laisse decoche pour les snap des enigmes qui restent " +
+        "visibles meme apres remplissage (tuyauterie). Default false.")]
+    [SerializeField] private bool desactiverApresRemplir = false;
+
     private bool estRempli;
     private GameObject pieceInstanciee;
     private GameObject ghostInstancie;
@@ -243,6 +252,30 @@ public class pointAncrageTuyau : MonoBehaviour
         }
 
         onRempli.Invoke();
+
+        // Auto-disparition du snap apres remplissage (option Inspector).
+        // Pour les snap d'aide visuelle (ex : snap_table_bouteille avec
+        // un prefab_pointeur_bouteille en enfant) qui n'ont plus de
+        // raison d'etre affiches apres que le joueur ait depose l'objet.
+        //
+        // IMPORTANT : on DETACHE d'abord la piece instanciee du snap
+        // avant de desactiver le snap. Sinon la piece (parentee au snap
+        // ligne ci-dessus) disparaitrait avec lui, ce qui n'a pas de
+        // sens : le joueur vient de deposer la bouteille, elle doit
+        // RESTER VISIBLE sur la table. Seul le snap_table_bouteille (et
+        // ses enfants d'aide visuelle comme le prefab_pointeur_bouteille)
+        // doivent disparaitre.
+        if (desactiverApresRemplir)
+        {
+            if (pieceInstanciee != null)
+            {
+                // Reparenter au root de la scene pour survivre au
+                // SetActive(false) du snap. La piece garde sa position
+                // monde (worldPositionStays = true par defaut).
+                pieceInstanciee.transform.SetParent(null, true);
+            }
+            gameObject.SetActive(false);
+        }
     }
 
     public void ReinitialiserPourReset()

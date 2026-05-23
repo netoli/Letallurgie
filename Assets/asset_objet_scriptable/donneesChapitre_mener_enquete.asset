@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesChapitre
   idChapitre: mener_enquete
   nomAffiche: "Mener l'enqu\xEAte"
-  dureeAffichageBanniere: 3.6
+  dureeAffichageBanniere: 3
   delaiApparitionBanniere: 6
-  delaiAvantPremierTuto: 0.24
+  delaiAvantPremierTuto: 0.3
   tutoriels: []
   prochainChapitre: {fileID: 0}
-  nomCinematiqueAuFin:
+  nomCinematiqueAuFin: 
   delaiAvantProchainChapitre: 0
+  idActionRequiseFinChapitre: 
+  tailleTitre: 0

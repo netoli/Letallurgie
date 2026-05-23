@@ -15,6 +15,6 @@ MonoBehaviour:
   idDeclencheur: ramasser_verre
   idActionRequise: verre_ramasse
   titre: Ramasser le verre
-  explication: "Un client veut que tu prennes son verre. Va sur sa table et clique
-    sur le verre."
+  explication: "Un client souhaite que tu d\xE9barrasses son verre. Rends-toi \xE0 sa table et fais un <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">Clique
+    gauche</gradient></font></b></size> dessus pour le ramasser."
   image: {fileID: 0}
