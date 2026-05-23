@@ -148,9 +148,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::mouseLook
-  mouseSensitivity: 130
+  mouseSensitivity: 300
   playerBody: {fileID: 5053922826482530790}
 --- !u!1 &4300279961577102689
 GameObject:

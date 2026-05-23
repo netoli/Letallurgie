@@ -287,9 +287,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 350702e3a9687ee4aa1a5e0d49545a46, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::mouseLook
-  mouseSensitivity: 130
+  mouseSensitivity: 300
   playerBody: {fileID: 6372700444855991392}
 --- !u!1001 &9130344223043971175
 PrefabInstance:

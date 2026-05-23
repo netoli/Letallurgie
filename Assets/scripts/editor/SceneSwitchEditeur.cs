@@ -9,7 +9,7 @@ public class SceneSwitchEditeur : Editor
     {
         base.OnInspectorGUI();
 
-        // On vérifie le nom de l'objet une seule fois
+        // On vï¿½rifie le nom de l'objet une seule fois
         if (target.name == "scene_switch_tester")
         {
             if (Application.isPlaying)
@@ -17,27 +17,27 @@ public class SceneSwitchEditeur : Editor
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Navigation Mode Play", EditorStyles.boldLabel);
 
-                if (GUILayout.Button("Charger Scène Principale"))
+                if (GUILayout.Button("Charger Scï¿½ne Principale"))
                 {
-                    SceneManager.LoadScene("scene_taverne_tutoriel");
+                    SceneManager.LoadScene("SCENE0-Menu-Tuto");
                 }
 
-                if (GUILayout.Button("Charger Scène Taverne1"))
+                if (GUILayout.Button("Charger Scï¿½ne Taverne1"))
                 {
-                    SceneManager.LoadScene("scene_taverne_recherche_indices");
+                    SceneManager.LoadScene("SCENE1-Taverne1");
                 }
 
-                if (GUILayout.Button("Charger Scène Usine"))
+                if (GUILayout.Button("Charger Scï¿½ne Usine"))
                 {
                     SceneManager.LoadScene("SCENE2-Usine");
                 }
 
-                if (GUILayout.Button("Charger Scène Taverne2"))
+                if (GUILayout.Button("Charger Scï¿½ne Taverne2"))
                 {
                     SceneManager.LoadScene("SCENE3-Taverne2");
                 }
 
-                if (GUILayout.Button("Charger Scène Manoir"))
+                if (GUILayout.Button("Charger Scï¿½ne Manoir"))
                 {
                     SceneManager.LoadScene("SCENE4-Manoir");
                 }

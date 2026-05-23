@@ -124,7 +124,7 @@ public class gestionChapitres : MonoBehaviour
         // Bloquer le deplacement WASD tant que la premiere tuile
         // de tuto n'est pas affichee (uniquement dans la scene tuto).
         // Le regard a la souris reste autorise.
-        if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
             MouvementAutorise = false;
 
         StartCoroutine(SequenceDemarrageChapitre(chapitre));
@@ -134,16 +134,16 @@ public class gestionChapitres : MonoBehaviour
     {
 
         // Comportement par scene :
-        // - scene_taverne_tutoriel : sequence complete (banniere +
+        // - SCENE0-Menu-Tuto : sequence complete (banniere +
         //   tutoriels). C'est l'usage premier du systeme.
-        // - autres scenes (ex : scene_taverne_recherche_indices) :
+        // - autres scenes (ex : SCENE1-Taverne1) :
         //   on autorise la banniere annonce-chapitre, mais on
         //   n'affiche pas les tutoriels (la sequence s'arrete apres
         //   la banniere). Permet d'annoncer un nouveau chapitre
         //   narratif (genre "Mener l'enquete") sans devoir y
         //   accrocher des tuiles tuto.
         string sceneActuelle = SceneManager.GetActiveScene().name;
-        bool sceneEstTutoriel = sceneActuelle == "scene_taverne_tutoriel";
+        bool sceneEstTutoriel = sceneActuelle == "SCENE0-Menu-Tuto";
 
         Debug.Log("[Chapitre] Demarrage: " + chapitre.idChapitre);
 
@@ -437,7 +437,7 @@ public class gestionChapitres : MonoBehaviour
     private void AfficherTuto(DonneesTutoriel tuto)
     {
         // Bloquer le tutoriel quand on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
             return;
 
         // SKIP : si l'idActionAnnulation de cette tuile a deja ete
@@ -788,10 +788,13 @@ public class gestionChapitres : MonoBehaviour
         MouvementAutorise = false;
 
         // Activer le mode cinematique IMMEDIATEMENT (avant le delai)
-        // pour bloquer les inputs clavier et nettoyer l'UI (menus,
-        // HUD, sous-titres, tuiles tuto). Sans ca, pendant le delai
-        // d'attente avant la video, le joueur pourrait encore ouvrir
-        // un menu (ESC long press, K, J, I, O).
+        // pour bloquer les inputs clavier et fermer toutes les fenetres
+        // UI ouvertes (menu pause, journal, inventaire, options). Sans
+        // ca, pendant le delai d'attente avant la video, le joueur
+        // pourrait encore ouvrir un menu (ESC long press, K, J, I, O)
+        // et l'UI resterait visible au demarrage de la video.
+        // Note : ModeCinematique(true) appelle FermerToutesLesFenetres
+        // en interne (merge collegue), donc on a le double effet.
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(true);
 
         yield return new WaitForSecondsRealtime(delaiAvantCinematique);
@@ -818,14 +821,15 @@ public class gestionChapitres : MonoBehaviour
 
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
-        Debug.Log("[Chapitre] Cinematique terminee, retour au jeu");
+        Debug.Log("[Chapitre] Cinematique terminee, chargement SCENE1");
 
+        // Sortir du mode cinématique (réactive curseur, etc.)
+        // Le gestionInputsJeu de SCENE0 sera détruit au LoadScene —
+        // c'est sans conséquence, SCENE1 repart de son propre Start().
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
 
-        // Reprendre la musique de fond apres la cinematique
-        var musique = FindObjectOfType<gestionAudio>();
-        if (musique != null)
-            musique.ReprendreMusique();
+        // NE PAS reprendre la musique ici : on change de scène
+        // immédiatement, la musique de SCENE1 démarrera via le callback.
 
         // Le tutoriel est complete : on active les indices de
         // jouabilite (UI persistante du HUD) pour le vrai gameplay.
@@ -839,7 +843,7 @@ public class gestionChapitres : MonoBehaviour
 
         // Capture la position et rotation actuelles du Player avant
         // le changement de scene, afin de les restaurer dans
-        // scene_taverne_recherche_indices (le joueur garde sa derniere
+        // SCENE1-Taverne1 (le joueur garde sa derniere
         // position au lieu de respawner au point initial du tutoriel).
         var playerGo = GameObject.FindGameObjectWithTag("Player");
         if (playerGo == null)
@@ -856,8 +860,18 @@ public class gestionChapitres : MonoBehaviour
                 "[Chapitre] Player introuvable avant LoadScene - "
                 + "la position ne sera pas preservee.");
 
-        SceneManager.LoadScene("scene_taverne_recherche_indices");
-        gestionAudio.Instance.JouerMusiquesTaverne();
+        // Passer par l'écran de chargement si disponible.
+        // La musique de taverne est démarrée via le callback, une frame
+        // APRÈS que la scène soit chargée — pas pendant la cinématique.
+        if (gestionEcranChargement.Instance != null)
+            gestionEcranChargement.Instance.ChargerScene(
+                "SCENE1-Taverne1",
+                () => gestionAudio.Instance?.JouerMusiquesTaverne());
+        else
+        {
+            SceneManager.LoadScene("SCENE1-Taverne1");
+            gestionAudio.Instance?.JouerMusiquesTaverne();
+        }
     }
 
 }

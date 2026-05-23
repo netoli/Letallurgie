@@ -8,172 +8,172 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: CharacterMale1_standardSurface2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: c1469c7fca78e4442b18bd6395ab634e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: CharacterMale_standardSurface2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: c8e334b5f53cd354cb0320e60ddabcbd, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Default_Material
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: bbde6bc150031d3478ac02e3d1e84dee, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: MensBusinessShoes_standardSurface2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 69a1262d41b50c94a80d61a2b059c575, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: bras_bois
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: e00d9d122f259014592854588d4cc348, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cables1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 3033b635d3d297641b78361d43a845a8, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: ceinture1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 10e11684eb572fd47bcaddf8d1312ecb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: chapeau4
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 50ac06a7d76c538459cf80d8234937e5, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: chemise_1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 0bb745d9c0df73c4a976028329a6a0cc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: chemise_2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 4a4b3e386dd319d4b8665708688fa461, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: chemise_3
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 3e296c1f9f8d97f48a40fa907fc8d0ae, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: chemise_4
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: a17795957eda4354caa54b962d797e0d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: clips1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: bf90b72b310376b4f9c65c2e71249b89, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cravate1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: a380156bde937604ab49064ac6054410, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cuivre
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: be2e244a43e1a814bbe518c8c2653774, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: cuivre1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 45e5605d588ae8242932c820ed463932, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: doigts2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 9cf5b9c8d534c964f85afdad43ca2070, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: iron1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 13a957e3ff4307647b1fb270a985833c, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: leather1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 4cc20bfcfc8729449a17c8b01abd0ee3, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: main
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 330469c9f377a4549a19ea93e7142fc9, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: main_bois
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 9accfbc1110a6844da75cf024adc7ad4, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: nails1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: cac7b94b73db4114a8cc2dafc53cd3e4, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: pants_1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 66471e69abfa5fd4a9d7c3a5116e7ffc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: pants_2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 1d6f2e2b345bc7d409e83e23c6942d3a, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: pants_3
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 5d8b29fdd7a63504c94fddb2993eb6a4, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: pants_4
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 62a47aab59c340646a6a6dfefd7ce4be, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: saccoche
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 758cd6eccba310c45bde5c5c664d020e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: shoe_droite
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 0dc81c5fa890c134f94bc13c8f18441d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: shoe_gauche
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 97fc2899668a26f4aaca9ad115599e26, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: socks1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 109b8b2f8d0115e4c96ee5a57c683b88, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: socks2
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 16a8a4025f1f3da4c903aacae42b077e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: soles1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: e533526784a363549a06df72a4eaea44, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: standardSurface1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: 1c7918b1a52045a4a8ba27df55bcdd84, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: tete1
-    second: {fileID: 2100000, guid: f9806daca9a312b4f8a31e2ebb579346, type: 2}
+    second: {fileID: 2100000, guid: cf1efb71830575c4689d15aa74aa3885, type: 2}
   materials:
     materialImportMode: 2
     materialName: 1

@@ -49,7 +49,9 @@ public class controleurBalance : MonoBehaviour
 
         AppliquerAnimationBalance(etat);
 
-        if (etat == 0)
+        // N'invoquer OnEquilibre que si les deux côtés ont du poids :
+        // 0 == 0 (balance vide) ne compte pas comme un équilibre.
+        if (etat == 0 && _poidsGauche > 0)
             OnEquilibre?.Invoke();
     }
 

@@ -45,6 +45,9 @@ public class objetInventaire : ScriptableObject
         "A terme, fusionner avec prefabModele3D.")]
     public GameObject prefab3D;
 
+    [Tooltip("Poids de l'objet sur la balance. Utilise si le prefab n'a pas de composant objetPesable.")]
+    public int valeurPoidsBalance = 1;
+
     [Header("Identifiant unique (sauvegarde, references)")]
     public string id;
 }

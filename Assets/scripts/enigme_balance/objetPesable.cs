@@ -2,22 +2,18 @@ using UnityEngine;
 
 public class objetPesable : MonoBehaviour
 {
-
     [Header("Poids")]
     [SerializeField] private int _valeurPoids = 1;
 
     public int valeurPoids => _valeurPoids;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    /// <summary>
+    /// Définit le poids initial. Appelé au dépôt si le composant
+    /// a été ajouté dynamiquement (prefab sans objetPesable).
+    /// </summary>
+    public void DefinirPoids(int poids)
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        _valeurPoids = Mathf.Max(1, poids);
     }
 
     public void ModifierPoids(float multiplicateur)

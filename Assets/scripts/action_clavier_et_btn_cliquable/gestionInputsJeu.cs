@@ -78,6 +78,13 @@ public class gestionInputsJeu : MonoBehaviour
     }
 
     private EtatJeu etatActuel = EtatJeu.EnJeu;
+
+    /// <summary>
+    /// True si le joueur est en gameplay actif, sans aucun menu,
+    /// journal, options ou cinématique ouvert. Utilisé par les scripts
+    /// d'ambiance sonore (sfxAmbiancePnj) pour savoir quand atténuer.
+    /// </summary>
+    public bool JeuEnCoursActif => jeuActif && etatActuel == EtatJeu.EnJeu;
     private EtatJeu etatAvantConfirmation = EtatJeu.EnJeu;
     private EtatJeu etatAvantJournal = EtatJeu.EnJeu;
     private EtatJeu etatAvantInventaire = EtatJeu.EnJeu;
@@ -104,7 +111,7 @@ public class gestionInputsJeu : MonoBehaviour
     void Start()
     {
         // D�sactiver le menu principal si on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
         {
             if (canvasMenu != null)
                 canvasMenu.SetActive(false);
@@ -1298,10 +1305,65 @@ public class gestionInputsJeu : MonoBehaviour
         canvas.SetActive(false);
     }
 
+    /// <summary>
+    /// Ferme immédiatement toutes les fenêtres UI ouvertes (journal,
+    /// inventaire, options, menu pause, crédits, confirmations) et
+    /// remet le jeu dans un état neutre (timeScale = 1, état = EnJeu,
+    /// flou désactivé). À appeler avant toute cinématique ou transition
+    /// abrupte entre scènes.
+    /// </summary>
+    public void FermerToutesLesFenetres()
+    {
+        // Annuler les coroutines d'UI en cours (fades, désactivations
+        // différées) pour éviter qu'un canvas se désactive/réactive
+        // en plein milieu d'une cinématique.
+        StopAllCoroutines();
+        attenteAction = false;
+
+        // Fermer tous les canvases
+        if (canvasMenuPause != null)               canvasMenuPause.SetActive(false);
+        if (canvasOptions != null)                 canvasOptions.SetActive(false);
+        if (canvasJournal != null)                 canvasJournal.SetActive(false);
+        if (canvasCredits != null)                 canvasCredits.SetActive(false);
+        if (canvasRetournerMenuPrincipal != null)  canvasRetournerMenuPrincipal.SetActive(false);
+        if (canvasQuitter != null)                 canvasQuitter.SetActive(false);
+        if (canvasConfirmerReinitialisation != null) canvasConfirmerReinitialisation.SetActive(false);
+        if (ensembleMenuInventaire != null)        ensembleMenuInventaire.SetActive(false);
+
+        // Bloquer tous les CanvasGroups (empêche les clics résiduels)
+        BloquerCanvasGroup(groupeMenuPause);
+        BloquerCanvasGroup(groupeOptions);
+        BloquerCanvasGroup(groupeJournal);
+        BloquerCanvasGroup(groupeCredits);
+        BloquerCanvasGroup(groupeRetournerMenuPrincipal);
+        BloquerCanvasGroup(groupeQuitter);
+        BloquerCanvasGroup(groupeConfirmerReinitialisation);
+
+        // Restaurer le pointeur central si caché par l'inventaire
+        if (pointeurCentre != null) pointeurCentre.SetActive(true);
+
+        // Restaurer le timeScale (journal, options et pause le mettent à 0)
+        Time.timeScale = 1f;
+
+        // Désactiver le flou si actif
+        if (gestionFlou != null)
+            gestionFlou.DesactiverFlou();
+
+        // Remettre l'état logique propre
+        etatActuel = EtatJeu.EnJeu;
+
+        Debug.Log("[gestionInputsJeu] FermerToutesLesFenetres — UI réinitialisée.");
+    }
+
     public void ModeCinematique(bool actif)
     {
         if (actif)
         {
+            // === Fermer toutes les fenetres UI ouvertes ===
+            // (journal, inventaire, menu pause, options, confirmation
+            // retour menu, etc.) avant d'entrer en mode cinematique.
+            FermerToutesLesFenetres();
+
             // === Bloquer inputs et curseur ===
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;

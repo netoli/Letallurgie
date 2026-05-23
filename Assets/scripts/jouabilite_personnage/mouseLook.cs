@@ -3,8 +3,15 @@ using UnityEngine.InputSystem;
 
 public class mouseLook : MonoBehaviour
 {
-    public float mouseSensitivity = 100f;
+    public float mouseSensitivity = 300f;
     public Transform playerBody;
+
+    // Force la valeur au démarrage pour ignorer toute valeur
+    // sérialisée différente dans les scènes individuelles.
+    void Awake()
+    {
+        mouseSensitivity = 300f;
+    }
 
     void Update()
     {

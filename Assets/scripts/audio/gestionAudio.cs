@@ -5,11 +5,13 @@
 // Date créée  : 07/04/2026
 // Modifié par Olivier V. le 13/04/2026
 // Modifié par Olivier V. le 11/05/2026 : volume individuel par piste
+// Modifié le 23/05/2026 : ajout ambiance sonore de pièce (whispers manoir)
 // ------------------------------------------------------------
 // Description :
-//   Gère la musique d'ambiance et les effets sonores du jeu. Permet
-//   de jouer des musiques spécifiques pour différentes scènes et
-//   de jouer des effets sonores ponctuels. Chaque piste musicale
+//   Gère la musique d'ambiance, les effets sonores du jeu et
+//   l'ambiance sonore de pièce (sons d'environnement en loop).
+//   Permet de jouer des musiques spécifiques pour différentes scènes
+//   et de jouer des effets sonores ponctuels. Chaque piste musicale
 //   possède son propre multiplicateur de volume réglable dans
 //   l'inspecteur pour créer de l'intensité sonore (ex.: menu tamisé,
 //   musique de jeu plus forte). JouerSFX est appelé dans RamasserIndice.
@@ -43,6 +45,15 @@ public class gestionAudio : MonoBehaviour
     [Header("Audio Sources")]
     [SerializeField] private AudioSource sourceMusique;
     [SerializeField] private AudioSource sourceSFX;
+    [SerializeField] private AudioSource sourceAmbiance;
+
+    [Header("Ambiance Sonore de Pièce")]
+    [Tooltip("Sons d'environnement en loop, séparés de la musique. " +
+             "Assigner une AudioSource dédiée avec Loop activé.")]
+    [SerializeField] private AudioClip ambianceManoir;
+    [Range(0f, 1f)]
+    [Tooltip("Volume de l'ambiance de pièce, indépendant de la musique.")]
+    [SerializeField] private float volumeAmbiance = 0.35f;
 
     [Header("Musiques")]
     [SerializeField] private PisteMusique[] musiquesIntro;
@@ -82,10 +93,10 @@ public class gestionAudio : MonoBehaviour
         volumeCible = ObtenirVolumeBase();
         sourceMusique.volume = volumeCible;
 
-        if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
         {
             JouerMusiquesIntro();
-        } else if (SceneManager.GetActiveScene().name == "scene_taverne_recherche_indices" || SceneManager.GetActiveScene().name == "SCENE3-Taverne2")
+        } else if (SceneManager.GetActiveScene().name == "SCENE1-Taverne1" || SceneManager.GetActiveScene().name == "SCENE3-Taverne2")
         {
             JouerMusiquesTaverne();
         } else if (SceneManager.GetActiveScene().name == "SCENE2-Usine")
@@ -94,6 +105,7 @@ public class gestionAudio : MonoBehaviour
         } else if (SceneManager.GetActiveScene().name == "SCENE4-Manoir")
         {
             JouerMusiquesManoir();
+            DemarrerAmbiancePiece(ambianceManoir);
         }
     }
 
@@ -264,6 +276,31 @@ public class gestionAudio : MonoBehaviour
     {
         if (clip != null && sourceSFX != null)
             sourceSFX.PlayOneShot(clip);
+    }
+
+    // ── Ambiance sonore de pièce ────────────────────────────
+
+    /// <summary>
+    /// Démarre un son d'ambiance en loop pour la pièce actuelle.
+    /// Remplace tout son d'ambiance déjà en cours.
+    /// </summary>
+    public void DemarrerAmbiancePiece(AudioClip clip)
+    {
+        if (sourceAmbiance == null || clip == null) return;
+
+        sourceAmbiance.clip = clip;
+        sourceAmbiance.loop = true;
+        sourceAmbiance.volume = volumeAmbiance;
+        sourceAmbiance.Play();
+    }
+
+    /// <summary>
+    /// Arrête le son d'ambiance de pièce (ex.: entre les scènes).
+    /// </summary>
+    public void ArreterAmbiancePiece()
+    {
+        if (sourceAmbiance != null)
+            sourceAmbiance.Stop();
     }
 
     // Mettre la musique sur pause (exemple: pour cinématiques)

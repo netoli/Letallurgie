@@ -172,9 +172,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2247824301538236293}
-    - targetCorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 6625782569235730248}
     - targetCorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
       insertIndex: -1
@@ -182,6 +179,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3155523462927678258}
+    - targetCorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8437312251633186425}
   m_SourcePrefab: {fileID: 100100000, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
 --- !u!4 &4631441928180517959 stripped
 Transform:
@@ -193,19 +193,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1089098286805160051, guid: 493642c9e96b1684eb9ff0f3ebf451e6, type: 3}
   m_PrefabInstance: {fileID: 6971128662754570987}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2247824301538236293
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8044323432651137688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f3fb34e3c1331445b0cd6462a951003, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
-  _valeurPoids: 3
 --- !u!114 &6625782569235730248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,3 +254,16 @@ MonoBehaviour:
   imageJournal: {fileID: 0}
   sonRamasser: {fileID: 8300000, guid: 2219ad211fb290d448551c7794afb3cc, type: 3}
   idActionADeclencher: 
+--- !u!114 &8437312251633186425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8044323432651137688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332076acf3d16b341858c771375072f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::objetPesable
+  _valeurPoids: 3

@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // Stockage statique de la position et rotation du Player pour
 // les preserver entre deux scenes consecutives (typiquement
-// scene_taverne_tutoriel -> scene_taverne_recherche_indices
+// SCENE0-Menu-Tuto -> SCENE1-Taverne1
 // apres la cinematique de fin du chapitre une_aide_precieuse).
 //
 // Utilisation :

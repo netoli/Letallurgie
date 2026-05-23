@@ -19,7 +19,7 @@ using UnityEngine;
 
 public class RamasserIndice : MonoBehaviour
 {
-    [Header("Donn�es de l'indice")]
+    [Header("Données de l'indice")]
 
     [SerializeField] public string titre;
     [SerializeField] public string description;
@@ -40,8 +40,7 @@ public class RamasserIndice : MonoBehaviour
         // utilise "pnj_mysterieux" dans environnement_taverne1, et le
         // tutoriel utilise "npc" dans monde_assets). On accepte les deux
         // pour rester compatible avec les deux organisations de scene.
-        bool estPnj = gameObject.name.Contains("pnj_mysterieux")
-            || gameObject.name == "npc";
+        bool estPnj = gameObject.name.Contains("npc");
 
         // Jouer l'effet sonore au grab
         if (gestionAudio.Instance != null && sonRamasser != null)
