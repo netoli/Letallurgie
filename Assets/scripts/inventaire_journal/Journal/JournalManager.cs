@@ -27,13 +27,25 @@ public class JournalManager : MonoBehaviour
 
     private void Awake()
     {
-        // Assure que le JournalManager est un singleton
+        // Assure que le JournalManager est un singleton persistant
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    /// <summary>
+    /// Appelé par le compteur HUD de chaque scène dans son Start()
+    /// pour s'enregistrer auprès du manager persistant.
+    /// Sans ça, la référence devient nulle après un changement de scène.
+    /// </summary>
+    public void EnregistrerCompteurHUD(TMP_Text compteur)
+    {
+        compteurHUD = compteur;
+        MettreAJourCompteur();
     }
 
     public void AjouterEntreeJournal(Sprite icone, string titre, string description, string insight)

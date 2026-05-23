@@ -21,7 +21,7 @@ public class gestionInventaire : MonoBehaviour
             return;
         }
         Instance = this;
-
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
