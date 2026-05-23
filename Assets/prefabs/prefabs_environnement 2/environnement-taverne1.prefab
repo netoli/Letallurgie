@@ -196,6 +196,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -126.22
       objectReference: {fileID: 0}
+    - target: {fileID: 1969660067634639878, guid: 6e758deb16a0c7d469e2bf4328ab8f76, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3819436593806685042, guid: 6e758deb16a0c7d469e2bf4328ab8f76, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -286,7 +290,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8281824077997432667, guid: 6e758deb16a0c7d469e2bf4328ab8f76, type: 3}
       propertyPath: m_Name
-      value: test_taverne_apres_cinematique Variant
+      value: environnement-taverne1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
