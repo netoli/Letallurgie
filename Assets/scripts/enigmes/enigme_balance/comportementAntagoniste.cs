@@ -77,6 +77,10 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _echelleMin = 0.3f;
 
     [Header("Caméra intro")]
+    [Tooltip("Nom exact du VideoClip de la cinématique d'ouverture de la scène manoir " +
+             "(sans extension). Jouée en tout premier, avant le dialogue d'intro du boss. " +
+             "Doit correspondre à un clip dans le tableau _clips du controleurCinematique.")]
+    [SerializeField] private string _nomCinematique3 = "cinematique3";
     [Tooltip("Caméra Cinemachine pointée sur le boss pendant le dialogue d'intro.")]
     [SerializeField] private CinemachineCamera _vcamIntroManoir;
     [Tooltip("Caméra Cinemachine pointée sur la balance — activée au reveal et au début de chaque phase.")]
@@ -179,8 +183,12 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _vitesseRotation = 0.5f;
 
     [Header("Défaite")]
-    [Tooltip("Secondes entre la fin du dialogue de défaite et la mort.")]
-    [SerializeField] private float _delaiAvantMort = 2f;
+    [Tooltip("Nom exact du VideoClip de la cinématique finale (sans extension). " +
+             "Doit correspondre à un clip dans le tableau _clips du controleurCinematique.")]
+    [SerializeField] private string _nomCinematiqueFin = "cinematique4";
+    [Tooltip("Secondes passées sur la caméra balance après le dernier équilibre, " +
+             "avant de lancer la cinématique finale.")]
+    [SerializeField] private float _delaiAvantCinematiqueFinale = 1.5f;
 
     [Header("Réactions de phase")]
     [Tooltip("Trigger Animator pour la réaction de Phase 1 (ex : DeclencherAngry).")]
@@ -251,7 +259,26 @@ public class comportementAntagoniste : MonoBehaviour
         if (_objetSurBalance != null)
             _objetSurBalance.gameObject.SetActive(false);
 
-        StartCoroutine(JouerIntroScene());
+        // Jouer la cinématique d'ouverture de la scène en tout premier.
+        // Tout le reste (dialogue boss, énigme) démarre dans le callback,
+        // une fois la vidéo terminée.
+        // Si controleurCinematique n'est pas dans la scène ou que le clip
+        // est introuvable, JouerIntroScene démarre quand même immédiatement
+        // pour ne pas bloquer le jeu.
+        if (gestionChapitres.Instance != null
+            && !string.IsNullOrEmpty(_nomCinematique3))
+        {
+            gestionChapitres.Instance.LancerCinematiqueAvecDelai(
+                _nomCinematique3,
+                0f,
+                () => StartCoroutine(JouerIntroScene()));
+        }
+        else
+        {
+            Debug.LogWarning("[ComportementAntagoniste] gestionChapitres introuvable " +
+                             "ou _nomCinematique3 vide — intro lancée sans cinématique.");
+            StartCoroutine(JouerIntroScene());
+        }
     }
 
     void Update()
@@ -763,9 +790,6 @@ public class comportementAntagoniste : MonoBehaviour
 
     private IEnumerator JouerDefaiteSequence()
     {
-        _talkingAlterne = 1;
-        _animDejaPreDeclenche = false;
-
         _jeuEnCours = false;
         if (_coroutineIdlesCycle != null)
         {
@@ -773,80 +797,65 @@ public class comportementAntagoniste : MonoBehaviour
             _coroutineIdlesCycle = null;
         }
 
-        _inputs?.ModeCinematique(true);
+        // ── 1. Caméra balance — voir le dernier équilibre ────────────
+        if (_vcamBalance != null)         _vcamBalance.Priority = 70;
+        if (_vcamIntroManoir != null)     _vcamIntroManoir.Priority = 0;
+        if (_vcamZoneAntagoniste != null) _vcamZoneAntagoniste.Priority = 0;
 
-        // Caméra boss pour la cinématique de défaite
-        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
+        yield return new WaitForSeconds(_delaiAvantCinematiqueFinale);
 
-        if (_animateur != null)
-            _animateur.SetTrigger("DeclencherDefaite");
+        // ── 2. Audio dialogue par-dessus la cinématique ──────────────
+        // Les clips vocaux sont lancés en PlayOneShot sur _sourceAudio
+        // (AudioSource du boss — distinct de gestionAudio) et continuent
+        // de jouer pendant la vidéo. Pas de sous-titres, pas d'animations.
+        // Si le son se coupe à cause de l'arrêt musique dans
+        // controleurCinematique, déplacer ce bloc APRÈS Jouer().
+        if (_sfxVoixDefaiteDialogue != null && _sfxVoixDefaiteDialogue.Length > 0)
+            StartCoroutine(JouerAudioDefaiteSurCinematique());
 
-        yield return new WaitForSeconds(1f);
-
-        // ── Dialogue défaite ──────────────────────────────────────────
-
-        // 0. "non, NON! Tu as réussi…" — idle defeat (DeclencherDefaite déjà actif)
-        //    On bloque le re-déclenchement d'une animation de dialogue pour laisser
-        //    l'animation de défaite continuer de jouer pendant cette première réplique.
-        _animDejaPreDeclenche = true;
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "non, NON! Tu as réussi…",
-            1, Clip(_sfxVoixDefaiteDialogue, 0), Delai(_delaisDefaite, 0),
-            prochainTypeAnim: 0));
-
-        // Sortir de l'état defeat idle vers un idle neutre AVANT les répliques
-        // suivantes. DeclencherDefaite place l'Animator dans un état qui n'a
-        // pas de transition sortante vers DeclencherDialogue — ce reset est
-        // indispensable pour que les lignes 1-5 puissent jouer leurs animations.
-        // Si cette transition ne fonctionne pas, vérifier que DeclencherIdleSpecial
-        // est en "Any State" dans l'Animator du boss.
-        if (_animateur != null)
+        // ── 3. Cinématique finale ────────────────────────────────────
+        // gestionChapitres gère : ModeCinematique(true), arrêt musique,
+        // lecture vidéo, puis callback en fin de vidéo.
+        // OnActionTerminee → gestionnaireEnigmeBalance.LibererAttente()
+        // → DeclencherVictoire() → OnEnigmeTerminee
+        if (gestionChapitres.Instance != null)
         {
-            _animateur.SetInteger("IdleType", _idleTypeDialogue);
-            _animateur.SetTrigger("DeclencherIdleSpecial");
+            gestionChapitres.Instance.LancerCinematiqueAvecDelai(
+                _nomCinematiqueFin,
+                0f,
+                () => OnActionTerminee?.Invoke());
         }
-        yield return new WaitForSeconds(0.4f);
+        else
+        {
+            Debug.LogWarning("[ComportementAntagoniste] gestionChapitres.Instance " +
+                             "introuvable — fin d'énigme déclenchée sans cinématique.");
+            OnActionTerminee?.Invoke();
+        }
 
-        // 1. "(soupire), eh bien, je tiens ma parole…" — prochaine = Talking
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "(soupire), eh bien, je tiens ma parole…",
-            1, Clip(_sfxVoixDefaiteDialogue, 1), Delai(_delaisDefaite, 1),
-            prochainTypeAnim: 1));
+        Debug.Log("[ComportementAntagoniste] Cinématique finale déclenchée.");
+    }
 
-        // 2. "Tu as gagné!" — prochaine = Talking
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "Tu as gagné!",
-            1, Clip(_sfxVoixDefaiteDialogue, 2), Delai(_delaisDefaite, 2),
-            prochainTypeAnim: 1));
+    /// <summary>
+    /// Joue les clips audio de la séquence de défaite en séquence,
+    /// par-dessus la cinématique. Pas de sous-titres ni d'animations —
+    /// uniquement le voice-over.
+    /// </summary>
+    private IEnumerator JouerAudioDefaiteSurCinematique()
+    {
+        for (int i = 0; i < _sfxVoixDefaiteDialogue.Length; i++)
+        {
+            AudioClip clip = Clip(_sfxVoixDefaiteDialogue, i);
+            if (clip != null && _sourceAudio != null)
+                _sourceAudio.PlayOneShot(clip);
 
-        // 3. "J'ai levé le sort sur tous ceux" — prochaine = Talking
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "J'ai levé le sort sur tous ceux",
-            1, Clip(_sfxVoixDefaiteDialogue, 3), Delai(_delaisDefaite, 3),
-            prochainTypeAnim: 1));
+            // Attendre la durée du clip + le délai configuré entre répliques
+            float dureeClip  = (clip != null) ? clip.length : 0f;
+            float delaiApres = Delai(_delaisDefaite, i);
+            float attente    = dureeClip + delaiApres;
 
-        // 4. "que j'ai transformé en métal." — prochaine = Yelling
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "que j'ai transformé en métal.",
-            1, Clip(_sfxVoixDefaiteDialogue, 4), Delai(_delaisDefaite, 4),
-            prochainTypeAnim: 3));
-
-        // 5. "Maintenant DÉGUERPIS!" — dernière réplique
-        yield return StartCoroutine(JouerReplique(
-            "Incommensurable", "Maintenant DÉGUERPIS!",
-            3, Clip(_sfxVoixDefaiteDialogue, 5), Delai(_delaisDefaite, 5),
-            prochainTypeAnim: 0));
-
-        yield return new WaitForSeconds(_delaiAvantMort);
-
-        if (_animateur != null)
-            _animateur.SetTrigger("DeclencherMort");
-
-        Debug.Log("[ComportementAntagoniste] Mort déclenchée.");
-
-        // Signaler la fin de la séquence de défaite à gestionnaireEnigmeBalance
-        // → LibererAttente() vérifie PhaseEnigme.Terminee → DeclencherVictoire()
-        OnActionTerminee?.Invoke();
+            if (attente > 0f)
+                yield return new WaitForSeconds(attente);
+        }
     }
 
     // ===================== MÉTHODES PUBLIQUES =====================

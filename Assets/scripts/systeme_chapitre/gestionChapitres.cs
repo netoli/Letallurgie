@@ -6,7 +6,7 @@
 // Derni�re modification : 28/04/2026 - Fanny Fortier
 // ------------------------------------------------------------
 // Description :
-//   Gestion centralis�e des chapitres et tutoriels.
+//   Gestion centralisée des chapitres et tutoriels.
 //   Adaptation : prise en charge de deux comportements distincts
 //   pour la progression UI :
 //     - idActionRequise == "jdb_ouvert"  => valider quand le journal a �t� ouvert ET ferm� au moins une fois.
@@ -71,7 +71,7 @@ public class gestionChapitres : MonoBehaviour
     // ete signalee AVANT son affichage (auquel cas la tuile est sautee).
     private HashSet<string> actionsSignalees = new HashSet<string>();
 
-    [Header("Cin�matiques")]
+    [Header("Cinématiques")]
     [SerializeField] private VideoClip[] cinematique;
 
     [Header("HUD post-tutoriel")]
@@ -702,11 +702,45 @@ public class gestionChapitres : MonoBehaviour
                 chapitreActuel.nomCinematiqueAuFin)
                 ? "cinematique1"
                 : chapitreActuel.nomCinematiqueAuFin;
-            Debug.Log($"[Chapitre] Lancement cinematique de fin: " +
-                $"{nomCine}");
+            Debug.Log($"[Chapitre] Lancement cinematique de fin: {nomCine}");
             // Delai 1s apres la derniere replique du tavernier pour
             // un petit temps de respiration narratif avant la video.
-            StartCoroutine(JouerCinematique(nomCine, 1f));
+            // Le callback explicite gère tout ce qui arrive après
+            // la cinématique — rien n'est hardcodé dans OnCinematiqueFinie.
+            LancerCinematiqueAvecDelai(nomCine, 1f, () =>
+            {
+                // Activer les indices de jouabilite (HUD persistant)
+                // maintenant que le tutoriel est terminé.
+                if (indicesJouabilite != null)
+                {
+                    indicesJouabilite.SetActive(true);
+                    Debug.Log("[Chapitre] indices_jouabilite active.");
+                }
+
+                // Capturer la position du joueur avant le changement de scène.
+                var playerGo = GameObject.FindGameObjectWithTag("Player");
+                if (playerGo == null)
+                {
+                    var pm = FindFirstObjectByType<PlayerMovement>(
+                        FindObjectsInactive.Include);
+                    if (pm != null) playerGo = pm.gameObject;
+                }
+                if (playerGo != null)
+                    PositionPlayerEntreScenes.Capturer(playerGo.transform);
+                else
+                    Debug.LogWarning("[Chapitre] Player introuvable avant LoadScene.");
+
+                // Charger la scène suivante.
+                if (gestionEcranChargement.Instance != null)
+                    gestionEcranChargement.Instance.ChargerScene(
+                        "scene1_taverne1",
+                        () => gestionAudio.Instance?.JouerMusiquesTaverne());
+                else
+                {
+                    SceneManager.LoadScene("scene1_taverne1");
+                    gestionAudio.Instance?.JouerMusiquesTaverne();
+                }
+            });
         }
     }
 
@@ -773,8 +807,22 @@ public class gestionChapitres : MonoBehaviour
         AfficherTuto(tuto);
     }
 
-    public Coroutine LancerCinematiqueAvecDelai(string nomCinematique, float delaiAvantCinematique)
+    // Callback de fin de cinématique — stocké pour pouvoir le passer
+    // à OnCinematiqueFinie, qui ne peut pas recevoir de paramètre custom
+    // (signature imposée par VideoPlayer.loopPointReached).
+    private System.Action _callbackFinCinematique;
+
+    /// <summary>
+    /// Lance une cinématique identifiée par son nom, puis appelle
+    /// onFin à la fin de la vidéo. Si onFin est null, utilise le
+    /// comportement par défaut (chargement de scene1_taverne1).
+    /// </summary>
+    public Coroutine LancerCinematiqueAvecDelai(
+        string nomCinematique,
+        float delaiAvantCinematique,
+        System.Action onFin = null)
     {
+        _callbackFinCinematique = onFin;
         return StartCoroutine(JouerCinematique(nomCinematique, delaiAvantCinematique));
     }
 
@@ -821,57 +869,25 @@ public class gestionChapitres : MonoBehaviour
 
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
-        Debug.Log("[Chapitre] Cinematique terminee, chargement SCENE1");
+        playerCinematiques.loopPointReached -= OnCinematiqueFinie;
 
         // Sortir du mode cinématique (réactive curseur, etc.)
-        // Le gestionInputsJeu de SCENE0 sera détruit au LoadScene —
-        // c'est sans conséquence, SCENE1 repart de son propre Start().
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
 
-        // NE PAS reprendre la musique ici : on change de scène
-        // immédiatement, la musique de SCENE1 démarrera via le callback.
-
-        // Le tutoriel est complete : on active les indices de
-        // jouabilite (UI persistante du HUD) pour le vrai gameplay.
-        // Comme le GameObject vit dans --DONTDESTROYONLOAD, il
-        // reste actif apres le LoadScene.
-        if (indicesJouabilite != null)
+        // Si un callback custom a été fourni (ex : scènes hors-tuto),
+        // on l'appelle et on s'arrête là — pas de chargement de scène.
+        if (_callbackFinCinematique != null)
         {
-            indicesJouabilite.SetActive(true);
-            Debug.Log("[Chapitre] indices_jouabilite active.");
+            System.Action cb = _callbackFinCinematique;
+            _callbackFinCinematique = null;
+            cb.Invoke();
+            return;
         }
 
-        // Capture la position et rotation actuelles du Player avant
-        // le changement de scene, afin de les restaurer dans
-        // scene1_taverne1 (le joueur garde sa derniere
-        // position au lieu de respawner au point initial du tutoriel).
-        var playerGo = GameObject.FindGameObjectWithTag("Player");
-        if (playerGo == null)
-        {
-            // Fallback : chercher par script si pas de tag "Player"
-            var pm = FindFirstObjectByType<PlayerMovement>(
-                FindObjectsInactive.Include);
-            if (pm != null) playerGo = pm.gameObject;
-        }
-        if (playerGo != null)
-            PositionPlayerEntreScenes.Capturer(playerGo.transform);
-        else
-            Debug.LogWarning(
-                "[Chapitre] Player introuvable avant LoadScene - "
-                + "la position ne sera pas preservee.");
-
-        // Passer par l'écran de chargement si disponible.
-        // La musique de taverne est démarrée via le callback, une frame
-        // APRÈS que la scène soit chargée — pas pendant la cinématique.
-        if (gestionEcranChargement.Instance != null)
-            gestionEcranChargement.Instance.ChargerScene(
-                "scene1_taverne1",
-                () => gestionAudio.Instance?.JouerMusiquesTaverne());
-        else
-        {
-            SceneManager.LoadScene("scene1_taverne1");
-            gestionAudio.Instance?.JouerMusiquesTaverne();
-        }
+        // Aucun comportement par défaut — chaque appelant doit fournir
+        // son propre callback via LancerCinematiqueAvecDelai(onFin).
+        Debug.LogWarning("[Chapitre] Cinématique terminée sans callback. " +
+                         "Passer un onFin à LancerCinematiqueAvecDelai.");
     }
 
 }
