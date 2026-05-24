@@ -857,6 +857,7 @@ public class gestionChapitres : MonoBehaviour
                 if (musique != null)
                     musique.ArreterMusique();
 
+            playerCinematiques.targetCameraAlpha = 1f;
             playerCinematiques.clip = clip;
             playerCinematiques.loopPointReached += OnCinematiqueFinie;
             playerCinematiques.Play();
@@ -870,6 +871,12 @@ public class gestionChapitres : MonoBehaviour
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
         playerCinematiques.loopPointReached -= OnCinematiqueFinie;
+
+        // Arrêter le VideoPlayer et masquer son rendu.
+        // En mode Camera Near Plane, Stop() seul ne vide pas la dernière
+        // frame — targetCameraAlpha = 0 la rend invisible immédiatement.
+        playerCinematiques.Stop();
+        playerCinematiques.targetCameraAlpha = 0f;
 
         // Sortir du mode cinématique (réactive curseur, etc.)
         FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
