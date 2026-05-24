@@ -124,7 +124,7 @@ public class gestionChapitres : MonoBehaviour
         // Bloquer le deplacement WASD tant que la premiere tuile
         // de tuto n'est pas affichee (uniquement dans la scene tuto).
         // Le regard a la souris reste autorise.
-        if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
             MouvementAutorise = false;
 
         StartCoroutine(SequenceDemarrageChapitre(chapitre));
@@ -143,7 +143,7 @@ public class gestionChapitres : MonoBehaviour
         //   narratif (genre "Mener l'enquete") sans devoir y
         //   accrocher des tuiles tuto.
         string sceneActuelle = SceneManager.GetActiveScene().name;
-        bool sceneEstTutoriel = sceneActuelle == "SCENE0-Menu-Tuto";
+        bool sceneEstTutoriel = sceneActuelle == "scene_taverne_tutoriel";
 
         Debug.Log("[Chapitre] Demarrage: " + chapitre.idChapitre);
 
@@ -437,7 +437,7 @@ public class gestionChapitres : MonoBehaviour
     private void AfficherTuto(DonneesTutoriel tuto)
     {
         // Bloquer le tutoriel quand on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
             return;
 
         // SKIP : si l'idActionAnnulation de cette tuile a deja ete
@@ -865,11 +865,11 @@ public class gestionChapitres : MonoBehaviour
         // APRÈS que la scène soit chargée — pas pendant la cinématique.
         if (gestionEcranChargement.Instance != null)
             gestionEcranChargement.Instance.ChargerScene(
-                "SCENE1-Taverne1",
+                "scene_taverne_recherche_indices",
                 () => gestionAudio.Instance?.JouerMusiquesTaverne());
         else
         {
-            SceneManager.LoadScene("SCENE1-Taverne1");
+            SceneManager.LoadScene("scene_taverne_recherche_indices");
             gestionAudio.Instance?.JouerMusiquesTaverne();
         }
     }

@@ -81,7 +81,7 @@ public class gestionsTransitions : MonoBehaviour
 
     void Start()
     {
-        if (SceneManager.GetActiveScene().name != "SCENE0-Menu-Tuto")
+        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
         {
             // D�sactiver le flou
             if (gestionFlou != null)
@@ -105,7 +105,7 @@ public class gestionsTransitions : MonoBehaviour
             // on n'a pas besoin de "quitter le menu" — la scene se
             // charge directement.
             string sc = SceneManager.GetActiveScene().name;
-            if (sc == "SCENE1-Taverne1"
+            if (sc == "scene_taverne_recherche_indices"
                 && gestionChapitres.Instance != null)
             {
                 gestionChapitres.Instance.DemarrerChapitre(
@@ -306,7 +306,7 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            if (SceneManager.GetActiveScene().name == "SCENE0-Menu-Tuto")
+            if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
             {
                 gestionAudio.Instance.JouerMusiquesTutoriel();
             }
@@ -342,11 +342,11 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            if (SceneManager.GetActiveScene().name == "SCENE1-Taverne1")
+            if (SceneManager.GetActiveScene().name == "scene_taverne_recherche_indices")
             {
                 gestionAudio.Instance.JouerMusiquesTaverne();
             }
-            else if (SceneManager.GetActiveScene().name == "SCENE2-Usine")
+            else if (SceneManager.GetActiveScene().name == "scene_usine")
             {
                 gestionAudio.Instance.JouerMusiquesUsine();
             }
@@ -610,7 +610,7 @@ public class gestionsTransitions : MonoBehaviour
         {
             string sceneActuelle = UnityEngine.SceneManagement
                 .SceneManager.GetActiveScene().name;
-            if (sceneActuelle == "SCENE0-Menu-Tuto")
+            if (sceneActuelle == "scene_taverne_tutoriel")
             {
                 gestionChapitres.Instance.DemarrerChapitre(
                     "premier_contact");

@@ -6,20 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/scenes/SCENE0-Menu-Tuto.unity
+    path: Assets/scenes/scene_taverne_tutoriel.unity
     guid: 3f829e3722cee2244b7b9a79993a84eb
   - enabled: 1
-    path: Assets/scenes/SCENE1-Taverne1.unity
+    path: Assets/scenes/scene_taverne_recherche_indices.unity
     guid: 17c8aba020cd14eac91f28edf8626155
   - enabled: 1
-    path: Assets/scenes/SCENE2-Usine.unity
+    path: Assets/scenes/scene_usine.unity
     guid: 3abcfae382e8ce54fa06854e7c9ceaae
   - enabled: 1
-    path: Assets/scenes/SCENE3-Taverne2.unity
+    path: Assets/scenes/scene_taverne_apres_usine.unity
     guid: b2cdd89c2f505f041a5e55c94dcf41c0
   - enabled: 1
-    path: Assets/scenes/SCENE4-Manoir.unity
-    guid: ab68f3ebc10fd724eb1a1c83230af578
+    path: Assets/scenes/scene_manoir.unity
+    guid: a40336f18eb80464188a71b8e45a38ac
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

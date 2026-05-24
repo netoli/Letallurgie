@@ -17,7 +17,7 @@
 //        conditionIndicesEnigme dans l'Inspector
 //
 //   Scènes cibles :
-//     SCENE1-Taverne1 → "SCENE2-Usine"
+//     scene_taverne_recherche_indices → "scene_usine"
 //     SCENE3-Taverne2 → "SCENE4-Manoir"
 // ============================================================
 
