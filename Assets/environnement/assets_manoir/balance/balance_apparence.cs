@@ -50,6 +50,25 @@ public class balance_apparence : MonoBehaviour
         _cibleRotation = Mathf.Clamp(valeur, -1f, 1f);
     }
 
+    /// <summary>
+    /// Retourne l'inclinaison visuelle actuelle du balanceur en degrés,
+    /// par rapport à l'équilibre (0° = horizontal). Positif = penche droite.
+    /// Utile pour les logs de debug : la valeur lerpée change en temps réel.
+    /// </summary>
+    public float ObtenirAngleVisuel()
+    {
+        return _float_de_rotation * 23.5f;
+    }
+
+    /// <summary>
+    /// Retourne l'inclinaison cible en degrés (sans le lerp).
+    /// Correspond directement au ratio de poids calculé par controleurBalance.
+    /// </summary>
+    public float ObtenirAngleCible()
+    {
+        return _cibleRotation * 23.5f;
+    }
+
     // ===================== UNITY =====================
 
     void Update()

@@ -32,6 +32,7 @@ using System;
 using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [Serializable]
 public struct IdleAleatoire
@@ -134,6 +135,9 @@ public class comportementAntagoniste : MonoBehaviour
              "retour en idle. Décocher si les transitions restent trop brusques " +
              "malgré le Transition Duration dans l'Animator.")]
     [SerializeField] private bool _alternerAnimationsTalking = true;
+    [Tooltip("IdleType utilisé entre les répliques du joueur et après le Yelling. " +
+             "2 = Dizzy Idle (mouvement des bras moins intense). 0 = idle par défaut (bras flottants).")]
+    [SerializeField] private int _idleTypeDialogue = 2;
 
     [Header("Délais entre répliques — intro")]
     [Tooltip("Secondes de silence APRÈS chaque réplique, avant la suivante.\n" +
@@ -164,9 +168,35 @@ public class comportementAntagoniste : MonoBehaviour
         new IdleAleatoire { idleType = 9, nom = "Threatening",   poids = 12 },
     };
 
+    [Header("Regard vers le joueur")]
+    [Tooltip("Transform du joueur (ou de sa caméra FP) vers lequel le boss pivote en permanence. " +
+             "Glisser l'objet joueur ici dans l'Inspector.")]
+    [SerializeField] private Transform _cibleRegard;
+    [Tooltip("Vitesse de rotation smooth vers le joueur (Slerp par frame). " +
+             "0.5 ≈ 2 secondes pour corriger un pivotement d'animation.")]
+    [SerializeField] private float _vitesseRotation = 0.5f;
+
     [Header("Défaite")]
     [Tooltip("Secondes entre la fin du dialogue de défaite et la mort.")]
     [SerializeField] private float _delaiAvantMort = 2f;
+
+    [Header("Réactions de phase")]
+    [Tooltip("Trigger Animator pour la réaction de Phase 1 (ex : DeclencherAngry). " +
+             "À ajouter dans l'Animator si l'animation n'existe pas encore.")]
+    [SerializeField] private string _triggerPhase1 = "DeclencherAngry";
+    [Tooltip("Trigger Animator pour la réaction de Phase 2. " +
+             "Laissez vide pour utiliser l'idle Battlecry (IdleType=8 + DeclencherIdleSpecial).")]
+    [SerializeField] private string _triggerPhase2 = "";
+    [Tooltip("Secondes à attendre après le trigger de phase 1, avant de switcher sur la caméra balance.")]
+    [SerializeField] private float _dureeAnimationPhase1 = 2f;
+    [Tooltip("Secondes à attendre après le trigger de phase 2.")]
+    [SerializeField] private float _dureeAnimationPhase2 = 2f;
+    [Tooltip("Secondes après la fin des particules d'impact de phase, avant de rendre le contrôle au joueur.")]
+    [SerializeField] private float _dureeApresImpactPhase = 1f;
+    [Tooltip("Texte du bandeau affiché à la fin du reveal (début de l'énigme, Étape 1/3).")]
+    [SerializeField] private string _texteEtape1 = "Étape 1/3 — Égalisez la balance !";
+    [Tooltip("Durée d'affichage du bandeau Étape 1/3 en secondes.")]
+    [SerializeField] private float _dureeAffichageBandeauEtape1 = 5f;
 
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnActionTerminee;
@@ -183,6 +213,21 @@ public class comportementAntagoniste : MonoBehaviour
     // son propre déclenchement pour éviter le double-trigger.
     private bool _animDejaPreDeclenche = false;
 
+    // Référence aux inputs, stockée au début de JouerIntroScene pour pouvoir
+    // l'utiliser depuis SkipIntroDialogue() déclenché par Update().
+    private gestionInputsJeu _inputs;
+
+    // True pendant la séquence de dialogues de l'intro manoir.
+    // Update() surveille ESC pour déclencher SkipIntroDialogue().
+    private bool _introEnCours = false;
+
+    // True quand JouerReactionPhaseCoroutine est terminée.
+    // Initialisé à true : pas de réaction en attente au démarrage.
+    // Utilisé par gestionnaireEnigmeBalance (WaitUntil) pour attendre
+    // la fin de la séquence avant d'afficher le bandeau.
+    private bool _reactionPhaseTerminee = true;
+    public bool ReactionPhaseTerminee => _reactionPhaseTerminee;
+
     // ===================== UNITY =====================
 
     void Start()
@@ -193,6 +238,38 @@ public class comportementAntagoniste : MonoBehaviour
         StartCoroutine(JouerIntroScene());
     }
 
+    void Update()
+    {
+        // ── Skip intro (ESC) ──────────────────────────────────────────
+        // Pendant le dialogue d'intro uniquement. gestionInputsJeu ne capte
+        // pas ESC ici (jeuActif = false pendant la cinématique).
+        if (_introEnCours && Keyboard.current != null
+            && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            SkipIntroDialogue();
+        }
+
+        // ── Rotation smooth vers le joueur ────────────────────────────
+        // Corrige les pivotements causés par les animations (même avec
+        // les contraintes de position/rotation activées, certaines
+        // root-motions peuvent dériver). Actif uniquement pendant le jeu
+        // (pas pendant les cinématiques, l'intro ou les séquences de phase).
+        if (_jeuEnCours && _cibleRegard != null)
+        {
+            Vector3 direction = _cibleRegard.position - transform.position;
+            direction.y = 0f; // Rotation horizontale uniquement — pas d'inclinaison
+
+            if (direction.sqrMagnitude > 0.01f)
+            {
+                Quaternion cibleRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    cibleRotation,
+                    Time.deltaTime * _vitesseRotation);
+            }
+        }
+    }
+
     // ===================== COROUTINES =====================
 
     private IEnumerator JouerIntroScene()
@@ -200,8 +277,8 @@ public class comportementAntagoniste : MonoBehaviour
         _talkingAlterne = 1;
         _animDejaPreDeclenche = false;
 
-        var inputs = FindObjectOfType<gestionInputsJeu>();
-        inputs?.ModeCinematique(true);
+        _inputs = FindObjectOfType<gestionInputsJeu>();
+        _inputs?.ModeCinematique(true);
 
         if (_vcamIntroManoir != null)
             _vcamIntroManoir.Priority = 60;
@@ -227,6 +304,9 @@ public class comportementAntagoniste : MonoBehaviour
                 || _animateur.IsInTransition(0));
         }
         yield return new WaitForSeconds(_delaiApresEntree);
+
+        // Activer le flag : à partir d'ici ESC peut skipper le dialogue.
+        _introEnCours = true;
 
         // ── Dialogue d'intro ──────────────────────────────────────────
         // prochainTypeAnim : type brut (1=Talking, 3=Yelling) de la prochaine
@@ -338,6 +418,9 @@ public class comportementAntagoniste : MonoBehaviour
             prochainTypeAnim: 3));
 
         // ── Reveal de la balance ──────────────────────────────────────
+        // Plus de skip ESC à partir d'ici (dernière réplique courte).
+        _introEnCours = false;
+
         if (_vcamBalance != null)
             _vcamBalance.Priority = 70;
         if (_vcamIntroManoir != null)
@@ -349,6 +432,44 @@ public class comportementAntagoniste : MonoBehaviour
             3, Clip(_sfxVoixIntroDialogue, 15), Delai(_delaisIntro, 15),
             prochainTypeAnim: 0));
 
+        yield return StartCoroutine(JouerRevealBalance());
+    }
+
+    /// <summary>
+    /// Déclenché par ESC pendant le dialogue d'intro.
+    /// Arrête tout le dialogue et saute directement au reveal de la balance.
+    /// </summary>
+    private void SkipIntroDialogue()
+    {
+        if (!_introEnCours) return;
+        _introEnCours = false;
+
+        StopAllCoroutines();
+
+        // Arrêter l'audio et masquer les sous-titres immédiatement.
+        if (_sourceAudio != null) _sourceAudio.Stop();
+        if (_sousTitre != null)   _sousTitre.MasquerSousTitre();
+
+        // Remettre le boss en idle (il était peut-être en Talking/Yelling).
+        if (_animateur != null)
+            _animateur.SetInteger("DialogueType", 0);
+
+        StartCoroutine(JouerRevealBalance());
+    }
+
+    /// <summary>
+    /// Gère le reveal de l'objet sur la balance, les particules et la
+    /// reprise du contrôle joueur. Appelé en fin normale de JouerIntroScene
+    /// OU directement par SkipIntroDialogue() si ESC est pressé pendant
+    /// les dialogues.
+    /// </summary>
+    private IEnumerator JouerRevealBalance()
+    {
+        // Switch caméra (idempotent — safe même si déjà fait en chemin normal)
+        if (_vcamBalance != null)     _vcamBalance.Priority = 70;
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+
+        // Animation d'apparition de l'objet sur la balance
         if (_animateur != null)
         {
             _animateur.SetInteger("TypeMagie", 0);
@@ -369,12 +490,149 @@ public class comportementAntagoniste : MonoBehaviour
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
         if (_vcamBalance != null)     _vcamBalance.Priority = 0;
 
-        inputs?.ModeCinematique(false);
-        Debug.Log("[ComportementAntagoniste] Intro terminée.");
+        // Réactiver les scripts de pointeur désactivés par ModeCinematique(true).
+        // ActiverInputs() ne le fait pas — seul ModeCinematique(false) le faisait,
+        // mais celui-ci ne reverrouillait pas la souris ni le HUD.
+        var pointeur = FindObjectOfType<gestionPointeur>(true);
+        if (pointeur != null) pointeur.gameObject.SetActive(true);
+        var testP = FindObjectOfType<testPointeur>(true);
+        if (testP != null) testP.enabled = true;
+
+        // ActiverInputs() :
+        // - reverrouille le curseur pour le FPS ✓
+        // - réaffiche le HUD (canvasHud + groupeContenuHud) ✓
+        // - remet etatActuel = EnJeu + jeuActif = true ✓
+        _inputs?.ActiverInputs();
+        gestionBandeauInfo.Afficher(_texteEtape1, _dureeAffichageBandeauEtape1);
+        Debug.Log("[ComportementAntagoniste] Intro terminée — Étape 1/3 affichée.");
 
         _jeuEnCours = true;
         if (_intervalleIdleSpecial > 0f && _idles != null && _idles.Length > 0)
             _coroutineIdlesCycle = StartCoroutine(CyclerIdlesAleatoires());
+    }
+
+    /// <summary>
+    /// Séquence complète de réaction de phase :
+    ///   1. Stop idles + ModeCinematique(true)
+    ///   2. Caméra boss → animation de réaction
+    ///   3. Caméra balance → AppliquerImpactPhase (sans OnActionTerminee)
+    ///   4. Retour caméra FP → réactiver pointeur + ActiverInputs()
+    ///   5. Relancer les idles + mettre ReactionPhaseTerminee à true
+    /// </summary>
+    private IEnumerator JouerReactionPhaseCoroutine(gestionnaireEnigmeBalance.PhaseEnigme phase)
+    {
+        _reactionPhaseTerminee = false;
+
+        // Stopper les idles pendant la cinématique de phase
+        _jeuEnCours = false;
+        if (_coroutineIdlesCycle != null)
+        {
+            StopCoroutine(_coroutineIdlesCycle);
+            _coroutineIdlesCycle = null;
+        }
+
+        _inputs?.ModeCinematique(true);
+
+        // Caméra boss
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
+        if (_vcamBalance != null)     _vcamBalance.Priority = 0;
+
+        // Animation de réaction selon la phase
+        if (_animateur != null)
+        {
+            if (phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1)
+            {
+                if (!string.IsNullOrEmpty(_triggerPhase1))
+                    _animateur.SetTrigger(_triggerPhase1);
+                yield return new WaitForSeconds(_dureeAnimationPhase1);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(_triggerPhase2))
+                {
+                    _animateur.SetTrigger(_triggerPhase2);
+                }
+                else
+                {
+                    // Fallback : idle Battlecry (IdleType=8)
+                    _animateur.SetInteger("IdleType", 8);
+                    _animateur.SetTrigger("DeclencherIdleSpecial");
+                }
+                yield return new WaitForSeconds(_dureeAnimationPhase2);
+            }
+        }
+
+        // Switch caméra balance pour l'impact
+        if (_vcamBalance != null)     _vcamBalance.Priority = 70;
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+
+        // Impact de l'antagoniste (sans OnActionTerminee)
+        if (_listeImpacts != null)
+        {
+            impactAntagoniste[] impacts = phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1
+                ? _listeImpacts.impactsPhase1
+                : _listeImpacts.impactsPhase2;
+
+            if (impacts != null && impacts.Length > 0)
+            {
+                impactAntagoniste impact = impacts[UnityEngine.Random.Range(0, impacts.Length)];
+                yield return StartCoroutine(AppliquerImpactPhase(impact));
+            }
+        }
+
+        yield return new WaitForSeconds(_dureeApresImpactPhase);
+
+        // Retour caméra first-person
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+        if (_vcamBalance != null)     _vcamBalance.Priority = 0;
+
+        // Réactiver le pointeur et les inputs joueur
+        var pointeur = FindObjectOfType<gestionPointeur>(true);
+        if (pointeur != null) pointeur.gameObject.SetActive(true);
+        var testP = FindObjectOfType<testPointeur>(true);
+        if (testP != null) testP.enabled = true;
+
+        _inputs?.ActiverInputs();
+
+        // Relancer les idles
+        _jeuEnCours = true;
+        if (_intervalleIdleSpecial > 0f && _idles != null && _idles.Length > 0)
+            _coroutineIdlesCycle = StartCoroutine(CyclerIdlesAleatoires());
+
+        Debug.Log($"[ComportementAntagoniste] Réaction phase {phase} terminée.");
+        _reactionPhaseTerminee = true;
+    }
+
+    /// <summary>
+    /// Même logique qu'AppliquerImpact mais SANS déclencher OnActionTerminee.
+    /// Utilisé par JouerReactionPhaseCoroutine — la coroutine de phase appelante
+    /// gère elle-même la suite de la séquence.
+    /// </summary>
+    private IEnumerator AppliquerImpactPhase(impactAntagoniste impact)
+    {
+        if (_animateur != null)
+        {
+            int typeMagie = impact.grossit ? 1 : 2;
+            _animateur.SetInteger("TypeMagie", typeMagie);
+            _animateur.SetTrigger("DeclencherMagie");
+        }
+
+        yield return new WaitForSeconds(_delaiAvantParticules);
+
+        if (_animateurObjet != null)
+            _animateurObjet.SetTrigger(impact.grossit
+                ? "DeclencherGrossir" : "DeclencherRapetisser");
+
+        AppliquerEchelleVisuelle(impact.multiplicateur);
+        JouerParticulesEtSon();
+        _objetSurBalance.ModifierPoids(impact.multiplicateur);
+        _zoneAdverse.NotifierChangementPoids();
+
+        Debug.Log($"[ComportementAntagoniste] Impact phase : ×{impact.multiplicateur} — " +
+                  $"poids={_objetSurBalance.valeurPoids}");
+
+        yield return new WaitUntil(() => ParticulesTerminees());
+        // Pas de OnActionTerminee — géré par JouerReactionPhaseCoroutine
     }
 
     private IEnumerator AppliquerImpact(impactAntagoniste impact)
@@ -437,8 +695,10 @@ public class comportementAntagoniste : MonoBehaviour
             _coroutineIdlesCycle = null;
         }
 
-        var inputs = FindObjectOfType<gestionInputsJeu>();
-        inputs?.ModeCinematique(true);
+        _inputs?.ModeCinematique(true);
+
+        // Caméra boss pour la cinématique de défaite
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
 
         if (_animateur != null)
             _animateur.SetTrigger("DeclencherDefaite");
@@ -489,6 +749,10 @@ public class comportementAntagoniste : MonoBehaviour
             _animateur.SetTrigger("DeclencherMort");
 
         Debug.Log("[ComportementAntagoniste] Mort déclenchée.");
+
+        // Signaler la fin de la séquence de défaite à gestionnaireEnigmeBalance
+        // → LibererAttente() vérifie PhaseEnigme.Terminee → DeclencherVictoire()
+        OnActionTerminee?.Invoke();
     }
 
     // ===================== MÉTHODES PUBLIQUES =====================
@@ -512,6 +776,18 @@ public class comportementAntagoniste : MonoBehaviour
     }
 
     public void JouerDefaite() => StartCoroutine(JouerDefaiteSequence());
+
+    /// <summary>
+    /// Lance la séquence de réaction de phase :
+    ///   caméra boss → animation (Angry / Battlecry) → caméra balance
+    ///   → impact antagoniste → retour caméra FP → contrôle joueur.
+    /// ReactionPhaseTerminee passe à true en fin de séquence.
+    /// Appelé par gestionnaireEnigmeBalance.
+    /// </summary>
+    public void DemarrerReactionPhase(gestionnaireEnigmeBalance.PhaseEnigme phase)
+    {
+        StartCoroutine(JouerReactionPhaseCoroutine(phase));
+    }
 
     /// <param name="dialogueType">1=Talking, 2=Talking1, 3=Yelling</param>
     public void JouerDialogue(int dialogueType)
@@ -566,10 +842,16 @@ public class comportementAntagoniste : MonoBehaviour
         }
         else if (_animateur != null)
         {
-            // Ligne du Joueur : remettre DialogueType à 0 pour que le boss
-            // revienne à l'idle via Has Exit Time (aucune nouvelle anim).
+            // Ligne du Joueur : remettre DialogueType à 0 et basculer sur
+            // l'idle de dialogue (_idleTypeDialogue=2 = Dizzy) pour que les
+            // bras du boss restent calmes pendant que le joueur parle.
             _animDejaPreDeclenche = false;
             _animateur.SetInteger("DialogueType", 0);
+            if (_idleTypeDialogue > 0)
+            {
+                _animateur.SetInteger("IdleType", _idleTypeDialogue);
+                _animateur.SetTrigger("DeclencherIdleSpecial");
+            }
         }
 
         // ── Voice-over + sous-titre ───────────────────────────────────
@@ -581,9 +863,25 @@ public class comportementAntagoniste : MonoBehaviour
 
         yield return new WaitForSeconds(duree);
 
+        // ── Couper le Yelling à la fin du sous-titre ──────────────────
+        // L'animation Yelling est longue : sans reset elle continue de
+        // jouer pendant le délai suivant, causant un décalage visuel
+        // (ex : "Faisons un pacte" démarrait encore en Yelling).
+        // On remet DialogueType=0 immédiatement + on bascule sur l'idle
+        // de dialogue pour que la transition suivante parte d'un état neutre.
+        if (dialogueType == 3 && _animateur != null)
+        {
+            _animateur.SetInteger("DialogueType", 0);
+            if (_idleTypeDialogue > 0)
+            {
+                _animateur.SetInteger("IdleType", _idleTypeDialogue);
+                _animateur.SetTrigger("DeclencherIdleSpecial");
+            }
+        }
+
         // ── Pré-déclencher l'animation suivante au début du délai ─────
         // On déclenche MAINTENANT, pendant le délai, pour que l'Animator
-        // ait le temps de blender Talking → Talking1 (ou → Yelling) AVANT
+        // ait le temps de blender idle → Talking (ou → Yelling) AVANT
         // que la prochaine réplique commence. Le flag _animDejaPreDeclenche
         // empêche le double-trigger au début de la prochaine JouerReplique.
         if (prochainTypeAnim > 0 && delaiApres > 0f && _animateur != null)

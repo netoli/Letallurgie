@@ -17,6 +17,12 @@ public class compteurInventaireHud : MonoBehaviour
     private int _totalPrecedent = 0;
     private Coroutine _coroutineFlash;
 
+    // Guard : vrai si l'abonnement à onInventaireModifieHud est actif.
+    // Nécessaire car OnEnable peut s'exécuter avant que gestionInventaire.Instance
+    // soit prêt (timing au chargement de scène). Start() tente l'abonnement
+    // en fallback si OnEnable a raté.
+    private bool _estAbonne = false;
+
     // ── Unity ────────────────────────────────────────────────
 
     void Start()
@@ -24,32 +30,50 @@ public class compteurInventaireHud : MonoBehaviour
         // Sauvegarder la couleur d'origine du texte
         if (texteNombreObjetsHud != null)
             _couleurNormale = texteNombreObjetsHud.color;
+
+        // Fallback : si OnEnable s'est exécuté avant que le singleton
+        // soit disponible, on s'abonne ici (Start() est garanti après
+        // tous les Awake(), donc le singleton est prêt).
+        TenterAbonnement();
     }
 
     void OnEnable()
     {
-        if (gestionInventaire.Instance != null)
-        {
-            gestionInventaire.Instance.onInventaireModifieHud += MettreAJour;
-
-            // Initialisation immédiate sans déclencher le flash
-            // (les objets déjà ramassés avant l'activation ne comptent pas)
-            _totalPrecedent = gestionInventaire.Instance.ObtenirTotalObjets();
-
-            if (texteNombreObjetsHud != null)
-                texteNombreObjetsHud.text = _totalPrecedent.ToString();
-        }
+        TenterAbonnement();
     }
 
     void OnDisable()
     {
-        if (gestionInventaire.Instance != null)
+        if (_estAbonne && gestionInventaire.Instance != null)
             gestionInventaire.Instance.onInventaireModifieHud -= MettreAJour;
 
-        // Remettre la couleur proprement si le composant se désactive
-        // en plein flash
+        _estAbonne = false;
+
+        // Remettre la couleur proprement si le composant se désactive en plein flash
         if (texteNombreObjetsHud != null)
             texteNombreObjetsHud.color = _couleurNormale;
+    }
+
+    // ── Abonnement ────────────────────────────────────────────
+
+    /// <summary>
+    /// Tente de s'abonner à onInventaireModifieHud.
+    /// Idempotent : sans effet si déjà abonné ou si le singleton n'est pas prêt.
+    /// </summary>
+    private void TenterAbonnement()
+    {
+        if (_estAbonne) return;
+        if (gestionInventaire.Instance == null) return;
+
+        gestionInventaire.Instance.onInventaireModifieHud += MettreAJour;
+        _estAbonne = true;
+
+        // Synchroniser l'affichage avec l'état actuel de l'inventaire
+        // (objets éventuellement ramassés dans une scène précédente).
+        int total = gestionInventaire.Instance.ObtenirTotalObjets();
+        _totalPrecedent = total;
+        if (texteNombreObjetsHud != null)
+            texteNombreObjetsHud.text = total.ToString();
     }
 
     // ── Mise à jour ───────────────────────────────────────────

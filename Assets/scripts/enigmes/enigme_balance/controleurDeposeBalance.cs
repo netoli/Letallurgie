@@ -165,22 +165,8 @@ public class controleurDeposeBalance : MonoBehaviour
             ~0,
             QueryTriggerInteraction.Collide))
         {
-            snapPointBalance snap =
-                hit.collider.GetComponentInParent<snapPointBalance>();
-
-            // LOG DIAGNOSTIC — affiche ce que le raycast touche à chaque frame.
-            // Désactive _debugLogs pour arrêter ce spam une fois le problème réglé.
-            if (_debugLogs)
-                Debug.Log($"[RAYCAST] Touche : '{hit.collider.gameObject.name}' " +
-                    $"(parent: '{hit.collider.transform.parent?.name}') " +
-                    $"| snapPointBalance trouvé : {snap != null} " +
-                    $"| layer : {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
-
-            return snap;
+            return hit.collider.GetComponentInParent<snapPointBalance>();
         }
-
-        if (_debugLogs)
-            Debug.Log("[RAYCAST] Rien touché (rayon dans le vide).");
 
         return null;
     }

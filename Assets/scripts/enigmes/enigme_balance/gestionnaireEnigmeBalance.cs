@@ -2,35 +2,44 @@
 // GestionnaireEnigmeBalance.cs
 // ------------------------------------------------------------
 // Auteur      : Fanny Fortier
-// Date créée  : 13 mai 2026
+// Date crï¿½ï¿½e  : 13 mai 2026
 // ------------------------------------------------------------
 // Description :
-//   Chef d'orchestre de l'énigme. Écoute ControleurBalance,
-//   gère la progression des phases et déclenche les réactions
+//   Chef d'orchestre de l'ï¿½nigme. ï¿½coute ControleurBalance,
+//   gï¿½re la progression des phases et dï¿½clenche les rï¿½actions
 //   de l'antagoniste au bon moment.
 // ------------------------------------------------------------
-// Dépendances :
-//   - controleurBalance       : événement OnEquilibre
+// Dï¿½pendances :
+//   - controleurBalance       : ï¿½vï¿½nement OnEquilibre
 //   - comportementAntagoniste : ExecuterAction, OnActionTerminee
 //   - ZoneDepotJoueur         : ViderSansNotifier (reset entre phases)
 // ============================================================
 
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class gestionnaireEnigmeBalance : MonoBehaviour
 {
     // ===================== INSPECTEUR =====================
-    [Header("Références")]
+    [Header("Rï¿½fï¿½rences")]
     [SerializeField] private controleurBalance _controleurBalance;
     [SerializeField] private comportementAntagoniste _antagoniste;
 
-    // ===================== ÉTAT INTERNE =====================
+    [Header("Textes de bandeau")]
+    [Tooltip("Texte du bandeau aprÃ¨s la rÃ©action de Phase 1 (Ã©quilibre 1/3).")]
+    [SerializeField] private string _texteEtape2 = "Ã‰tape 2/3 â€” Continuez !";
+    [Tooltip("Texte du bandeau aprÃ¨s la rÃ©action de Phase 2 (Ã©quilibre 2/3).")]
+    [SerializeField] private string _texteEtape3 = "Ã‰tape 3/3 â€” DerniÃ¨re chance !";
+    [Tooltip("DurÃ©e d'affichage des bandeaux Ã‰tape 2/3 et 3/3.")]
+    [SerializeField] private float _dureeAffichageBandeau = 5f;
+
+    // ===================== ï¿½TAT INTERNE =====================
     public enum PhaseEnigme { Phase1, Phase2, Phase3, Terminee }
     private PhaseEnigme _phaseActuelle = PhaseEnigme.Phase1;
     private bool _enAttente = false;
 
-    // ===================== ÉVÉNEMENTS =====================
+    // ===================== ï¿½Vï¿½NEMENTS =====================
     public event Action OnEnigmeTerminee;
 
     // ===================== UNITY =====================
@@ -40,7 +49,7 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
         _controleurBalance.OnEquilibre += GererEquilibre;
         _antagoniste.OnActionTerminee += LibererAttente;
 
-        Debug.Log("[GestionnaireEnigme] Énigme démarrée — Phase 1");
+        Debug.Log("[GestionnaireEnigme] ï¿½nigme dï¿½marrï¿½e ï¿½ Phase 1");
     }
 
     void OnDestroy()
@@ -49,44 +58,69 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
         _antagoniste.OnActionTerminee -= LibererAttente;
     }
 
-    // ===================== MÉTHODES PRIVÉES =====================
+    // ===================== Mï¿½THODES PRIVï¿½ES =====================
 
     private void GererEquilibre()
     {
         if (_enAttente || _phaseActuelle == PhaseEnigme.Terminee) return;
         _enAttente = true;
 
-        Debug.Log($"[GestionnaireEnigme] Équilibre détecté — {_phaseActuelle}");
+        Debug.Log($"[GestionnaireEnigme] Ã‰quilibre dÃ©tectÃ© â€” {_phaseActuelle}");
 
         switch (_phaseActuelle)
         {
             case PhaseEnigme.Phase1:
                 _phaseActuelle = PhaseEnigme.Phase2;
-                _antagoniste.ExecuterAction(PhaseEnigme.Phase1);
+                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase1, _texteEtape2));
                 break;
 
             case PhaseEnigme.Phase2:
                 _phaseActuelle = PhaseEnigme.Phase3;
-                _antagoniste.ExecuterAction(PhaseEnigme.Phase2);
+                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase2, _texteEtape3));
                 break;
 
             case PhaseEnigme.Phase3:
                 _phaseActuelle = PhaseEnigme.Terminee;
-                DeclencherVictoire();
+                // OnActionTerminee Ã  la fin de JouerDefaiteSequence â†’ LibererAttente()
+                // â†’ dÃ©tecte Terminee â†’ DeclencherVictoire()
+                _antagoniste.JouerDefaite();
                 break;
         }
+    }
+
+    /// <summary>
+    /// Coroutine de rÃ©action de phase (Phase1 ou Phase2) :
+    ///   - Lance DemarrerReactionPhase sur l'antagoniste
+    ///   - Attend ReactionPhaseTerminee (flag posÃ© par comportementAntagoniste)
+    ///   - Affiche le bandeau Ã‰tape X/3
+    ///   - LibÃ¨re _enAttente pour que le joueur puisse rejouer
+    /// </summary>
+    private IEnumerator SequenceReactionPhase(PhaseEnigme phaseReaction, string texteBandeau)
+    {
+        _antagoniste.DemarrerReactionPhase(phaseReaction);
+        yield return new WaitUntil(() => _antagoniste.ReactionPhaseTerminee);
+
+        gestionBandeauInfo.Afficher(texteBandeau, _dureeAffichageBandeau);
+
+        _enAttente = false;
+        Debug.Log($"[GestionnaireEnigme] SÃ©quence {phaseReaction} terminÃ©e â€” " +
+                  $"joueur peut agir ({_phaseActuelle})");
     }
 
     private void LibererAttente()
     {
         _enAttente = false;
-        Debug.Log($"[GestionnaireEnigme] Antagoniste terminé " +
-                  $"— joueur peut agir ({_phaseActuelle})");
+        Debug.Log($"[GestionnaireEnigme] Antagoniste terminÃ© â€” joueur peut agir ({_phaseActuelle})");
+
+        // AppelÃ© par OnActionTerminee Ã  la fin de JouerDefaiteSequence.
+        // Si on est en phase Terminee, dÃ©clencher la victoire.
+        if (_phaseActuelle == PhaseEnigme.Terminee)
+            DeclencherVictoire();
     }
 
     private void DeclencherVictoire()
     {
-        Debug.Log("[GestionnaireEnigme] VICTOIRE — énigme résolue!");
+        Debug.Log("[GestionnaireEnigme] VICTOIRE ï¿½ ï¿½nigme rï¿½solue!");
         OnEnigmeTerminee?.Invoke();
     }
 }

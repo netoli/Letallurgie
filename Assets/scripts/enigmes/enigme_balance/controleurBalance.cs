@@ -77,6 +77,11 @@ public class controleurBalance : MonoBehaviour
         if (total == 0)
         {
             _apparenceBalance.DefinirRotation(0f);
+
+            Debug.Log("[Balance] ══════════════════════════════\n" +
+                      "[Balance]  Balance vide — en attente d'objets\n" +
+                      "[Balance]  Gauche : 0  |  Droite : 0\n" +
+                      "[Balance] ══════════════════════════════");
             return;
         }
 
@@ -84,9 +89,26 @@ public class controleurBalance : MonoBehaviour
         //   droite > gauche → positif (penche droite)
         //   gauche > droite → négatif (penche gauche)
         //   égal            → 0 (horizontal)
-        // Ex : gauche=1 droite=3 → (3-1)/(3+1) = 0.5 (légèrement penché)
-        //      gauche=0 droite=5 → (5-0)/(5+0) = 1.0 (complètement penché)
         float ratio = (_poidsDroit - _poidsGauche) / (float)total;
         _apparenceBalance.DefinirRotation(ratio);
+
+        int difference = _poidsDroit - _poidsGauche;
+        float angleCible  = _apparenceBalance.ObtenirAngleCible();
+        float angleVisuel = _apparenceBalance.ObtenirAngleVisuel();
+
+        string equilibre = (difference == 0)
+            ? "✓ ÉQUILIBRE"
+            : (difference > 0
+                ? $"Droite trop lourde de {Mathf.Abs(difference)}"
+                : $"Gauche trop lourde de {Mathf.Abs(difference)}");
+
+        Debug.Log(
+            $"[Balance] ══════════════════════════════\n" +
+            $"[Balance]  Gauche    : {_poidsGauche}\n" +
+            $"[Balance]  Droite    : {_poidsDroit}\n" +
+            $"[Balance]  Différence: {(difference >= 0 ? "+" : "")}{difference}  →  {equilibre}\n" +
+            $"[Balance]  Angle cible  : {angleCible:+0.0;-0.0;0.0}°  (0° = équilibre)\n" +
+            $"[Balance]  Angle visuel : {angleVisuel:+0.0;-0.0;0.0}°  (lerp en cours)\n" +
+            $"[Balance] ══════════════════════════════");
     }
 }
