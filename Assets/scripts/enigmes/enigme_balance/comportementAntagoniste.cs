@@ -193,6 +193,8 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _dureeAnimationPhase2 = 2f;
     [Tooltip("Secondes après la fin des particules d'impact de phase, avant de rendre le contrôle au joueur.")]
     [SerializeField] private float _dureeApresImpactPhase = 1f;
+    [Tooltip("Secondes passées sur la caméra balance après une égalisation, avant de switcher sur la caméra boss pour sa réaction. Permet de voir la balance s'équilibrer visuellement.")]
+    [SerializeField] private float _delaiVueBalance = 1.5f;
     [Tooltip("idChapitre du ScriptableObject DonneesChapitre à afficher après le reveal " +
              "(Étape 1/3). Doit correspondre à un chapitre enregistré dans gestionChapitres.")]
     [SerializeField] private string _idChapitreEtape1 = "etape_manoir_1";
@@ -313,11 +315,11 @@ public class comportementAntagoniste : MonoBehaviour
         // L'animation est déclenchée au début du délai pour blender directement
         // vers le prochain état sans passer par l'idle.
 
-        // 0. Incommensurable — "HAHAHAHAH! Mais qui est-ce?" [Yelling]
+        // 0. Incommensurable — "HAHAHAHAH! Mais qui est-ce?" [Talking]
         //    Prochaine ligne boss : aucune (lignes 1-2 = Joueur) → 0
         yield return StartCoroutine(JouerReplique(
             "Incommensurable", "HAHAHAHAH! Mais qui est-ce?",
-            3, Clip(_sfxVoixIntroDialogue, 0), Delai(_delaisIntro, 0),
+            1, Clip(_sfxVoixIntroDialogue, 0), Delai(_delaisIntro, 0),
             prochainTypeAnim: 0));
 
         // 1. Joueur — boss en idle (pas de pré-trigger, prochaine ligne = Joueur)
@@ -530,9 +532,14 @@ public class comportementAntagoniste : MonoBehaviour
             _coroutineIdlesCycle = null;
         }
 
-        _inputs?.ModeCinematique(true);
+        // Caméra balance en premier — laisser voir l'égalisation visuellement
+        if (_vcamBalance != null)     _vcamBalance.Priority = 70;
+        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
 
-        // Caméra boss
+        yield return new WaitForSeconds(_delaiVueBalance);
+
+        // Bloquer les inputs et switcher sur la caméra boss pour la réaction
+        _inputs?.ModeCinematique(true);
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
         if (_vcamBalance != null)     _vcamBalance.Priority = 0;
 
@@ -706,7 +713,10 @@ public class comportementAntagoniste : MonoBehaviour
 
         // ── Dialogue défaite ──────────────────────────────────────────
 
-        // 0. "non, NON! Tu as réussi…" — prochaine = Talking
+        // 0. "non, NON! Tu as réussi…" — idle defeat (DeclencherDefaite déjà actif)
+        //    On bloque le re-déclenchement d'une animation de dialogue pour laisser
+        //    l'animation de défaite continuer de jouer pendant cette première réplique.
+        _animDejaPreDeclenche = true;
         yield return StartCoroutine(JouerReplique(
             "Incommensurable", "non, NON! Tu as réussi…",
             1, Clip(_sfxVoixDefaiteDialogue, 0), Delai(_delaisDefaite, 0),

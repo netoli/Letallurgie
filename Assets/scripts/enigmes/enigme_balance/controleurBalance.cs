@@ -27,6 +27,17 @@ public class controleurBalance : MonoBehaviour
              "Reçoit un float [-1 ; 1] proportionnel à l'écart de poids.")]
     [SerializeField] private balance_apparence _apparenceBalance;
 
+    [Header("Effets d'équilibration")]
+    [Tooltip("AudioSource portée par la balance (séparée de l'audio du boss).")]
+    [SerializeField] private AudioSource _sourceAudioBalance;
+    [Tooltip("Son joué une fois quand la balance s'équilibre parfaitement.")]
+    [SerializeField] private AudioClip _sfxEquilibre;
+    [Tooltip("Son joué chaque fois que les poids changent et que la balance " +
+             "n'est PAS à l'équilibre (bruit de balancement, chaînes, etc.).")]
+    [SerializeField] private AudioClip _sfxMouvement;
+    [Tooltip("Particules déclenchées au moment de l'égalisation.")]
+    [SerializeField] private ParticleSystem _particulesEquilibre;
+
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnEquilibre;
 
@@ -79,7 +90,24 @@ public class controleurBalance : MonoBehaviour
         // N'invoquer OnEquilibre que si les deux côtés ont du poids :
         // 0 == 0 (balance vide) ne compte pas comme un équilibre.
         if (etat == 0 && _poidsGauche > 0)
+        {
+            // Effets d'égalisation : son + particules
+            if (_sourceAudioBalance != null && _sfxEquilibre != null)
+                _sourceAudioBalance.PlayOneShot(_sfxEquilibre);
+            if (_particulesEquilibre != null)
+            {
+                _particulesEquilibre.Stop(true,
+                    ParticleSystemStopBehavior.StopEmittingAndClear);
+                _particulesEquilibre.Play(true);
+            }
             OnEquilibre?.Invoke();
+        }
+        else if (_poidsGauche > 0 || _poidsDroit > 0)
+        {
+            // Son de mouvement : joué quand la balance bouge mais n'est pas en équilibre.
+            if (_sourceAudioBalance != null && _sfxMouvement != null)
+                _sourceAudioBalance.PlayOneShot(_sfxMouvement);
+        }
     }
 
     // ===================== MÉTHODES PRIVÉES =====================
