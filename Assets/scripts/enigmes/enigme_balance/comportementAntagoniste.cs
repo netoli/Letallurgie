@@ -193,10 +193,9 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _dureeAnimationPhase2 = 2f;
     [Tooltip("Secondes après la fin des particules d'impact de phase, avant de rendre le contrôle au joueur.")]
     [SerializeField] private float _dureeApresImpactPhase = 1f;
-    [Tooltip("Texte du bandeau affiché à la fin du reveal (début de l'énigme, Étape 1/3).")]
-    [SerializeField] private string _texteEtape1 = "Étape 1/3 — Égalisez la balance !";
-    [Tooltip("Durée d'affichage du bandeau Étape 1/3 en secondes.")]
-    [SerializeField] private float _dureeAffichageBandeauEtape1 = 5f;
+    [Tooltip("idChapitre du ScriptableObject DonneesChapitre à afficher après le reveal " +
+             "(Étape 1/3). Doit correspondre à un chapitre enregistré dans gestionChapitres.")]
+    [SerializeField] private string _idChapitreEtape1 = "etape_manoir_1";
 
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnActionTerminee;
@@ -503,8 +502,8 @@ public class comportementAntagoniste : MonoBehaviour
         // - réaffiche le HUD (canvasHud + groupeContenuHud) ✓
         // - remet etatActuel = EnJeu + jeuActif = true ✓
         _inputs?.ActiverInputs();
-        gestionBandeauInfo.Afficher(_texteEtape1, _dureeAffichageBandeauEtape1);
-        Debug.Log("[ComportementAntagoniste] Intro terminée — Étape 1/3 affichée.");
+        gestionChapitres.Instance?.DemarrerChapitre(_idChapitreEtape1);
+        Debug.Log("[ComportementAntagoniste] Intro terminée — bannière Étape 1/3 déclenchée.");
 
         _jeuEnCours = true;
         if (_intervalleIdleSpecial > 0f && _idles != null && _idles.Length > 0)

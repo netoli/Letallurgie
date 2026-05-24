@@ -2,14 +2,14 @@
 // ZoneDepotAntagoniste.cs
 // ------------------------------------------------------------
 // Auteur      : Fanny Fortier
-// Date créée  : 12 mai 2026
+// Date crï¿½ï¿½e  : 12 mai 2026
 // ------------------------------------------------------------
 // Description :
-//   Gère l'objet unique déposé par l'antagoniste sur son côté
-//   de la balance. Notifie ControleurBalance à chaque changement.
+//   Gï¿½re l'objet unique dï¿½posï¿½ par l'antagoniste sur son cï¿½tï¿½
+//   de la balance. Notifie ControleurBalance ï¿½ chaque changement.
 // ------------------------------------------------------------
-// Dépendances :
-//   - ControleurBalance : reçoit les poids
+// Dï¿½pendances :
+//   - ControleurBalance : reï¿½oit les poids
 //   - ZoneDepotJoueur   : fournit le poids adverse
 //   - ObjetPesable      : composant sur l'objet antagoniste
 // ============================================================
@@ -19,17 +19,16 @@ using UnityEngine;
 public class ZoneDepotAntagoniste : MonoBehaviour
 {
     // ===================== INSPECTEUR =====================
-    [Header("Références")]
+    [Header("Rï¿½fï¿½rences")]
     [SerializeField] private controleurBalance _controleurBalance;
-    [SerializeField] private ZoneDepotJoueur _zoneJoueur;
 
-    // ===================== ÉTAT INTERNE =====================
+    // ===================== ï¿½TAT INTERNE =====================
     private objetPesable _objetActuel;
 
-    // ===================== MÉTHODES PUBLIQUES =====================
+    // ===================== Mï¿½THODES PUBLIQUES =====================
 
     /// <summary>
-    /// Appelé au démarrage de l'énigme pour définir
+    /// Appelï¿½ au dï¿½marrage de l'ï¿½nigme pour dï¿½finir
     /// l'objet de l'antagoniste.
     /// </summary>
     public void DefinirObjet(objetPesable objet)
@@ -39,8 +38,8 @@ public class ZoneDepotAntagoniste : MonoBehaviour
     }
 
     /// <summary>
-    /// Appelé par ComportementAntagoniste après avoir
-    /// modifié le poids de son objet.
+    /// Appelï¿½ par ComportementAntagoniste aprï¿½s avoir
+    /// modifiï¿½ le poids de son objet.
     /// </summary>
     public void NotifierChangementPoids()
     {
@@ -52,13 +51,13 @@ public class ZoneDepotAntagoniste : MonoBehaviour
         return _objetActuel != null ? _objetActuel.valeurPoids : 0;
     }
 
-    // ===================== MÉTHODES PRIVÉES =====================
+    // ===================== Mï¿½THODES PRIVï¿½ES =====================
 
     private void NotifierBalance()
     {
-        _controleurBalance.MettreAJourPoids(
-            _zoneJoueur.CalculerPoidsTotal(),
-            CalculerPoidsTotal()
-        );
+        // Met Ã  jour uniquement le cÃ´tÃ© droit (antagoniste).
+        // Le cÃ´tÃ© gauche (joueur) est gÃ©rÃ© indÃ©pendamment
+        // par ZoneDepotJoueur â€” plus de dÃ©pendance croisÃ©e.
+        _controleurBalance.MettreAJourPoidsDroit(CalculerPoidsTotal());
     }
 }

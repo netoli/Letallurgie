@@ -37,14 +37,38 @@ public class controleurBalance : MonoBehaviour
     // ===================== MÉTHODES PUBLIQUES =====================
 
     /// <summary>
-    /// Appelé par ZoneDepotJoueur et ZoneDepotAntagoniste
-    /// à chaque changement de poids.
+    /// Appelé par ZoneDepotJoueur pour mettre à jour uniquement
+    /// le côté gauche (joueur). Le côté droit reste inchangé.
+    /// </summary>
+    public void MettreAJourPoidsGauche(int poids)
+    {
+        _poidsGauche = poids;
+        EvaluerEtNotifier();
+    }
+
+    /// <summary>
+    /// Appelé par ZoneDepotAntagoniste pour mettre à jour uniquement
+    /// le côté droit (antagoniste). Le côté gauche reste inchangé.
+    /// </summary>
+    public void MettreAJourPoidsDroit(int poids)
+    {
+        _poidsDroit = poids;
+        EvaluerEtNotifier();
+    }
+
+    /// <summary>
+    /// Ancienne API — conservée pour compatibilité si d'autres scripts
+    /// l'appellent encore. À retirer une fois la migration terminée.
     /// </summary>
     public void MettreAJourPoids(int poidsGauche, int poidsDroit)
     {
         _poidsGauche = poidsGauche;
         _poidsDroit = poidsDroit;
+        EvaluerEtNotifier();
+    }
 
+    private void EvaluerEtNotifier()
+    {
         int etat = CalculerEtat();
 
         Debug.Log($"[ControleurBalance] Gauche={_poidsGauche} " +
