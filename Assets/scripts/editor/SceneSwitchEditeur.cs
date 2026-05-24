@@ -19,27 +19,27 @@ public class SceneSwitchEditeur : Editor
 
                 if (GUILayout.Button("Charger Sc�ne Principale"))
                 {
-                    SceneManager.LoadScene("scene_taverne_tutoriel");
+                    SceneManager.LoadScene("scene0_tuto");
                 }
 
                 if (GUILayout.Button("Charger Sc�ne Taverne1"))
                 {
-                    SceneManager.LoadScene("scene_taverne_recherche_indices");
+                    SceneManager.LoadScene("scene1_taverne1");
                 }
 
                 if (GUILayout.Button("Charger Sc�ne Usine"))
                 {
-                    SceneManager.LoadScene("scene_usine");
+                    SceneManager.LoadScene("scene2_usine");
                 }
 
                 if (GUILayout.Button("Charger Sc�ne Taverne2"))
                 {
-                    SceneManager.LoadScene("SCENE3-Taverne2");
+                    SceneManager.LoadScene("scene3_taverne2");
                 }
 
                 if (GUILayout.Button("Charger Sc�ne Manoir"))
                 {
-                    SceneManager.LoadScene("SCENE4-Manoir");
+                    SceneManager.LoadScene("scene4_manoir");
                 }
             }
             else

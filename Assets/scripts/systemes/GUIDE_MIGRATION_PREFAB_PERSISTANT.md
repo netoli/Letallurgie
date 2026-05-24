@@ -35,7 +35,7 @@ On reste sur ce pattern : chaque scène a une instance des prefabs nécessaires.
 
 ### Étape 1.1 — Créer prefab `bandeau_info`
 
-1. Ouvre `Assets/scenes/scene_taverne_tutoriel.unity`
+1. Ouvre `Assets/scenes/scene0_tuto.unity`
 2. Sélectionne `bandeau_info` (sous canvas_hud)
 3. Crée dossier `Assets/prefabs/ui/` si pas existant
 4. Glisse `bandeau_info` depuis Hierarchy vers `Assets/prefabs/ui/`
@@ -43,11 +43,11 @@ On reste sur ce pattern : chaque scène a une instance des prefabs nécessaires.
 
 ### Étape 1.2 — Créer prefab `gestionnaire_bandeaux_infos`
 
-1. Toujours dans `scene_taverne_tutoriel`, sélectionne `gestionnaire_bandeaux_infos`
+1. Toujours dans `scene0_tuto`, sélectionne `gestionnaire_bandeaux_infos`
 2. Glisse vers `Assets/prefabs/ui/`
 3. Choisis **Original Prefab**
 
-### Étape 1.3 — Synchroniser `scene_taverne_recherche_indices`
+### Étape 1.3 — Synchroniser `scene1_taverne1`
 
 Pour `bandeau_info` :
 - Supprime l'instance existante dans la scène
@@ -62,18 +62,18 @@ Pour `gestionnaire_bandeaux_infos` (MANQUANT dans cette scène) :
 
 ### `gestionPointeur` → `Assets/prefabs/ui/pointeur.prefab`
 
-1. Ouvre `scene_taverne_tutoriel`
+1. Ouvre `scene0_tuto`
 2. Trouve le GameObject portant `gestionPointeur` (probablement dans canvas_hud)
 3. Vérifie ses refs : `imagePointeur`, `rectPointeur` (enfants), `spriteDefaut/Interactif/PNJ/Mecanique` (assets)
 4. Glisse vers `Assets/prefabs/ui/`
-5. Dans `scene_taverne_recherche_indices` : supprime la copie, drag le prefab
+5. Dans `scene1_taverne1` : supprime la copie, drag le prefab
 
 ### `gestionSousTitre` → `Assets/prefabs/ui/sous_titres.prefab`
 
 1. Trouve le widget des sous-titres (probablement `sous_titres` ou `conteneur_sous_titre`)
 2. Vérifie refs : `texteInterlocuteur`, `textePropos`, `conteneurSousTitre`, `panelAjustable`, `fxBrouillard` — tous enfants ✅
 3. Glisse vers `Assets/prefabs/ui/`
-4. Synchronise dans `scene_taverne_recherche_indices`
+4. Synchronise dans `scene1_taverne1`
 
 ---
 
@@ -92,7 +92,7 @@ Quand tu remplaces l'instance par un prefab dans une scène, la référence exis
 
 ### `gestionBanniere` → `Assets/prefabs/ui/banniere_chapitre.prefab`
 
-1. Trouve le widget bannière (probablement `banniere_titre` ou similaire) dans `scene_taverne_tutoriel`
+1. Trouve le widget bannière (probablement `banniere_titre` ou similaire) dans `scene0_tuto`
 2. **Optionnel** : tu peux laisser `volumeGlobal` assigné — le script utilisera l'auto-find seulement si null
 3. Glisse vers `Assets/prefabs/ui/`
 4. Synchronise

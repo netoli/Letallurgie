@@ -5,7 +5,7 @@
 // Date créée  : 2026
 // ------------------------------------------------------------
 // Description :
-//   Contrôleur de dépôt d'objets sur la balance (SCENE4-Manoir).
+//   Contrôleur de dépôt d'objets sur la balance (scene4_manoir).
 //   Parallèle à controleurDeposeObjet (tutoriel/usine), mais
 //   spécialisé pour l'énigme balance :
 //
@@ -30,7 +30,7 @@
 // ------------------------------------------------------------
 // Setup dans Unity Editor :
 //   - Attacher ce script sur le même GameObject que la caméra
-//     first-person du joueur dans SCENE4-Manoir
+//     first-person du joueur dans scene4_manoir
 //   - Assigner _cameraJoueur
 // ============================================================
 

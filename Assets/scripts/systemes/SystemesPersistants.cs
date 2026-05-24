@@ -7,7 +7,7 @@ using UnityEngine;
 ///
 /// PHILOSOPHIE :
 /// - Une SEULE instance de ce GameObject existe dans le jeu (singleton).
-/// - Il est cree dans la scene de demarrage (scene_taverne_tutoriel
+/// - Il est cree dans la scene de demarrage (scene0_tuto
 ///   ou meme avant via scene_menu) et survit aux changements de scene.
 /// - Si le joueur recharge le jeu (retour menu, etc.) et qu'une nouvelle
 ///   instance arrive depuis une scene avec son propre prefab, le Awake
@@ -33,13 +33,13 @@ using UnityEngine;
 /// Pour referencer la scene, utiliser FindFirstObjectByType au runtime.
 ///
 /// PATTERN D'INITIALISATION DANS UNITY :
-/// 1. Dans scene_taverne_tutoriel, creer un GameObject vide nomme
+/// 1. Dans scene0_tuto, creer un GameObject vide nomme
 ///    exactement "--SystemesPersistants--".
 /// 2. Attacher ce script.
 /// 3. Y deplacer les managers et UI qu'on veut persister (voir guide
 ///    de migration).
 /// 4. Glisser ce GameObject vers le dossier Prefabs pour creer le prefab.
-/// 5. Dans CHAQUE autre scene (scene_taverne_recherche_indices, etc.),
+/// 5. Dans CHAQUE autre scene (scene1_taverne1, etc.),
 ///    glisser une instance du prefab. Au demarrage de la scene, le
 ///    doublon se detruira si une instance existe deja (chargement
 ///    direct de la scene 1 -> 2 via cinematique : seule la 1ere est

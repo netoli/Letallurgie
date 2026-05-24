@@ -93,16 +93,16 @@ public class gestionAudio : MonoBehaviour
         volumeCible = ObtenirVolumeBase();
         sourceMusique.volume = volumeCible;
 
-        if (SceneManager.GetActiveScene().name == "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name == "scene0_tuto")
         {
             JouerMusiquesIntro();
-        } else if (SceneManager.GetActiveScene().name == "scene_taverne_recherche_indices" || SceneManager.GetActiveScene().name == "SCENE3-Taverne2")
+        } else if (SceneManager.GetActiveScene().name == "scene1_taverne1" || SceneManager.GetActiveScene().name == "scene3_taverne2")
         {
             JouerMusiquesTaverne();
-        } else if (SceneManager.GetActiveScene().name == "scene_usine")
+        } else if (SceneManager.GetActiveScene().name == "scene2_usine")
         {
             JouerMusiquesUsine();
-        } else if (SceneManager.GetActiveScene().name == "SCENE4-Manoir")
+        } else if (SceneManager.GetActiveScene().name == "scene4_manoir")
         {
             JouerMusiquesManoir();
             DemarrerAmbiancePiece(ambianceManoir);

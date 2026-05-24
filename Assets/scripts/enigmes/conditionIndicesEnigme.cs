@@ -11,7 +11,7 @@
 //     1. Déclenche une bannière de chapitre via gestionChapitres
 //     2. Active le particle system / détecteur devant la porte
 //
-//   À placer dans SCENE1-Taverne1 et SCENE3-Taverne2.
+//   À placer dans scene1_taverne1 et scene3_taverne2.
 //   Le déclencheur de porte (declencheurChangementScene) lit
 //   la propriété EnigmeDeverrouillee de ce script.
 // ============================================================

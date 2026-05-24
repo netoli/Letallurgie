@@ -9,7 +9,7 @@ using UnityEngine;
 ///
 /// SETUP UNITY :
 /// 1. Creer un GameObject "gestionnaire_bandeaux_infos" dans la scene
-///    scene_taverne_tutoriel (pour le tutoriel) ou dans n'importe
+///    scene0_tuto (pour le tutoriel) ou dans n'importe
 ///    quelle scene ou tu veux des bandeaux.
 /// 2. Attacher ce script gestionDeclencheurBandeau.
 /// 3. Glisser les ScriptableObject DonneesBandeauInfo (bandeauInfos_*)

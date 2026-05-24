@@ -9,7 +9,7 @@
 //     - l'affichage (icone + quantite)
 //     - la selection au clic (IPointerClickHandler) avec feedback
 //       visuel (couleur + scale) via gestionSelectionInventaire
-//     - l'envoi de l'objet sur la balance (SCENE4-Manoir) si une
+//     - l'envoi de l'objet sur la balance (scene4_manoir) si une
 //       ZoneDepotJoueur est assignee
 // ============================================================
 
@@ -37,7 +37,7 @@ public class slotObjetInventaire : MonoBehaviour, IPointerClickHandler
     private objetInventaire objetAffiche;
 
     // Reference optionnelle a la zone de depot pour l'enigme balance.
-    // Assignee par AssignerZoneBalance() depuis la SCENE4-Manoir.
+    // Assignee par AssignerZoneBalance() depuis la scene4_manoir.
     private static ZoneDepotJoueur _zoneBalance;
 
     public static void AssignerZoneBalance(ZoneDepotJoueur zone)
@@ -61,10 +61,10 @@ public class slotObjetInventaire : MonoBehaviour, IPointerClickHandler
         MettreAJourQuantite(quantite);
         MettreAJourVisuelSelection();
 
-        // Listener balance : uniquement dans SCENE4-Manoir.
+        // Listener balance : uniquement dans scene4_manoir.
         // Permet au clic sur le slot d'envoyer l'objet sur la balance
         // (en plus du comportement de selection standard).
-        if (SceneManager.GetActiveScene().name == "SCENE4-Manoir")
+        if (SceneManager.GetActiveScene().name == "scene4_manoir")
         {
             Button btn = GetComponent<Button>();
             if (btn != null && _zoneBalance != null)

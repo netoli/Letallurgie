@@ -176,7 +176,7 @@ public class gestionAffichageInventaire : MonoBehaviour
             .ObtenirParCategorie(categorie).Count > 0;
 
         bool forcerVisible = categorie == CategorieObjet.Alchimie
-            && SceneManager.GetActiveScene().name == "SCENE4-Manoir";
+            && SceneManager.GetActiveScene().name == "scene4_manoir";
 
         onglet.gameObject.SetActive(aDuContenu || forcerVisible);
     }

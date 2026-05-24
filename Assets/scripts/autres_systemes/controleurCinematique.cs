@@ -29,7 +29,7 @@
 //   Appels typiques depuis d'autres scripts :
 //     // Cinématique puis chargement de scène :
 //     controleurCinematique.Instance.Jouer("cinematique_boss", () =>
-//         gestionEcranChargement.Instance.ChargerScene("SCENE4-Manoir"));
+//         gestionEcranChargement.Instance.ChargerScene("scene4_manoir"));
 //
 //     // Cinématique puis callback custom :
 //     controleurCinematique.Instance.Jouer(monClip, UnlockPorte);

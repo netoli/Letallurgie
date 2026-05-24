@@ -17,8 +17,8 @@
 //        conditionIndicesEnigme dans l'Inspector
 //
 //   Scènes cibles :
-//     scene_taverne_recherche_indices → "scene_usine"
-//     SCENE3-Taverne2 → "SCENE4-Manoir"
+//     scene1_taverne1 → "scene2_usine"
+//     scene3_taverne2 → "scene4_manoir"
 // ============================================================
 
 using UnityEngine;

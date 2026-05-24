@@ -41,7 +41,7 @@ public class objetInventaire : ScriptableObject
     public string descriptionInspection;
 
     [Header("Specifique a l'enigme balance (legacy)")]
-    [Tooltip("Prefab 3D utilise par l'enigme balance (SCENE4-Manoir). " +
+    [Tooltip("Prefab 3D utilise par l'enigme balance (scene4_manoir). " +
         "A terme, fusionner avec prefabModele3D.")]
     public GameObject prefab3D;
 

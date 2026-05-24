@@ -54,7 +54,7 @@ public class gestionFlou : MonoBehaviour
         dof.mode.Override(DepthOfFieldMode.Bokeh);
 
         // D�sactiver par d�faut, sauf dans la sc�ne principale
-        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name != "scene0_tuto")
         {
             DesactiverFlou();
         }

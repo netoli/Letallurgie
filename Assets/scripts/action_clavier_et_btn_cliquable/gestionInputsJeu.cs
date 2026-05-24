@@ -111,7 +111,7 @@ public class gestionInputsJeu : MonoBehaviour
     void Start()
     {
         // D�sactiver le menu principal si on n'est pas dans la sc�ne du menu
-        if (SceneManager.GetActiveScene().name != "scene_taverne_tutoriel")
+        if (SceneManager.GetActiveScene().name != "scene0_tuto")
         {
             if (canvasMenu != null)
                 canvasMenu.SetActive(false);
