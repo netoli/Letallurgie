@@ -79,8 +79,10 @@ public class comportementAntagoniste : MonoBehaviour
     [Header("Caméra intro")]
     [Tooltip("Caméra Cinemachine pointée sur le boss pendant le dialogue d'intro.")]
     [SerializeField] private CinemachineCamera _vcamIntroManoir;
-    [Tooltip("Caméra Cinemachine pointée sur la balance — activée au reveal.")]
+    [Tooltip("Caméra Cinemachine pointée sur la balance — activée au reveal et au début de chaque phase.")]
     [SerializeField] private CinemachineCamera _vcamBalance;
+    [Tooltip("Caméra Cinemachine zoomée sur l'objet de la ZoneAntagoniste — activée pendant l'animation d'impact.")]
+    [SerializeField] private CinemachineCamera _vcamZoneAntagoniste;
     [Tooltip("Secondes après l'activation de la caméra avant l'animation d'entrée.")]
     [SerializeField] private float _delaiAvantAnimation = 1f;
     [Tooltip("Beat configurable après la fin de l'animation d'entrée, avant la première réplique.")]
@@ -181,20 +183,27 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _delaiAvantMort = 2f;
 
     [Header("Réactions de phase")]
-    [Tooltip("Trigger Animator pour la réaction de Phase 1 (ex : DeclencherAngry). " +
-             "À ajouter dans l'Animator si l'animation n'existe pas encore.")]
+    [Tooltip("Trigger Animator pour la réaction de Phase 1 (ex : DeclencherAngry).")]
     [SerializeField] private string _triggerPhase1 = "DeclencherAngry";
     [Tooltip("Trigger Animator pour la réaction de Phase 2. " +
              "Laissez vide pour utiliser l'idle Battlecry (IdleType=8 + DeclencherIdleSpecial).")]
     [SerializeField] private string _triggerPhase2 = "";
-    [Tooltip("Secondes à attendre après le trigger de phase 1, avant de switcher sur la caméra balance.")]
+    [Tooltip("Son joué sur le boss au déclenchement de la réaction de Phase 1 (cri de colère, etc.).")]
+    [SerializeField] private AudioClip _sfxReactionPhase1;
+    [Tooltip("Son joué sur le boss au déclenchement de la réaction de Phase 2.")]
+    [SerializeField] private AudioClip _sfxReactionPhase2;
+    [Tooltip("Secondes passées sur la caméra balance après l'égalisation. Laisse voir la balance + particules.")]
+    [SerializeField] private float _delaiVueBalance = 1.5f;
+    [Tooltip("Secondes à attendre après le trigger de phase 1 avant de switcher sur la caméra zone antagoniste.")]
     [SerializeField] private float _dureeAnimationPhase1 = 2f;
     [Tooltip("Secondes à attendre après le trigger de phase 2.")]
     [SerializeField] private float _dureeAnimationPhase2 = 2f;
+    [Tooltip("Secondes après le début de l'animation d'impact boss avant de switcher sur vcamZoneAntagoniste.")]
+    [SerializeField] private float _delaiAvantCameraZone = 1f;
     [Tooltip("Secondes après la fin des particules d'impact de phase, avant de rendre le contrôle au joueur.")]
     [SerializeField] private float _dureeApresImpactPhase = 1f;
-    [Tooltip("Secondes passées sur la caméra balance après une égalisation, avant de switcher sur la caméra boss pour sa réaction. Permet de voir la balance s'équilibrer visuellement.")]
-    [SerializeField] private float _delaiVueBalance = 1.5f;
+    [Tooltip("Particules d'équilibration sur la balance — déclenchées quand la caméra balance s'active.")]
+    [SerializeField] private ParticleSystem _particulesEquilibre;
     [Tooltip("idChapitre du ScriptableObject DonneesChapitre à afficher après le reveal " +
              "(Étape 1/3). Doit correspondre à un chapitre enregistré dans gestionChapitres.")]
     [SerializeField] private string _idChapitreEtape1 = "etape_manoir_1";
@@ -514,17 +523,16 @@ public class comportementAntagoniste : MonoBehaviour
 
     /// <summary>
     /// Séquence complète de réaction de phase :
-    ///   1. Stop idles + ModeCinematique(true)
-    ///   2. Caméra boss → animation de réaction
-    ///   3. Caméra balance → AppliquerImpactPhase (sans OnActionTerminee)
-    ///   4. Retour caméra FP → réactiver pointeur + ActiverInputs()
-    ///   5. Relancer les idles + mettre ReactionPhaseTerminee à true
+    ///   1. Caméra balance → particules d'équilibre → délai
+    ///   2. Caméra boss → son + animation de réaction
+    ///   3. Déclencher l'animation d'impact boss (DeclencherMagie) → délai
+    ///   4. Caméra zone antagoniste → animation objet + particules + poids
+    ///   5. Retour caméra FP → réactiver pointeur + ActiverInputs()
+    ///   6. Relancer les idles + ReactionPhaseTerminee = true
     /// </summary>
     private IEnumerator JouerReactionPhaseCoroutine(gestionnaireEnigmeBalance.PhaseEnigme phase)
     {
         _reactionPhaseTerminee = false;
-
-        // Stopper les idles pendant la cinématique de phase
         _jeuEnCours = false;
         if (_coroutineIdlesCycle != null)
         {
@@ -532,18 +540,34 @@ public class comportementAntagoniste : MonoBehaviour
             _coroutineIdlesCycle = null;
         }
 
-        // Caméra balance en premier — laisser voir l'égalisation visuellement
+        // ── 1. Caméra balance ────────────────────────────────────────
+        // Activer en premier pour voir l'égalisation + particules.
         if (_vcamBalance != null)     _vcamBalance.Priority = 70;
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+        if (_vcamZoneAntagoniste != null) _vcamZoneAntagoniste.Priority = 0;
+
+        // Particules d'équilibre déclenchées maintenant qu'on voit la balance.
+        if (_particulesEquilibre != null)
+        {
+            _particulesEquilibre.Stop(true,
+                ParticleSystemStopBehavior.StopEmittingAndClear);
+            _particulesEquilibre.Play(true);
+        }
 
         yield return new WaitForSeconds(_delaiVueBalance);
 
-        // Bloquer les inputs et switcher sur la caméra boss pour la réaction
+        // ── 2. Caméra boss — réaction ────────────────────────────────
         _inputs?.ModeCinematique(true);
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
         if (_vcamBalance != null)     _vcamBalance.Priority = 0;
 
-        // Animation de réaction selon la phase
+        // Son de réaction selon la phase
+        AudioClip sfxReaction = (phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1)
+            ? _sfxReactionPhase1 : _sfxReactionPhase2;
+        if (_sourceAudio != null && sfxReaction != null)
+            _sourceAudio.PlayOneShot(sfxReaction);
+
+        // Animation de réaction du boss
         if (_animateur != null)
         {
             if (phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1)
@@ -555,12 +579,9 @@ public class comportementAntagoniste : MonoBehaviour
             else
             {
                 if (!string.IsNullOrEmpty(_triggerPhase2))
-                {
                     _animateur.SetTrigger(_triggerPhase2);
-                }
                 else
                 {
-                    // Fallback : idle Battlecry (IdleType=8)
                     _animateur.SetInteger("IdleType", 8);
                     _animateur.SetTrigger("DeclencherIdleSpecial");
                 }
@@ -568,31 +589,55 @@ public class comportementAntagoniste : MonoBehaviour
             }
         }
 
-        // Switch caméra balance pour l'impact
-        if (_vcamBalance != null)     _vcamBalance.Priority = 70;
-        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+        // ── 3. Déclencher l'animation d'impact boss + sélectionner l'impact ──
+        impactAntagoniste[] impacts = (phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1)
+            ? _listeImpacts?.impactsPhase1
+            : _listeImpacts?.impactsPhase2;
 
-        // Impact de l'antagoniste (sans OnActionTerminee)
-        if (_listeImpacts != null)
+        bool aImpact = impacts != null && impacts.Length > 0;
+        impactAntagoniste impactChoisi = aImpact
+            ? impacts[UnityEngine.Random.Range(0, impacts.Length)]
+            : default;
+
+        if (aImpact && _animateur != null)
         {
-            impactAntagoniste[] impacts = phase == gestionnaireEnigmeBalance.PhaseEnigme.Phase1
-                ? _listeImpacts.impactsPhase1
-                : _listeImpacts.impactsPhase2;
+            _animateur.SetInteger("TypeMagie", impactChoisi.grossit ? 1 : 2);
+            _animateur.SetTrigger("DeclencherMagie");
+        }
 
-            if (impacts != null && impacts.Length > 0)
-            {
-                impactAntagoniste impact = impacts[UnityEngine.Random.Range(0, impacts.Length)];
-                yield return StartCoroutine(AppliquerImpactPhase(impact));
-            }
+        // Délai avant le switch sur la caméra zone antagoniste.
+        // Laisse voir le début de l'animation d'impact sur la caméra boss.
+        yield return new WaitForSeconds(_delaiAvantCameraZone);
+
+        // ── 4. Caméra zone antagoniste — objet se transforme ─────────
+        if (_vcamZoneAntagoniste != null) _vcamZoneAntagoniste.Priority = 80;
+        if (_vcamIntroManoir != null)     _vcamIntroManoir.Priority = 0;
+
+        if (aImpact)
+        {
+            if (_animateurObjet != null)
+                _animateurObjet.SetTrigger(impactChoisi.grossit
+                    ? "DeclencherGrossir" : "DeclencherRapetisser");
+
+            AppliquerEchelleVisuelle(impactChoisi.multiplicateur);
+            JouerParticulesEtSon();
+            _objetSurBalance.ModifierPoids(impactChoisi.multiplicateur);
+            _zoneAdverse.NotifierChangementPoids();
+
+            Debug.Log($"[ComportementAntagoniste] Impact phase : " +
+                      $"×{impactChoisi.multiplicateur} — " +
+                      $"poids={_objetSurBalance.valeurPoids}");
+
+            yield return new WaitUntil(() => ParticulesTerminees());
         }
 
         yield return new WaitForSeconds(_dureeApresImpactPhase);
 
-        // Retour caméra first-person
-        if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
-        if (_vcamBalance != null)     _vcamBalance.Priority = 0;
+        // ── 5. Retour caméra FP ──────────────────────────────────────
+        if (_vcamZoneAntagoniste != null) _vcamZoneAntagoniste.Priority = 0;
+        if (_vcamIntroManoir != null)     _vcamIntroManoir.Priority = 0;
+        if (_vcamBalance != null)         _vcamBalance.Priority = 0;
 
-        // Réactiver le pointeur et les inputs joueur
         var pointeur = FindObjectOfType<gestionPointeur>(true);
         if (pointeur != null) pointeur.gameObject.SetActive(true);
         var testP = FindObjectOfType<testPointeur>(true);
@@ -600,7 +645,6 @@ public class comportementAntagoniste : MonoBehaviour
 
         _inputs?.ActiverInputs();
 
-        // Relancer les idles
         _jeuEnCours = true;
         if (_intervalleIdleSpecial > 0f && _idles != null && _idles.Length > 0)
             _coroutineIdlesCycle = StartCoroutine(CyclerIdlesAleatoires());
@@ -720,7 +764,20 @@ public class comportementAntagoniste : MonoBehaviour
         yield return StartCoroutine(JouerReplique(
             "Incommensurable", "non, NON! Tu as réussi…",
             1, Clip(_sfxVoixDefaiteDialogue, 0), Delai(_delaisDefaite, 0),
-            prochainTypeAnim: 1));
+            prochainTypeAnim: 0));
+
+        // Sortir de l'état defeat idle vers un idle neutre AVANT les répliques
+        // suivantes. DeclencherDefaite place l'Animator dans un état qui n'a
+        // pas de transition sortante vers DeclencherDialogue — ce reset est
+        // indispensable pour que les lignes 1-5 puissent jouer leurs animations.
+        // Si cette transition ne fonctionne pas, vérifier que DeclencherIdleSpecial
+        // est en "Any State" dans l'Animator du boss.
+        if (_animateur != null)
+        {
+            _animateur.SetInteger("IdleType", _idleTypeDialogue);
+            _animateur.SetTrigger("DeclencherIdleSpecial");
+        }
+        yield return new WaitForSeconds(0.4f);
 
         // 1. "(soupire), eh bien, je tiens ma parole…" — prochaine = Talking
         yield return StartCoroutine(JouerReplique(

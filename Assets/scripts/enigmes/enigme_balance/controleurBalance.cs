@@ -35,8 +35,9 @@ public class controleurBalance : MonoBehaviour
     [Tooltip("Son joué chaque fois que les poids changent et que la balance " +
              "n'est PAS à l'équilibre (bruit de balancement, chaînes, etc.).")]
     [SerializeField] private AudioClip _sfxMouvement;
-    [Tooltip("Particules déclenchées au moment de l'égalisation.")]
-    [SerializeField] private ParticleSystem _particulesEquilibre;
+    // Note : les particules d'équilibre sont sur comportementAntagoniste
+    // (_particulesEquilibre) et déclenchées dans JouerReactionPhaseCoroutine,
+    // une fois que la caméra balance est active.
 
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnEquilibre;
@@ -91,15 +92,12 @@ public class controleurBalance : MonoBehaviour
         // 0 == 0 (balance vide) ne compte pas comme un équilibre.
         if (etat == 0 && _poidsGauche > 0)
         {
-            // Effets d'égalisation : son + particules
+            // Son d'égalisation (audible indépendamment de la caméra active).
+            // Les particules d'équilibre sont gérées par comportementAntagoniste
+            // directement dans JouerReactionPhaseCoroutine, une fois que la
+            // caméra balance est active.
             if (_sourceAudioBalance != null && _sfxEquilibre != null)
                 _sourceAudioBalance.PlayOneShot(_sfxEquilibre);
-            if (_particulesEquilibre != null)
-            {
-                _particulesEquilibre.Stop(true,
-                    ParticleSystemStopBehavior.StopEmittingAndClear);
-                _particulesEquilibre.Play(true);
-            }
             OnEquilibre?.Invoke();
         }
         else if (_poidsGauche > 0 || _poidsDroit > 0)
