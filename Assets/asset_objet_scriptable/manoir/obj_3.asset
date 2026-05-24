@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c41c9488488914f3fa2b9c487407363c, type: 3}
   m_Name: obj_3
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
-  nomObjet: Vase
+  nomObjet: Lingot d'argent
   icone: {fileID: 21300000, guid: d44c5beacb165024ea9f49246040530d, type: 3}
   categorie: 2
   quantiteMax: 1
   prefabModele3D: {fileID: 0}
   estLeurre: 0
   descriptionInspection: 
-  prefab3D: {fileID: 8044323432651137688, guid: 5a4314ce544152344ad2b777fdbc4874, type: 3}
+  prefab3D: {fileID: 8647613052501941407, guid: cc25b60b9822dd640b37ed99512b9da0, type: 3}
   valeurPoidsBalance: 3
   id: 
