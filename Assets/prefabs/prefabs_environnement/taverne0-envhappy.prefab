@@ -2747,7 +2747,7 @@ PrefabInstance:
     - target: {fileID: -4683669308469848369, guid: 4dffdbe1697b8a34ba57942a2f6ea7bf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 24c7bfefcac054d649cb1caf26e04a74, type: 2}
+      objectReference: {fileID: 2100000, guid: 3e5b8e4bde38a55419dd100da2e26215, type: 2}
     - target: {fileID: 919132149155446097, guid: 4dffdbe1697b8a34ba57942a2f6ea7bf, type: 3}
       propertyPath: m_Name
       value: beer_tap
@@ -3613,36 +3613,42 @@ MonoBehaviour:
       duree: 3
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Bonsoir, patron. Tout va bien ?
       clipAudio: {fileID: 8300000, guid: cc3bdd9b20420454494b93cc5cd3ce05, type: 3}
       duree: 3
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: Mes vieilles jambes me trahissent ce soir.
       clipAudio: {fileID: 8300000, guid: 91b61e58cc0ec4252ad2d7db448a9a11, type: 3}
       duree: 3.5
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Que puis-je pour vous ?
       clipAudio: {fileID: 8300000, guid: dbc23fe350db547bd9d57577d0571d63, type: 3}
       duree: 2.5
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Cette bouteille sur le comptoir doit aller \xE0 la table l\xE0-bas."
       clipAudio: {fileID: 8300000, guid: 089b4f2af7e7b4f3caaab543bfbf6b70, type: 3}
       duree: 5
       pauseApres: 0.9
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: "Bien s\xFBr. Je m'en occupe."
       clipAudio: {fileID: 8300000, guid: 1e85477bc0ca04efab70c1385cb47ff4, type: 3}
       duree: 3
       pauseApres: 0.3
       idActionADeclencher: demande_aide_faite
+      idActionRequiseAvancement: 
     idActionAuDebut: dialogue_tav1_debute
     idActionAFin: 
   - repliques:
@@ -3652,36 +3658,42 @@ MonoBehaviour:
       duree: 2.5
       pauseApres: 0.75
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Tu m'as bien tir\xE9 d'affaire."
       clipAudio: {fileID: 8300000, guid: f1a97dd9333d244d8a554fbe0e11893c, type: 3}
       duree: 3
       pauseApres: 0.9
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: De rien patron!
       clipAudio: {fileID: 8300000, guid: 42dacb9fd5de34d40bf98e8e3c1964a5, type: 3}
       duree: 2
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Dis-moi\u2026 ton journal, tu l'as toujours sur toi ?"
       clipAudio: {fileID: 8300000, guid: 6d6a095c6323046ddbf1f608f462203b, type: 3}
       duree: 4
       pauseApres: 0.75
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Oui, partron!
       clipAudio: {fileID: 8300000, guid: 970c250a0358042faa5bf73a9a0449cc, type: 3}
       duree: 2
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Consulte le toujours, il te r\xE9v\xE9lera bien des secrets."
       clipAudio: {fileID: 8300000, guid: 69f0cfe07717d40e3b4fbeb34ef428b2, type: 3}
       duree: 4
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     idActionAuDebut: 
     idActionAFin: dialogue_tav2_fini
   - repliques:
@@ -3691,60 +3703,70 @@ MonoBehaviour:
       duree: 2
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Oui. Que vouliez-vous me dire ?
       clipAudio: {fileID: 8300000, guid: e4d40c371f6854b6cabaf0cdf4dab992, type: 3}
       duree: 3.5
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: Approche. Ce que je vais te dire ne sort pas d'ici.
       clipAudio: {fileID: 8300000, guid: 4f7946e015caa4081af4808e2dabd72d, type: 3}
       duree: 4.5
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Vous avez ma parole.
       clipAudio: {fileID: 8300000, guid: fa99bfe17a8fb46c6aa85ffaf7422926, type: 3}
       duree: 2.5
       pauseApres: 0.5
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Les disparitions\u2026 ce n'est pas le hasard."
       clipAudio: {fileID: 8300000, guid: c971c9c6e8fcf4a29ad386b74d23ea56, type: 3}
       duree: 4
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: "Comment \xE7a ?"
       clipAudio: {fileID: 8300000, guid: 1ece25d6ed6024d0eb4e80d6c71711dd, type: 3}
       duree: 2
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: Les gouvernants nous cachent quelque chose.
       clipAudio: {fileID: 8300000, guid: 3d58dc9f64e824e4088e7e1dfdab5230, type: 3}
       duree: 4
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "J'ai entendu des bruits de couloir\u2026"
       clipAudio: {fileID: 8300000, guid: 05cde02f4ee574d43b804a4b149aa2e8, type: 3}
       duree: 3.5
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Personnage
       texte: Que disent-ils ?
       clipAudio: {fileID: 8300000, guid: 704733e3765ba45b2a70fe2011bb7ac9, type: 3}
       duree: 2
       pauseApres: 0.4
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     - interlocuteur: Tavernier
       texte: "Ils pr\xE9pareraient\u2026"
       clipAudio: {fileID: 8300000, guid: 67284e7e1dc934a68b8d9fb92cf2b27c, type: 3}
       duree: 3
       pauseApres: 0
       idActionADeclencher: 
+      idActionRequiseAvancement: 
     idActionAuDebut: 
     idActionAFin: dialogue_tav3_fini
   gestionSousTitreRef: {fileID: 0}
@@ -3752,6 +3774,16 @@ MonoBehaviour:
   bufferApresClip: 0.15
   interactifAuDemarrage: 0
   delaiFermetureTuileEsc: 3
+  delaiAvantRepriseApresAction: 2
+  gestionDistanceActive: 0
+  refPlayer: {fileID: 0}
+  distanceVolumeMax: 3
+  distanceVolumeMin: 8
+  distancePauseAuto: 10
+  ratioReprisePause: 0.3
+  clipRappelTropLoin: {fileID: 0}
+  audioSourceRappel: {fileID: 0}
+  messageBandeauTropLoin: 
 --- !u!4 &4302300141524114687 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 917f8cf9b426a5845a766418bb5df89c, type: 3}
