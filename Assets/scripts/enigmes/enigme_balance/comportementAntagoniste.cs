@@ -231,6 +231,12 @@ public class comportementAntagoniste : MonoBehaviour
     // Update() surveille ESC pour déclencher SkipIntroDialogue().
     private bool _introEnCours = false;
 
+    // Rotation Y (eulerAngles.y) sauvegardée au début de l'intro.
+    // Réimposée chaque frame pendant _bloquerRotationYIntro = true pour
+    // neutraliser la dérive causée par le root motion des animations.
+    private float _rotationYIntro;
+    private bool _bloquerRotationYIntro = false;
+
     // True quand JouerReactionPhaseCoroutine est terminée.
     // Initialisé à true : pas de réaction en attente au démarrage.
     // Utilisé par gestionnaireEnigmeBalance (WaitUntil) pour attendre
@@ -257,6 +263,17 @@ public class comportementAntagoniste : MonoBehaviour
             && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             SkipIntroDialogue();
+        }
+
+        // ── Verrouillage rotation Y pendant l'intro ───────────────────
+        // Les animations d'intro ont du root motion qui dévie la rotation Y.
+        // On réimpose l'angle de départ chaque frame pour que le boss reste
+        // face à la caméra intro jusqu'au reveal de la balance.
+        if (_bloquerRotationYIntro)
+        {
+            Vector3 euler = transform.eulerAngles;
+            euler.y = _rotationYIntro;
+            transform.eulerAngles = euler;
         }
 
         // ── Rotation smooth vers le joueur ────────────────────────────
@@ -286,6 +303,12 @@ public class comportementAntagoniste : MonoBehaviour
     {
         _talkingAlterne = 1;
         _animDejaPreDeclenche = false;
+
+        // Sauvegarder et verrouiller la rotation Y dès le départ.
+        // Le root motion des animations d'intro dévie le boss vers la gauche —
+        // on neutralise ça frame par frame dans Update().
+        _rotationYIntro = transform.eulerAngles.y;
+        _bloquerRotationYIntro = true;
 
         _inputs = FindObjectOfType<gestionInputsJeu>();
         _inputs?.ModeCinematique(true);
@@ -478,6 +501,11 @@ public class comportementAntagoniste : MonoBehaviour
         // Switch caméra (idempotent — safe même si déjà fait en chemin normal)
         if (_vcamBalance != null)     _vcamBalance.Priority = 70;
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 0;
+
+        // La caméra est maintenant sur la balance — le boss n'est plus visible.
+        // On libère le verrou de rotation Y pour que le smooth look-at puisse
+        // reprendre librement dès le retour en jeu.
+        _bloquerRotationYIntro = false;
 
         // Animation d'apparition de l'objet sur la balance
         if (_animateur != null)
