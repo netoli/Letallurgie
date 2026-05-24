@@ -11927,6 +11927,72 @@ ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 8952159931696610678, guid: 1943c1680d26848efa86da31f9867d39, type: 3}
   m_PrefabInstance: {fileID: 842943701}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &340586977
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 446390573}
+    m_Modifications:
+    - target: {fileID: 2697690059242327262, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.7880096
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -6.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -20.831436
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8735821186601142604, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+      propertyPath: m_Name
+      value: indices-taverne2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+--- !u!4 &340586978 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4296571675955980442, guid: f741ea9c47eb1c049b016b58c984d244, type: 3}
+  m_PrefabInstance: {fileID: 340586977}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &342497434
 GameObject:
   m_ObjectHideFlags: 0
@@ -12316,6 +12382,7 @@ MonoBehaviour:
   onPlacementTente:
     m_PersistentCalls:
       m_Calls: []
+  desactiverApresRemplir: 0
 --- !u!1 &353408721 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1119456296453364273, guid: d5f879b34a85c4922bbee8d1307f20c7, type: 3}
@@ -13180,7 +13247,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 852838581576103264, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1169804364904853314, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13380,7 +13447,10 @@ PrefabInstance:
       objectReference: {fileID: 503214098243662240}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1885030099650347117, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 340586978}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
 --- !u!1001 &420625250
@@ -21378,6 +21448,7 @@ MonoBehaviour:
   onPlacementTente:
     m_PersistentCalls:
       m_Calls: []
+  desactiverApresRemplir: 0
 --- !u!1 &620818246
 GameObject:
   m_ObjectHideFlags: 0
