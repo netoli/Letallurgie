@@ -227,13 +227,6 @@ public IEnumerator AfficherBanniere(
             && !string.IsNullOrEmpty(triggerDisparition))
             animatorBanniere.SetTrigger(triggerDisparition);
 
-        // Fade out de la vignette en parallele du fade de la banniere
-        // (uniquement si elle avait ete activee pour cette banniere).
-        if (activerVignettePourCetteBanniere)
-        {
-            DemarrerFadeVignette(0f);
-        }
-
         // Arret des particules plein ecran (Stop laisse les particules
         // existantes finir leur lifetime naturellement, donc l'effet
         // s'estompe doucement).
@@ -246,14 +239,42 @@ public IEnumerator AfficherBanniere(
             }
         }
 
+        // Fade out de la banniere ET de la vignette dans la meme boucle.
+        // Avant, la vignette etait fadee dans une coroutine separee, qui
+        // se faisait tuer par gameObject.SetActive(false) avant d'atteindre
+        // 0. En integrant le fade ici, les deux sont garantis de finir
+        // ensemble avant la desactivation.
+        float departVignette = (vignette != null && activerVignettePourCetteBanniere)
+            ? vignette.intensity.value : 0f;
+
+        // Annuler la coroutine de vignette separee si elle tournait encore.
+        if (vignetteCoroutineActive != null)
+        {
+            StopCoroutine(vignetteCoroutineActive);
+            vignetteCoroutineActive = null;
+        }
+
         float t = 0f;
         while (t < dureeFadeFinal)
         {
             t += Time.unscaledDeltaTime;
+            float ratio = Mathf.Clamp01(t / dureeFadeFinal);
+
             if (groupeBanniere != null)
-                groupeBanniere.alpha = Mathf.Lerp(1f, 0f,
-                    t / dureeFadeFinal);
+                groupeBanniere.alpha = Mathf.Lerp(1f, 0f, ratio);
+
+            if (vignette != null && activerVignettePourCetteBanniere)
+                vignette.intensity.Override(
+                    Mathf.Lerp(departVignette, 0f, ratio));
+
             yield return null;
+        }
+
+        // S'assurer que la vignette est bien a 0 et desactivee.
+        if (vignette != null && activerVignettePourCetteBanniere)
+        {
+            vignette.intensity.Override(0f);
+            vignette.active = false;
         }
 
         Debug.Log("[Banniere] Fade out termine");
