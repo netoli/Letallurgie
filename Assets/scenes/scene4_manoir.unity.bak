@@ -1025,9 +1025,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ecranFin
   _groupeEcranFin: {fileID: 348136592}
-  _panelCredits: {fileID: 512960422}
-  _gestionnaire: {fileID: 1848938669}
-  _nomSceneMenuPrincipal: scene0_tuto
+  _panelCredits: {fileID: 0}
+  _gestionnaire: {fileID: 0}
+  _nomSceneMenuPrincipal: scene_menu
   _dureeFadeIn: 2
   _delaiAvantFade: 0.5
 --- !u!114 &348136594
@@ -1716,7 +1716,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1986218353}
     m_Modifications:
     - target: {fileID: 58204721062849670, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: volumeGlobal
@@ -1968,15 +1968,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4531758019659808451, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -29.95815
+      value: -48.32048
       objectReference: {fileID: 0}
     - target: {fileID: 4531758019659808451, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.0977507
+      value: 15.64776
       objectReference: {fileID: 0}
     - target: {fileID: 4531758019659808451, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 83.20535
+      value: -10.266
       objectReference: {fileID: 0}
     - target: {fileID: 4531758019659808451, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2274,6 +2274,30 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496549834021603895, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -110
+      objectReference: {fileID: 0}
     - target: {fileID: 8665956215653896500, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
       propertyPath: m_LocalScale.x
       value: 0
@@ -2343,9 +2367,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
---- !u!1 &512960422 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3593398186730156747, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
+--- !u!4 &512960422 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4531758019659808451, guid: 129da84bb7a62e1448c72dd929862d0f, type: 3}
   m_PrefabInstance: {fileID: 512960421}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &512960423 stripped
@@ -4732,7 +4756,7 @@ Transform:
   m_GameObject: {fileID: 1505084258}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -18.36233, y: 14.55001, z: -93.47135}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4740,7 +4764,7 @@ Transform:
   - {fileID: 1033701359}
   - {fileID: 6109878}
   - {fileID: 293632506}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1986218353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1520266464
 GameObject:
@@ -5490,6 +5514,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &1986218352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1986218353}
+  - component: {fileID: 1986218354}
+  m_Layer: 0
+  m_Name: --DONTDESTROYONLOAD
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1986218353
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986218352}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 18.36233, y: -14.55001, z: 93.47135}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1505084259}
+  - {fileID: 512960422}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1986218354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986218352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5a8387ef1afe0f40979435dadb0f3a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionnairesImmortels
 --- !u!1 &2031865215
 GameObject:
   m_ObjectHideFlags: 0
@@ -6734,8 +6804,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2073927285}
-  - {fileID: 1505084259}
-  - {fileID: 512960421}
+  - {fileID: 1986218353}
   - {fileID: 1734999802}
   - {fileID: 832575519}
   - {fileID: 9112700119127788029}
@@ -6747,3 +6816,4 @@ SceneRoots:
   - {fileID: 570097746}
   - {fileID: 1208500963}
   - {fileID: 348136597}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       

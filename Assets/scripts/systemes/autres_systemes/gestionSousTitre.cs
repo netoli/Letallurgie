@@ -67,9 +67,18 @@ public class gestionSousTitre : MonoBehaviour
         texteInterlocuteur.text = interlocuteur + " :";
         textePropos.text = propos;
 
-        AppliquerOptionsAccessibilite();
-
+        // Activer le conteneur AVANT AppliquerOptionsAccessibilite.
+        // canvas_hud etant inactif au chargement de la scene, le
+        // Start() de ce composant n'a pas encore forcement tourne
+        // quand AfficherSousTitre est appele pour la premiere fois.
+        // Dans ce cas couleurOriginale vaut default(Color) = (0,0,0,0)
+        // et AppliquerOptionsAccessibilite rendrait le texte invisible.
+        // SetActive(true) declenche Awake/OnEnable de TMP_Text, qui
+        // initialise m_fontColor depuis les donnees serialisees, ce qui
+        // permet ensuite de recapturer la vraie couleur originale.
         conteneurSousTitre.SetActive(true);
+
+        AppliquerOptionsAccessibilite();
 
         // Force TMP a recalculer son rendu avant que le Content Size
         // Fitter ne lise la taille preferee, sinon la bulle peut
@@ -140,6 +149,25 @@ public class gestionSousTitre : MonoBehaviour
 
         if (indexTaille >= 0 && indexTaille < multiplicateurs.Length)
         {
+            // Start() peut lire fontSize=0 si TMP_Text n'a pas encore
+            // effectue sa premiere passe d'initialisation (bug connu
+            // quand gestionSousTitre.Start() s'execute avant que TMP
+            // ne soit pret). On recapture ici lors du premier appel
+            // reel (le GO vient d'etre active), et on applique un
+            // fallback a 21 si le composant retourne toujours 0.
+            if (tailleOriginaleInterlocuteur <= 0f)
+            {
+                tailleOriginaleInterlocuteur = texteInterlocuteur.fontSize;
+                if (tailleOriginaleInterlocuteur <= 0f)
+                    tailleOriginaleInterlocuteur = 21f;
+            }
+            if (tailleOriginalePropos <= 0f)
+            {
+                tailleOriginalePropos = textePropos.fontSize;
+                if (tailleOriginalePropos <= 0f)
+                    tailleOriginalePropos = 21f;
+            }
+
             float mult = multiplicateurs[indexTaille];
             texteInterlocuteur.fontSize =
                 tailleOriginaleInterlocuteur * mult;
