@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: trouver_table
   texte: "Trouve la bonne table o\xF9 d\xE9poser la bouteille."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: bouteille_ramassee
   delaiAvantApparition: 3
   idActionAnnulation:

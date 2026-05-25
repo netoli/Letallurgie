@@ -63,7 +63,9 @@ public class JournalUIDebug : MonoBehaviour
     {
         if (JournalManager.Instance == null)
         {
-            Debug.LogError("[Journal] JournalManager.Instance is NULL");
+            Debug.LogWarning("[Journal] JournalManager.Instance is NULL " +
+                "— journal affiche vide. Verifier qu'un GameObject avec " +
+                "JournalManager existe dans la scene de demarrage.");
             return;
         }
 

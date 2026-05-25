@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Active automatiquement un GameObject (SetActive true) lorsqu'une
@@ -72,32 +73,60 @@ public class gestionActivationAction : MonoBehaviour
     [SerializeField] private bool autoReset = false;
 
     private bool activationDeclenchee = false;
+    private bool estInscrit = false;
+
+    // Auto-inscription apres chaque chargement de scene, pour capter
+    // aussi les instances dont le GameObject porteur est DESACTIVE au
+    // demarrage (cas du prefab_pointeur_bouteille decoche pour qu'il
+    // n'apparaisse qu'au signal). Sans ca, Start n'est jamais appele
+    // sur ces instances.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void InitGlobalHook()
+    {
+        SceneManager.sceneLoaded -= OnSceneChargee;
+        SceneManager.sceneLoaded += OnSceneChargee;
+        InscrireToutes();
+    }
+
+    private static void OnSceneChargee(Scene s, LoadSceneMode m)
+    {
+        InscrireToutes();
+    }
+
+    public static void InscrireToutes()
+    {
+        var tous = Object.FindObjectsByType<gestionActivationAction>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous) inst.SInscrire();
+    }
+
+    private void SInscrire()
+    {
+        if (estInscrit) return;
+        if (string.IsNullOrEmpty(idActionActivation)) return;
+        if (gestionChapitres.Instance == null) return;
+        gestionChapitres.Instance.OnActionSignalee += AuActionSignalee;
+        estInscrit = true;
+    }
 
     void Start()
     {
+        // Garde-fou : si la phase AfterSceneLoad a deja inscrit, ne rien
+        // refaire. Sinon (cas rare), on s'inscrit ici.
+        SInscrire();
+
         if (string.IsNullOrEmpty(idActionActivation))
         {
             Debug.LogWarning($"[ActivationAction] {name} : " +
-                "idActionActivation n'est pas renseigne, le script ne " +
-                "fera rien. Renseigne-le dans l'Inspector.");
-            return;
+                "idActionActivation n'est pas renseigne.");
         }
-
-        if (gestionChapitres.Instance == null)
-        {
-            Debug.LogWarning($"[ActivationAction] {name} : " +
-                "gestionChapitres.Instance introuvable au Start. " +
-                "Le script ne pourra pas ecouter les actions.");
-            return;
-        }
-
-        gestionChapitres.Instance.OnActionSignalee += AuActionSignalee;
     }
 
     void OnDestroy()
     {
-        if (gestionChapitres.Instance != null)
+        if (gestionChapitres.Instance != null && estInscrit)
             gestionChapitres.Instance.OnActionSignalee -= AuActionSignalee;
+        estInscrit = false;
     }
 
     private void AuActionSignalee(string idAction)

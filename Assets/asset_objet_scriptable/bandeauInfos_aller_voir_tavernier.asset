@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: aller_voir_tavernier
   texte: "Retourner parler avec le tavernier."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: retrouvailles_banniere_terminee
   delaiAvantApparition: 3
   idActionAnnulation:

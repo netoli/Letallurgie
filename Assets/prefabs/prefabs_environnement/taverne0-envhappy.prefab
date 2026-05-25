@@ -3692,11 +3692,8 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 69f0cfe07717d40e3b4fbeb34ef428b2, type: 3}
       duree: 4
       pauseApres: 0.4
-      idActionADeclencher: 
-      idActionRequiseAvancement: 
-    idActionAuDebut: 
-    idActionAFin: dialogue_tav2_fini
-  - repliques:
+      idActionADeclencher: dialogue_retrouvailles_fini
+      idActionRequiseAvancement: jdb_ouvert
     - interlocuteur: Tavernier
       texte: Tu as lu ? Bon.
       clipAudio: {fileID: 8300000, guid: 1a8afc7aa797641e58c0d30b2c500828, type: 3}
@@ -3765,10 +3762,10 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 67284e7e1dc934a68b8d9fb92cf2b27c, type: 3}
       duree: 3
       pauseApres: 0
-      idActionADeclencher: 
+      idActionADeclencher: dialogue_aide_precieuse_termine
       idActionRequiseAvancement: 
     idActionAuDebut: 
-    idActionAFin: dialogue_tav3_fini
+    idActionAFin: 
   gestionSousTitreRef: {fileID: 0}
   audioSourceVoix: {fileID: 0}
   bufferApresClip: 0.15

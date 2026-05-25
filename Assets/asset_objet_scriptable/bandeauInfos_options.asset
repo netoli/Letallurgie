@@ -15,7 +15,7 @@ MonoBehaviour:
   idBandeau: options
   texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">o</gradient></font></b></size>
     pour ouvrir/fermer les options."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: retrouvailles_banniere_terminee
   delaiAvantApparition: 22
   idActionAnnulation:

@@ -15,7 +15,7 @@ MonoBehaviour:
   idBandeau: menu_pause
   texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">esc</gradient></font></b></size>
     pour ouvrir/fermer le menu pause (maintiens 1s en dialogue)."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: bandeau_aller_voir_tavernier_affiche
   delaiAvantApparition: 3
   idActionAnnulation:

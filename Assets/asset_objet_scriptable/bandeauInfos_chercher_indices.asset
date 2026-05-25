@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: chercher_indices
   texte: "Fouille la taverne pour trouver les indices."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: dialogue_pnj_mysterieux_fini
   delaiAvantApparition: 3
   idActionAnnulation:

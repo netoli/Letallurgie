@@ -12,14 +12,13 @@ GameObject:
   - component: {fileID: 2035200648256845684}
   - component: {fileID: 6082403607091144683}
   - component: {fileID: 2452488878798105414}
-  - component: {fileID: 8901234567890123456}
   m_Layer: 0
   m_Name: prefab_pointeur_bouteille
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1604667221306289296
 Transform:
   m_ObjectHideFlags: 0
@@ -9932,19 +9931,3 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
---- !u!114 &8901234567890123456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1629983709815276022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5d7f859d7a0f489a856ded7ccb69a3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::gestionActivationAction
-  idActionActivation: bandeau_trouver_table_affiche
-  objetAActiver: {fileID: 1629983709815276022}
-  delaiAvantActivation: 0
-  autoReset: 0

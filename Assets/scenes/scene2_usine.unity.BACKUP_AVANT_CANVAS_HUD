@@ -56620,10 +56620,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1607737927040902860, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5544332211998877665}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ec43f78b6c55f34caa4d6ced280665f, type: 3}
 --- !u!1001 &1272391068
 PrefabInstance:
@@ -95490,9 +95487,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 17b8c9d0e1f2a3b4c5d6e7f8091a2b3c, type: 2}
   - {fileID: 11400000, guid: 7713945776b94b5dbf65ad11392661f0, type: 2}
   - {fileID: 11400000, guid: 138aebe36c804aa9888e23496c697b74, type: 2}
-  - {fileID: 11400000, guid: 17b8c9d0e1f2a3b4c5d6e7f8091a2b3c, type: 2}
-  - {fileID: 11400000, guid: 7713945776b94b5dbf65ad11392661f0, type: 2}
-  - {fileID: 11400000, guid: 138aebe36c804aa9888e23496c697b74, type: 2}
   cinematique:
   - {fileID: 32900000, guid: 14b29d2f9beba3849a9479d6a81ce3a4, type: 3}
   boutonPasserCinematique: {fileID: 0}
@@ -95824,22 +95818,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 425733537567352928, guid: 21b8387f9355e4e4882ce9fe215d8571, type: 3}
   m_PrefabInstance: {fileID: 8372986018839134281}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5544332211998877665
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 1272297914}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5d7f859d7a0f489a856ded7ccb69a3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::gestionActivationAction
-  idActionActivation: pointeur_tavernier_prisonnier_visible
-  objetAActiver: {fileID: 0}
-  delaiAvantActivation: 0
-  autoReset: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

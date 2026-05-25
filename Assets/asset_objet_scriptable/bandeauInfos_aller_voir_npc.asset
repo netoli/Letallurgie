@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: aller_voir_npc
   texte: "Va voir le client au fond de la taverne."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: chapitre_mener_enquete_banniere_terminee
   delaiAvantApparition: 2
   idActionAnnulation:
