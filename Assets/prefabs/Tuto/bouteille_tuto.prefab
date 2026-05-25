@@ -176,7 +176,7 @@ MonoBehaviour:
     sait, si notre relation grandit, peut-\xEAtre qu'un jour j'en saurai plus sur
     le secret du vin. "
   imageJournal: {fileID: 21300000, guid: 510bf4090227f614f9f4efa4395367b0, type: 3}
-  sonRamasser: {fileID: 8300000, guid: 3d692ceca3e2fbc4cbea3ecacb407ba6, type: 3}
+  sonRamasser: {fileID: 8300000, guid: 2219ad211fb290d448551c7794afb3cc, type: 3}
   idActionADeclencher: bouteille_ramassee
 --- !u!1001 &2990892463672553532
 PrefabInstance:

@@ -110,12 +110,26 @@ public class gestionInputsJeu : MonoBehaviour
 
     void Start()
     {
+        // Auto-resolve : si l'instance de gestionInputsJeu provient d'un
+        // prefab ou d'une autre scene (cas scene2 en standalone), les
+        // references serialisees peuvent etre cassees. On retrouve les
+        // canvases par nom dans le canvas_hud de la scene actuelle.
+        AutoResoudreReferences();
+
+        // Auto-binder les boutons HUD (cas scene2_usine standalone : les
+        // onClick des boutons pointent vers une instance gestionInputsJeu
+        // d'une autre scene, donc rien ne se passe au clic). On rebind
+        // dynamiquement au runtime.
+        AutoBindBoutonsHud();
+
         // D�sactiver le menu principal si on n'est pas dans la sc�ne du menu
         if (SceneManager.GetActiveScene().name != "scene0_tuto")
         {
             if (canvasMenu != null)
                 canvasMenu.SetActive(false);
 
+            // HUD visible immediatement (avant transition Cinemachine et
+            // banniere annonce-chapitre). Comportement uniforme avec scene1.
             ActiverInputs();
 
             // Activer la cam�ra premi�re personne par d�faut
@@ -126,11 +140,165 @@ public class gestionInputsJeu : MonoBehaviour
                 vcamMenu.Priority = 10;
         }
 
-        canvasMenuPause.SetActive(false);
-        canvasRetournerMenuPrincipal.SetActive(false);
-        canvasQuitter.SetActive(false);
-        canvasConfirmerReinitialisation.SetActive(false);
-        ensembleMenuInventaire.SetActive(false);
+        if (canvasMenuPause != null)
+            canvasMenuPause.SetActive(false);
+        if (canvasRetournerMenuPrincipal != null)
+            canvasRetournerMenuPrincipal.SetActive(false);
+        if (canvasQuitter != null)
+            canvasQuitter.SetActive(false);
+        if (canvasConfirmerReinitialisation != null)
+            canvasConfirmerReinitialisation.SetActive(false);
+        if (ensembleMenuInventaire != null)
+            ensembleMenuInventaire.SetActive(false);
+    }
+
+    /// <summary>
+    /// Retrouve les references UI par nom dans la scene si elles sont
+    /// null. Utile quand le composant tourne dans une scene differente
+    /// de celle ou ses refs Inspector ont ete serialisees (ex : scene2
+    /// en standalone, qui a un canvas_hud different).
+    /// </summary>
+    private void AutoResoudreReferences()
+    {
+        // canvasHud : trouver le GameObject root nomme "canvas_hud"
+        if (canvasHud == null)
+            canvasHud = TrouverParNom("canvas_hud", true);
+
+        // Tous les canvases UI sont enfants de canvas_hud
+        if (canvasMenuPause == null)
+            canvasMenuPause = TrouverParNom("canvas_menu_pause", true);
+        if (canvasOptions == null)
+            canvasOptions = TrouverParNom("canvas_options", true);
+        if (canvasJournal == null)
+            canvasJournal = TrouverParNom("canvas_journal_final_20avril", true)
+                ?? TrouverParNom("canvas_journal", true);
+        if (canvasCredits == null)
+            canvasCredits = TrouverParNom("canvas_credits", true);
+        if (canvasRetournerMenuPrincipal == null)
+            canvasRetournerMenuPrincipal =
+                TrouverParNom("canvas_retourner_menu_principal", true)
+                ?? TrouverParNom("canvas_confirmer_retourner_au_menu_principal", true);
+        if (canvasQuitter == null)
+            canvasQuitter = TrouverParNom("canvas_quitter", true)
+                ?? TrouverParNom("canvas_confirmer_quitter", true);
+        if (canvasConfirmerReinitialisation == null)
+            canvasConfirmerReinitialisation =
+                TrouverParNom("canvas_confirmer_reinitialisation", true);
+        if (ensembleMenuInventaire == null)
+            ensembleMenuInventaire =
+                TrouverParNom("ensemble_menu_inventaire", true);
+        if (ensembleTuileTutoEtBoutonRetour == null)
+            ensembleTuileTutoEtBoutonRetour =
+                TrouverParNom("ensemble_tuile_tuto_et_bouton_retour", true);
+        if (canvasMenu == null)
+            canvasMenu = TrouverParNom("canvas_menu", true);
+
+        // CanvasGroups : recuperer depuis le canvas associe
+        if (groupeMenuPause == null && canvasMenuPause != null)
+            groupeMenuPause = canvasMenuPause.GetComponent<CanvasGroup>();
+        if (groupeOptions == null && canvasOptions != null)
+            groupeOptions = canvasOptions.GetComponent<CanvasGroup>();
+        if (groupeJournal == null && canvasJournal != null)
+            groupeJournal = canvasJournal.GetComponent<CanvasGroup>();
+        if (groupeCredits == null && canvasCredits != null)
+            groupeCredits = canvasCredits.GetComponent<CanvasGroup>();
+        if (groupeMenu == null && canvasMenu != null)
+            groupeMenu = canvasMenu.GetComponent<CanvasGroup>();
+        if (groupeRetournerMenuPrincipal == null
+            && canvasRetournerMenuPrincipal != null)
+            groupeRetournerMenuPrincipal =
+                canvasRetournerMenuPrincipal.GetComponent<CanvasGroup>();
+        if (groupeQuitter == null && canvasQuitter != null)
+            groupeQuitter = canvasQuitter.GetComponent<CanvasGroup>();
+        if (groupeConfirmerReinitialisation == null
+            && canvasConfirmerReinitialisation != null)
+            groupeConfirmerReinitialisation =
+                canvasConfirmerReinitialisation.GetComponent<CanvasGroup>();
+        if (groupeTuto == null && ensembleTuileTutoEtBoutonRetour != null)
+            groupeTuto =
+                ensembleTuileTutoEtBoutonRetour.GetComponent<CanvasGroup>();
+        // groupeContenuHud : il faut CIBLER le GameObject "contenu_hud"
+        // precisement (qui contient cadre_personnage_principal,
+        // ensemble_indicateur_hud, indices_jouabilite). GetComponentInChildren
+        // retourne le PREMIER CanvasGroup trouve, qui peut etre n'importe
+        // lequel (canvas_hud lui-meme ou un sous-canvas). On cherche par nom.
+        if (groupeContenuHud == null)
+        {
+            var contenuHudGo = TrouverParNom("contenu_hud", true);
+            if (contenuHudGo != null)
+                groupeContenuHud = contenuHudGo.GetComponent<CanvasGroup>();
+            // Fallback : ancien comportement si pas de contenu_hud nomme
+            if (groupeContenuHud == null && canvasHud != null)
+                groupeContenuHud =
+                    canvasHud.GetComponentInChildren<CanvasGroup>(true);
+        }
+    }
+
+    /// <summary>
+    /// Auto-bind les boutons HUD vers leurs methodes attendues. Necessaire
+    /// quand la scene est lancee en standalone : les onClick serialises
+    /// pointent vers une instance gestionInputsJeu d'une autre scene
+    /// (donc null au runtime), et les boutons ne reagissent pas au clic.
+    /// </summary>
+    private void AutoBindBoutonsHud()
+    {
+        Debug.Log("[gestionInputsJeu] AutoBindBoutonsHud sur scene "
+            + SceneManager.GetActiveScene().name);
+        // (nom_du_bouton, methode_a_appeler)
+        var bindings = new (string nom, System.Action act)[]
+        {
+            ("bouton_journal",         BoutonJournal),
+            ("bouton_inventaire",      BoutonInventaire),
+            ("bouton_options",         BoutonOptions),
+            ("bouton_sauvegarder",     SauvegarderPartie),
+            ("bouton_sauvegarde",      SauvegarderPartie),
+            ("bouton_esc",             MettreEnPause),
+            ("bouton_menu_principal",  AfficherConfirmationRetourMenu),
+            ("bouton_quitter",         AfficherConfirmationQuitter),
+        };
+        foreach (var (nom, act) in bindings)
+            RebindBoutonHud(nom, act);
+    }
+
+    private void RebindBoutonHud(string nom, System.Action act)
+    {
+        int trouves = 0;
+        var tous = Resources.FindObjectsOfTypeAll<
+            UnityEngine.UI.Button>();
+        foreach (var btn in tous)
+        {
+            if (btn == null || btn.gameObject == null) continue;
+            if (btn.gameObject.name != nom) continue;
+            if (btn.gameObject.hideFlags != HideFlags.None) continue;
+            if (!btn.gameObject.scene.IsValid()) continue;
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => act());
+            Debug.Log($"[gestionInputsJeu] Rebind '{nom}' " +
+                $"({btn.transform.parent?.name}/{btn.name}).");
+            trouves++;
+        }
+        if (trouves == 0)
+            Debug.LogWarning($"[gestionInputsJeu] Aucun bouton " +
+                $"'{nom}' trouve pour rebind.");
+    }
+
+    /// <summary>
+    /// Trouve un GameObject dans la scene par nom, en incluant les
+    /// objets desactives. Renvoie null si introuvable.
+    /// </summary>
+    private GameObject TrouverParNom(string nom, bool inclureInactifs)
+    {
+        var tous = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (var go in tous)
+        {
+            if (go == null) continue;
+            if (go.name != nom) continue;
+            // Exclure les prefabs assets (pas dans la scene)
+            if (go.hideFlags != HideFlags.None) continue;
+            if (!go.scene.IsValid()) continue;
+            return go;
+        }
+        return null;
     }
 
     // ===== GESTION SOURIS =====

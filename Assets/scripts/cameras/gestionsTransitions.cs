@@ -111,16 +111,11 @@ public class gestionsTransitions : MonoBehaviour
                 gestionChapitres.Instance.DemarrerChapitre(
                     "mener_enquete");
             }
-            // scene2_usine : annonce du chapitre "À la rescousse".
-            // Demarrage avec un petit delai pour laisser le temps a la
-            // transition camera cinemachine de se faire avant que la
-            // banniere apparaisse.
-            else if (sc == "scene2_usine"
-                && gestionChapitres.Instance != null)
-            {
-                StartCoroutine(DemarrerChapitreApresDelai(
-                    "le_sauvetage", 5f));
-            }
+            // scene2_usine : le chapitre "le_sauvetage" est demarre par
+            // le GameObject 'starter_chapitre_le_sauvetage' (composant
+            // demarreurChapitreScene) directement dans la scene. PAS
+            // ici, sinon double declenchement et banniere "A la
+            // rescousse" qui s'affiche deux fois.
 
             // D�sactiver compl�tement ce script pour �viter qu'il interf�re
             this.enabled = false;

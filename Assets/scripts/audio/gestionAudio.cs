@@ -51,6 +51,9 @@ public class gestionAudio : MonoBehaviour
     [Tooltip("Sons d'environnement en loop, séparés de la musique. " +
              "Assigner une AudioSource dédiée avec Loop activé.")]
     [SerializeField] private AudioClip ambianceManoir;
+    [Tooltip("Ambiance sonore de l'usine (machineries en arriere-plan). " +
+             "Joue en loop pendant scene2_usine, par-dessus la musique.")]
+    [SerializeField] private AudioClip ambianceUsine;
     [Range(0f, 1f)]
     [Tooltip("Volume de l'ambiance de pièce, indépendant de la musique.")]
     [SerializeField] private float volumeAmbiance = 0.35f;
@@ -102,6 +105,7 @@ public class gestionAudio : MonoBehaviour
         } else if (SceneManager.GetActiveScene().name == "scene2_usine")
         {
             JouerMusiquesUsine();
+            DemarrerAmbiancePiece(ambianceUsine);
         } else if (SceneManager.GetActiveScene().name == "scene4_manoir")
         {
             JouerMusiquesManoir();

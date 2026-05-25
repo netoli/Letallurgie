@@ -67,6 +67,8 @@ public class gestionBanniere : MonoBehaviour
 
     private Vignette vignette;
     private Coroutine vignetteCoroutineActive;
+    private Coroutine fadeAudioCoroutine;
+    private float volumeAudioMax = 1f;
 
     // Compteur d'affichages de la banniere. Sert a ne PAS activer
     // la vignette lors de la toute premiere banniere (le joueur
@@ -139,6 +141,20 @@ public class gestionBanniere : MonoBehaviour
             FadeVignette(cible, vignetteFadeDuree));
     }
 
+    private IEnumerator FadeAudioVolume(float depart, float cible, float duree)
+    {
+        if (audioSource == null) yield break;
+        float t = 0f;
+        while (t < duree)
+        {
+            t += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(depart, cible,
+                Mathf.Clamp01(t / duree));
+            yield return null;
+        }
+        audioSource.volume = cible;
+    }
+
     private IEnumerator DemarrerParticulesApresDelai(float delai)
     {
         if (delai > 0f)
@@ -161,7 +177,19 @@ public IEnumerator AfficherBanniere(
     {
         Debug.Log("[Banniere] AfficherBanniere: " + nomChapitre);
 
-        gameObject.SetActive(true);
+        // Activer ce GameObject ET tous ses ancetres (canvas_hud, etc.)
+        // S'ils sont inactifs, StartCoroutine echoue avec :
+        // "Coroutine couldn't be started because the game object
+        //  'banniere_annonce_chapitre' is inactive!"
+        // Cas typique : scene2 lancee en standalone, ou la branche
+        // ModeCinematique(true) a desactive canvas_hud avant.
+        Transform tParent = transform;
+        while (tParent != null)
+        {
+            if (!tParent.gameObject.activeSelf)
+                tParent.gameObject.SetActive(true);
+            tParent = tParent.parent;
+        }
 
         if (texteNomChapitre != null)
         {
@@ -180,9 +208,18 @@ public IEnumerator AfficherBanniere(
         if (groupeBanniere != null)
             groupeBanniere.alpha = 1f;
 
-        // Joue le son de la banniere
+        // Joue le son de la banniere AVEC FADE IN (toutes les bannieres,
+        // pas juste "A la rescousse"). On memorise le volume max configure
+        // dans l'AudioSource (Inspector) pour le restaurer apres le fade.
         if (audioSource != null && audioSource.clip != null)
+        {
+            volumeAudioMax = audioSource.volume;
+            audioSource.volume = 0f;
             audioSource.Play();
+            if (fadeAudioCoroutine != null) StopCoroutine(fadeAudioCoroutine);
+            fadeAudioCoroutine = StartCoroutine(
+                FadeAudioVolume(0f, volumeAudioMax, 0.5f));
+        }
 
         nombreAffichages++;
 
@@ -254,6 +291,16 @@ public IEnumerator AfficherBanniere(
             vignetteCoroutineActive = null;
         }
 
+        // Fade out audio en parallele : on stop le fade in en cours et
+        // on lerp depuis le volume actuel jusqu'a 0 sur dureeFadeFinal.
+        if (audioSource != null && audioSource.clip != null
+            && audioSource.isPlaying)
+        {
+            if (fadeAudioCoroutine != null) StopCoroutine(fadeAudioCoroutine);
+            fadeAudioCoroutine = StartCoroutine(
+                FadeAudioVolume(audioSource.volume, 0f, dureeFadeFinal));
+        }
+
         float t = 0f;
         while (t < dureeFadeFinal)
         {
@@ -268,6 +315,14 @@ public IEnumerator AfficherBanniere(
                     Mathf.Lerp(departVignette, 0f, ratio));
 
             yield return null;
+        }
+
+        // Stopper le son et restaurer son volume max pour la prochaine
+        // banniere (sinon le clip recommencerait a 0).
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Stop();
+            audioSource.volume = volumeAudioMax;
         }
 
         // S'assurer que la vignette est bien a 0 et desactivee.

@@ -140,17 +140,63 @@ public class gestionBandeauInfo : MonoBehaviour
     /// <param name="duree">Duree d'affichage en secondes.</param>
     public static void Afficher(string texte, float duree = 4f)
     {
+        // Auto-find : si Instance est null (cas transition de scene
+        // ou GameObject inactif), on cherche un gestionBandeauInfo
+        // dans la scene actuelle et on l'inscrit comme Instance.
         if (Instance == null)
         {
-            Debug.LogWarning("[BandeauInfo] Instance null - le " +
-                "GameObject bandeau_info n'existe pas dans la scene OU " +
-                "il est DECOCHE dans l'Inspector (case decochee = Awake " +
-                "jamais appele). Texte qui aurait du s'afficher: " +
-                $"'{texte}'");
+            var found = FindFirstObjectByType<gestionBandeauInfo>(
+                FindObjectsInactive.Include);
+            if (found != null)
+            {
+                // Activer le GameObject s'il etait desactive (et tous parents)
+                var tFind = found.transform;
+                while (tFind != null)
+                {
+                    if (!tFind.gameObject.activeSelf)
+                        tFind.gameObject.SetActive(true);
+                    tFind = tFind.parent;
+                }
+                Instance = found;
+                Debug.Log($"[BandeauInfo] Auto-find : Instance = '{found.name}'");
+            }
+        }
+        if (Instance == null)
+        {
+            Debug.LogError("[BandeauInfo] Instance NULL et aucun gestionBandeauInfo trouve dans la scene. Texte ignore: " + texte);
             return;
         }
-        Debug.Log($"[BandeauInfo] Afficher() : '{texte}' (duree {duree}s)");
-        Instance.MettreEnFile(texte, duree);
+        var go = Instance.gameObject;
+        Debug.Log($"[BandeauInfo] Afficher: '{texte}'");
+
+        // FORCE : affichage immediat, force alpha=1 sur TOUS parents
+        if (Instance.texteBandeau != null)
+            Instance.texteBandeau.text = texte;
+        if (Instance.groupeBandeau != null)
+        {
+            Instance.groupeBandeau.alpha = 1f;
+            Instance.groupeBandeau.blocksRaycasts = false;
+        }
+        // Force tous les CanvasGroup parents a alpha=1 et tous parents actifs
+        var t = go.transform;
+        while (t != null)
+        {
+            if (!t.gameObject.activeSelf)
+                t.gameObject.SetActive(true);
+            var cg = t.GetComponent<CanvasGroup>();
+            if (cg != null && cg.alpha < 1f)
+                cg.alpha = 1f;
+            t = t.parent;
+        }
+        // Masquer apres duree
+        Instance.StopAllCoroutines();
+        Instance.StartCoroutine(Instance.MasquerBandeauApres(duree));
+    }
+
+    private System.Collections.IEnumerator MasquerBandeauApres(float duree)
+    {
+        yield return new WaitForSecondsRealtime(duree);
+        if (groupeBandeau != null) groupeBandeau.alpha = 0f;
     }
 
     /// <summary>
