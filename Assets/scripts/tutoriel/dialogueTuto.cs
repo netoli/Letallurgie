@@ -208,10 +208,14 @@ public class DialogueTuto : MonoBehaviour
         "vers le tavernier'. Laisse vide pour ne rien afficher.")]
     [SerializeField] private string messageBandeauTropLoin;
 
+    void Awake()
+    {
+        // Init dans Awake pour eviter race condition avec ReactiverInteraction
+        interactionActive = interactifAuDemarrage;
+    }
+
     void Start()
     {
-        interactionActive = interactifAuDemarrage;
-
         // S'abonner aux actions signalees pour pouvoir debloquer une
         // replique qui attend une action specifique (idActionRequiseAvancement).
         if (gestionChapitres.Instance != null)

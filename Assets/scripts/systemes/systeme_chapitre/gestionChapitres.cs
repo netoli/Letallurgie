@@ -114,7 +114,19 @@ public class gestionChapitres : MonoBehaviour
 
         ChargerTutosVus();
 
-
+        // Auto-resolve : retrouve les refs UI si non assignees dans
+        // l'Inspector (cas du gestion_chapitres de scene2 lance en
+        // standalone : ses refs gestionBanniere/gestionTutoriel
+        // pointent vers les objets de scene1 et sont null ici).
+        if (gestionBanniere == null)
+            gestionBanniere = FindFirstObjectByType<gestionBanniere>(
+                FindObjectsInactive.Include);
+        if (gestionTutoriel == null)
+            gestionTutoriel = FindFirstObjectByType<gestionTutoriel>(
+                FindObjectsInactive.Include);
+        if (playerCinematiques == null)
+            playerCinematiques = FindFirstObjectByType<UnityEngine.Video.VideoPlayer>(
+                FindObjectsInactive.Include);
     }
 
     public void DemarrerChapitre(string idChapitre)
@@ -188,10 +200,20 @@ public class gestionChapitres : MonoBehaviour
 
         Debug.Log("[Chapitre] Lancement banniere");
 
-        yield return StartCoroutine(gestionBanniere.AfficherBanniere(
-            chapitre.nomAffiche,
-            chapitre.dureeAffichageBanniere,
-            chapitre.tailleTitre));
+        if (gestionBanniere != null)
+        {
+            yield return StartCoroutine(gestionBanniere.AfficherBanniere(
+                chapitre.nomAffiche,
+                chapitre.dureeAffichageBanniere,
+                chapitre.tailleTitre));
+        }
+        else
+        {
+            Debug.LogWarning($"[Chapitre] gestionBanniere null — " +
+                $"banniere '{chapitre.nomAffiche}' simulee {chapitre.dureeAffichageBanniere}s.");
+            yield return new WaitForSecondsRealtime(
+                chapitre.dureeAffichageBanniere);
+        }
 
         Debug.Log("[Chapitre] Banniere terminee");
 

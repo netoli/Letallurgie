@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: trouver_porte_usine
   texte: "Trouve la porte qui m\xE8ne \xE0 l'usine."
-  dureeAffichage: 3
+  dureeAffichage: 5
   idActionDeclenchement: tous_indices_ramasses
   delaiAvantApparition: 3
   idActionAnnulation:

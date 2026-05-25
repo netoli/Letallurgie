@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: trouver_tavernier_prisonnier
   texte: "Trouve l'endroit o\xF9 le tavernier est emprisonn\xE9."
-  dureeAffichage: 6
+  dureeAffichage: 3
   idActionDeclenchement: chapitre_le_sauvetage_banniere_terminee
   delaiAvantApparition: 3
   idActionAnnulation:

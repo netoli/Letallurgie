@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c5fe283b7bec54868951d0806ec0832c, type: 3}
-  m_Name: bandeauInfos_trouver_porte_usine
+  m_Name: bandeauInfos_options
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
-  idBandeau: trouver_porte_usine
-  texte: "Trouve la porte qui m\xE8ne \xE0 l'usine."
-  dureeAffichage: 3
-  idActionDeclenchement: tous_indices_ramasses
-  delaiAvantApparition: 3
+  idBandeau: options
+  texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">o</gradient></font></b></size>
+    pour ouvrir/fermer les options."
+  dureeAffichage: 5
+  idActionDeclenchement: retrouvailles_banniere_terminee
+  delaiAvantApparition: 22
   idActionAnnulation:
   autoriserMultipleAffichages: 0
-  idActionAApparition:
-  idActionAFinAffichage: pointeur_porte_visible

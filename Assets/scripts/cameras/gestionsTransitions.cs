@@ -111,6 +111,16 @@ public class gestionsTransitions : MonoBehaviour
                 gestionChapitres.Instance.DemarrerChapitre(
                     "mener_enquete");
             }
+            // scene2_usine : annonce du chapitre "À la rescousse".
+            // Demarrage avec un petit delai pour laisser le temps a la
+            // transition camera cinemachine de se faire avant que la
+            // banniere apparaisse.
+            else if (sc == "scene2_usine"
+                && gestionChapitres.Instance != null)
+            {
+                StartCoroutine(DemarrerChapitreApresDelai(
+                    "le_sauvetage", 5f));
+            }
 
             // D�sactiver compl�tement ce script pour �viter qu'il interf�re
             this.enabled = false;
@@ -157,6 +167,16 @@ public class gestionsTransitions : MonoBehaviour
             brouillard2.gameObject.SetActive(false);
             positionYCible2 = positionYDepart2;
         }
+    }
+
+    // Helper coroutine pour demarrer un chapitre apres un delai
+    // (laisse le temps a la transition camera Cinemachine au chargement
+    // de scene2_usine avant que la banniere n'apparaisse).
+    private IEnumerator DemarrerChapitreApresDelai(string idChapitre, float delai)
+    {
+        yield return new WaitForSecondsRealtime(delai);
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.DemarrerChapitre(idChapitre);
     }
 
     private void DesactiverJoueur()

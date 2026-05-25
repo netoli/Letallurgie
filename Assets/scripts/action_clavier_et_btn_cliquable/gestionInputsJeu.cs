@@ -214,9 +214,20 @@ public class gestionInputsJeu : MonoBehaviour
 
     private void MontrerContenuHud()
     {
-        groupeContenuHud.alpha = 1f;
-        groupeContenuHud.interactable = true;
-        groupeContenuHud.blocksRaycasts = true;
+        // Auto-resolve si pas assigne dans Inspector (cas scene2 standalone)
+        if (groupeContenuHud == null && canvasHud != null)
+            groupeContenuHud = canvasHud.GetComponentInChildren<CanvasGroup>(true);
+        if (groupeContenuHud == null)
+        {
+            Debug.LogWarning("[gestionInputsJeu] groupeContenuHud null — " +
+                "skip MontrerContenuHud (le HUD reste tel quel).");
+        }
+        else
+        {
+            groupeContenuHud.alpha = 1f;
+            groupeContenuHud.interactable = true;
+            groupeContenuHud.blocksRaycasts = true;
+        }
 
         foreach (ParticleSystem fx in fxHud)
         {
@@ -228,6 +239,7 @@ public class gestionInputsJeu : MonoBehaviour
 
     private void CacherContenuHud()
     {
+        if (groupeContenuHud == null) return;
         groupeContenuHud.alpha = 0f;
         groupeContenuHud.interactable = false;
         groupeContenuHud.blocksRaycasts = false;

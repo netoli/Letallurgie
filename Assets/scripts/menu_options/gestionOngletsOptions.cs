@@ -24,26 +24,29 @@ public class gestionOngletsOptions : MonoBehaviour
 
     void Update()
     {
-        if (boutonActif != null)
+        if (boutonActif != null && EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(
                 boutonActif.gameObject);
     }
 
     void Start()
     {
-        AfficherContenu(contenuSauvegarde, "sauvegarde",
-            boutonSauvegarde);
+        if (boutonSauvegarde != null && contenuSauvegarde != null)
+            AfficherContenu(contenuSauvegarde, "sauvegarde",
+                boutonSauvegarde);
     }
 
     void OnEnable()
     {
-        AfficherContenu(contenuSauvegarde, "sauvegarde",
-            boutonSauvegarde);
+        if (boutonSauvegarde != null && contenuSauvegarde != null)
+            AfficherContenu(contenuSauvegarde, "sauvegarde",
+                boutonSauvegarde);
     }
 
     void OnDisable()
     {
-        EventSystem.current.SetSelectedGameObject(null);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
         ResetTousLesBoutons();
     }
 
@@ -85,6 +88,9 @@ public class gestionOngletsOptions : MonoBehaviour
     private void AfficherContenu(GameObject contenu, string nom,
         Button bouton)
     {
+        if (contenu == null || bouton == null)
+            return;
+
         if (contenuActif != null)
             contenuActif.SetActive(false);
 
@@ -104,7 +110,8 @@ public class gestionOngletsOptions : MonoBehaviour
         boutonActif = bouton;
 
         // Sélectionne le nouvel onglet
-        EventSystem.current.SetSelectedGameObject(bouton.gameObject);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(bouton.gameObject);
 
         MettreAJourCouleursTexte(bouton);
     }
@@ -130,6 +137,7 @@ public class gestionOngletsOptions : MonoBehaviour
 
     private void MettreAJourCouleursTexte(Button boutonSelectionne)
     {
+        if (boutonSelectionne == null) return;
         gestionEffetsBoutonsCliques effet =
             boutonSelectionne
                 .GetComponent<gestionEffetsBoutonsCliques>();

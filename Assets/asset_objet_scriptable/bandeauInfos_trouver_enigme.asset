@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: trouver_enigme
   texte: "Trouve l'emplacement de l'\xE9nigme."
-  dureeAffichage: 5
+  dureeAffichage: 3
   idActionDeclenchement: tavernier_prisonnier_trouve
   delaiAvantApparition: 6
   idActionAnnulation:

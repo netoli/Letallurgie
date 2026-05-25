@@ -933,11 +933,8 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 69f0cfe07717d40e3b4fbeb34ef428b2, type: 3}
       duree: 4
       pauseApres: 0.4
-      idActionADeclencher: 
-      idActionRequiseAvancement: 
-    idActionAuDebut: 
-    idActionAFin: dialogue_tav2_fini
-  - repliques:
+      idActionADeclencher: dialogue_retrouvailles_fini
+      idActionRequiseAvancement: jdb_ouvert
     - interlocuteur: Tavernier
       texte: Tu as lu ? Bon.
       clipAudio: {fileID: 8300000, guid: 1a8afc7aa797641e58c0d30b2c500828, type: 3}
@@ -1006,10 +1003,10 @@ MonoBehaviour:
       clipAudio: {fileID: 8300000, guid: 67284e7e1dc934a68b8d9fb92cf2b27c, type: 3}
       duree: 3
       pauseApres: 0
-      idActionADeclencher: 
+      idActionADeclencher: dialogue_aide_precieuse_termine
       idActionRequiseAvancement: 
     idActionAuDebut: 
-    idActionAFin: dialogue_tav3_fini
+    idActionAFin: 
   gestionSousTitreRef: {fileID: 0}
   audioSourceVoix: {fileID: 0}
   bufferApresClip: 0.15
@@ -6992,30 +6989,6 @@ PrefabInstance:
     - target: {fileID: 937815093158585310, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
       propertyPath: m_Name
       value: pnjs_decor_sad
-      objectReference: {fileID: 0}
-    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -9.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4.52
-      objectReference: {fileID: 0}
-    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -18.72
       objectReference: {fileID: 0}
     - target: {fileID: 8369407289923689033, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
       propertyPath: m_LocalPosition.x
