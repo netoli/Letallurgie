@@ -6993,6 +6993,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: pnjs_decor_sad
       objectReference: {fileID: 0}
+    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -9.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1706837269957222012, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.52
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6840999460627413422, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -18.72
+      objectReference: {fileID: 0}
     - target: {fileID: 8369407289923689033, guid: 756358e9d41617f47a9de92c60e361e2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
