@@ -1364,9 +1364,13 @@ public class gestionInputsJeu : MonoBehaviour
             // retour menu, etc.) avant d'entrer en mode cinematique.
             FermerToutesLesFenetres();
 
-            // === Bloquer inputs et curseur ===
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // === Bloquer inputs gameplay, mais LIBERER le curseur ===
+            // Curseur OS visible et libre durant la cinematique pour
+            // permettre au joueur de cliquer un bouton "Passer" (skip).
+            // Le reticule de raycast in-game (gestionPointeur) reste
+            // desactive pour ne pas afficher la croix de visee.
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             var pointeur = FindObjectOfType<gestionPointeur>(true);
             if (pointeur != null)
                 pointeur.gameObject.SetActive(false);
@@ -1442,9 +1446,13 @@ public class gestionInputsJeu : MonoBehaviour
         }
         else
         {
-            // R�activer curseur
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            // Reverrouiller le curseur (etat gameplay normal apres
+            // cinematique). Si le callback de fin charge une scene
+            // avec menu, le menu de la nouvelle scene s'occupera de
+            // delocker le curseur lui-meme.
+            VerrouillerSouris();
+
+            // Reactiver le reticule de raycast in-game
             var pointeur = FindObjectOfType<gestionPointeur>(true);
             if (pointeur != null)
                 pointeur.gameObject.SetActive(true);
@@ -1452,7 +1460,7 @@ public class gestionInputsJeu : MonoBehaviour
             if (testP != null)
                 testP.enabled = true;
 
-            // R�activer inputs
+            // Reactiver inputs gameplay
             jeuActif = true;
         }
     }

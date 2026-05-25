@@ -22,12 +22,26 @@
 // ============================================================
 
 using UnityEngine;
+using UnityEngine.Video;
 
 public class declencheurChangementScene : MonoBehaviour
 {
     [Header("Navigation")]
     [Tooltip("Nom exact de la scène à charger (ex: 'SCENE2-Usine').")]
     [SerializeField] private string _nomSceneCible;
+
+    [Header("Écran de chargement (optionnel)")]
+    [Tooltip("VideoClip à jouer en plein écran pendant le chargement " +
+             "(ex: Letallurgie-loadingAnim.mp4). Si renseigné, la vidéo " +
+             "remplace l'écran noir. Si vide, fallback gestionEcranChargement " +
+             "ou cut direct.")]
+    [SerializeField] private VideoClip _videoChargement;
+
+    [Tooltip("Durée minimale d'affichage de la vidéo (s). La transition " +
+             "attendra au moins ce temps avant de basculer dans la nouvelle " +
+             "scène, même si elle a fini de charger plus tôt. Permet de " +
+             "donner du temps au joueur pour voir l'animation.")]
+    [SerializeField] private float _minDureeAffichageVideo = 2f;
 
     [Header("Condition")]
     [Tooltip("Référence au script conditionIndicesEnigme de la scène. " +
@@ -38,6 +52,12 @@ public class declencheurChangementScene : MonoBehaviour
     [Tooltip("Message affiché en console si le joueur entre avant " +
              "d'avoir assez d'indices (optionnel, pour debug).")]
     [SerializeField] private bool _debugPorteVerrouillee = true;
+
+    [Header("Délai")]
+    [Tooltip("Délai (s) entre le contact joueur et le déclenchement de " +
+             "l'écran de chargement. Permet de laisser respirer la " +
+             "transition. 0 = chargement immédiat.")]
+    [SerializeField] private float _delaiAvantChargement = 0f;
 
     private bool _transitionEnCours = false;
 
@@ -67,14 +87,45 @@ public class declencheurChangementScene : MonoBehaviour
 
         _transitionEnCours = true;
 
-        Debug.Log($"[DeclencheurPorte] Chargement de '{_nomSceneCible}'");
+        Debug.Log($"[DeclencheurPorte] Contact joueur. Chargement de " +
+                  $"'{_nomSceneCible}' dans {_delaiAvantChargement}s.");
 
-        // Passer par l'écran de chargement si disponible,
-        // sinon charger directement (fallback)
+        // IMPORTANT : ne PAS utiliser StartCoroutine ici. Le GameObject
+        // qui porte ce script peut etre desactive entre OnTriggerEnter
+        // et le demarrage de la coroutine (ex: prefab_pointeur_porte
+        // qui se desactive a son contact via gestionDisparitionAction).
+        // On delegue le delai a transitionAvecFondu qui survit grace
+        // a DontDestroyOnLoad.
+        DeclencherChargement(_delaiAvantChargement);
+    }
+
+    private void DeclencherChargement(float delaiAvant)
+    {
+        // Priorité 1 : vidéo de chargement custom configurée dans l'Inspector
+        // (utilise transitionAvecFondu qui se setup au runtime, AUCUN
+        //  GameObject/Canvas à configurer dans la scène).
+        if (_videoChargement != null)
+        {
+            transitionAvecFondu.ChargerSceneAvecVideo(
+                _nomSceneCible,
+                _videoChargement,
+                _minDureeAffichageVideo,
+                delaiAvantTransition: delaiAvant);
+            return;
+        }
+
+        // Priorité 2 : système gestionEcranChargement complet (si configuré
+        // dans la scène avec Canvas + RawImage + RenderTexture).
         if (gestionEcranChargement.Instance != null)
+        {
             gestionEcranChargement.Instance.ChargerScene(_nomSceneCible);
-        else
-            UnityEngine.SceneManagement.SceneManager
-                .LoadScene(_nomSceneCible);
+            return;
+        }
+
+        // Priorité 3 : fondu noir simple via transitionAvecFondu (toujours
+        // dispo, aucun setup requis).
+        transitionAvecFondu.ChargerSceneAvecFondu(
+            _nomSceneCible,
+            delaiAvantTransition: delaiAvant);
     }
 }

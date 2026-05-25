@@ -23,6 +23,15 @@ public class JournalManager : MonoBehaviour
     public static JournalManager Instance;
     public List<EntreeJournal> entrees = new List<EntreeJournal>();
 
+    /// <summary>
+    /// Event diffuse a chaque ajout d'entree au journal. L'argument
+    /// transmet le nombre total d'entrees apres l'ajout. Permet a un
+    /// composant de scene (ex: compteurIndicesScene) de detecter quand
+    /// le seuil "tous indices ramasses" est atteint sans coupler la
+    /// logique de signalement au JournalManager.
+    /// </summary>
+    public static event System.Action<int> OnIndiceAjoute;
+
     [Header("HUD")]
     [SerializeField] private TMP_Text compteurHUD;
 
@@ -87,6 +96,17 @@ public class JournalManager : MonoBehaviour
             if (_coroutineFlash != null)
                 StopCoroutine(_coroutineFlash);
             _coroutineFlash = StartCoroutine(FlashRougeCompteur());
+        }
+
+        // Notifier les abonnes (ex: compteurIndicesScene) qu'un indice
+        // vient d'etre ajoute. Diffuse le nombre total d'entrees apres
+        // l'ajout. Try/catch pour qu'un abonne en erreur ne bloque pas
+        // l'ajout d'indices.
+        try { OnIndiceAjoute?.Invoke(entrees.Count); }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[JournalManager] Erreur dans un handler " +
+                $"OnIndiceAjoute : {e.Message}");
         }
     }
 

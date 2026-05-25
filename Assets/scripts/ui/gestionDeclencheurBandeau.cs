@@ -135,5 +135,22 @@ public class gestionDeclencheurBandeau : MonoBehaviour
             gestionChapitres.Instance.SignalerAction(
                 bandeau.idActionAApparition);
         }
+
+        // Synchronisation a la FIN d'affichage : attendre la duree
+        // d'affichage du bandeau puis signaler l'action. Permet de
+        // declencher un pointeur OU une etape suivante APRES que le
+        // joueur ait fini de lire le message.
+        if (!string.IsNullOrEmpty(bandeau.idActionAFinAffichage))
+        {
+            yield return new WaitForSecondsRealtime(bandeau.dureeAffichage);
+
+            if (gestionChapitres.Instance != null)
+            {
+                Debug.Log($"[BandeauDeclencheur] Signal a fin affichage: " +
+                    $"{bandeau.idActionAFinAffichage}");
+                gestionChapitres.Instance.SignalerAction(
+                    bandeau.idActionAFinAffichage);
+            }
+        }
     }
 }

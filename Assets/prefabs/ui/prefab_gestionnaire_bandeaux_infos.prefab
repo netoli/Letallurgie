@@ -47,3 +47,10 @@ MonoBehaviour:
   bandeaux:
   - {fileID: 11400000, guid: 0d12c5b3e8a44f10b9d4c6f78a90e123, type: 2}
   - {fileID: 11400000, guid: 1e23d6c4f9b5501ac0e5d7f89ba1f234, type: 2}
+  - {fileID: 11400000, guid: 0f8c7ed80d7ea4d78ac2687154eb154f, type: 2}
+  - {fileID: 11400000, guid: 4bfe333daaa84eefb5ec6fbf6b0b6229, type: 2}
+  - {fileID: 11400000, guid: 86545c9774e24ec8ba361b27f68011f6, type: 2}
+  - {fileID: 11400000, guid: 4a26167ff22c46e0a0671c9f13f5e873, type: 2}
+  - {fileID: 11400000, guid: 275618acf120418c94add132fa4c03cf, type: 2}
+  - {fileID: 11400000, guid: 109756fdcc0340bdb3a6906ecc742721, type: 2}
+  - {fileID: 11400000, guid: 161e35b32ac645f280ff741ac133a910, type: 2}

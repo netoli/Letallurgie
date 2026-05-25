@@ -38,6 +38,7 @@ public class gestionInteractionClic : MonoBehaviour
     private objetRamassable _objetVise;
     private gestionHighlightHover _highlightVise;
     private DialogueTuto _tavernierVise;
+    private gestionInputsJeu _gestionInputs;
 
 
     void Start()
@@ -81,6 +82,20 @@ public class gestionInteractionClic : MonoBehaviour
             // Si toujours pas trouve, on continue quand meme : le raycast
             // marchera mais les changements d'etat pointeur sont skip.
         }
+
+        // Lookup gestionInputsJeu si pas encore en cache.
+        if (_gestionInputs == null)
+            _gestionInputs = FindFirstObjectByType<gestionInputsJeu>(
+                FindObjectsInactive.Include);
+
+        // BLOQUER les interactions quand le jeu n'est PAS en gameplay
+        // actif (menu pause, options, journal, inventaire, credits,
+        // confirmations de menu, cinematique). Sans ce filtre, le
+        // joueur pouvait ramasser un indice pendant que le menu
+        // pause etait ouvert. JeuEnCoursActif = true uniquement quand
+        // etatActuel == EnJeu et jeuActif == true.
+        if (_gestionInputs != null && !_gestionInputs.JeuEnCoursActif)
+            return;
 
         _DetecterObjet();
 

@@ -74,6 +74,13 @@ public class gestionChapitres : MonoBehaviour
     [Header("Cin�matiques")]
     [SerializeField] private VideoClip[] cinematique;
 
+    [Tooltip("Bouton UI 'Passer la cinematique' a afficher pendant la " +
+        "lecture de la video. Doit etre desactive au demarrage de la " +
+        "scene. Son onClick doit appeler gestionChapitres.PasserCinematique(). " +
+        "Activate par ce script au demarrage de la cinematique, et " +
+        "desactive a la fin.")]
+    [SerializeField] private GameObject boutonPasserCinematique;
+
     [Header("HUD post-tutoriel")]
     [Tooltip("GameObject des indices de jouabilite (canvas_hud > " +
         "contenu_hud > indices_jouabilite). Reste desactive pendant " +
@@ -148,16 +155,15 @@ public class gestionChapitres : MonoBehaviour
         Debug.Log("[Chapitre] Demarrage: " + chapitre.idChapitre);
 
         // Bloquer les mouvements du personnage pendant l'affichage
-        // de la banniere annonce-chapitre, SAUF pour le tout premier
-        // chapitre (premier_contact) qui a deja sa propre logique de
-        // blocage (DemarrerChapitre met deja MouvementAutorise=false
-        // pour ce chapitre, et le reactive a la 1ere tuile de tuto).
-        // Pour les chapitres suivants (aide_precieuse, mener_enquete,
-        // et les bannières "Reparler/Ecouter au tavernier" affichées
-        // comme bannières), on fige le joueur pendant la bannière et
-        // on re-autorise les mouvements une fois la bannière terminée.
-        bool bloquerMouvementsPourBanniere =
-            chapitre.idChapitre != "premier_contact";
+        // de la banniere annonce-chapitre, pour TOUS les chapitres
+        // (y compris premier_contact). Le blocage initial mis par
+        // DemarrerChapitre pour premier_contact sera leve apres 1s
+        // par la coroutine ReautoriserMouvementApresDelai ci-dessous,
+        // au lieu d'attendre la 1ere tuile de tuto.
+        // (Olivier 24/05 : unifier le comportement avec les autres
+        // chapitres pour ne pas figer le joueur pendant toute la
+        // banniere du tout premier chapitre.)
+        bool bloquerMouvementsPourBanniere = true;
 
         // IMPORTANT : on NE bloque PAS le mouvement au demarrage du
         // chapitre. Le joueur doit pouvoir bouger librement pendant le
@@ -704,9 +710,10 @@ public class gestionChapitres : MonoBehaviour
                 : chapitreActuel.nomCinematiqueAuFin;
             Debug.Log($"[Chapitre] Lancement cinematique de fin: " +
                 $"{nomCine}");
-            // Delai 1s apres la derniere replique du tavernier pour
+            // Delai 0.5s apres la derniere replique du tavernier pour
             // un petit temps de respiration narratif avant la video.
-            StartCoroutine(JouerCinematique(nomCine, 1f));
+            // (Olivier 24/05 : reduit de 1s a 0.5s)
+            StartCoroutine(JouerCinematique(nomCine, 0.5f));
         }
     }
 
@@ -812,6 +819,16 @@ public class gestionChapitres : MonoBehaviour
             playerCinematiques.clip = clip;
             playerCinematiques.loopPointReached += OnCinematiqueFinie;
             playerCinematiques.Play();
+
+            // Afficher le bouton "Passer la cinematique" pendant la
+            // lecture. Le bouton est cache au demarrage de la scene et
+            // ne sert qu'a interrompre la video pour les joueurs qui
+            // ne veulent pas la regarder a chaque run.
+            if (boutonPasserCinematique != null)
+            {
+                boutonPasserCinematique.SetActive(true);
+                Debug.Log("[Chapitre] Bouton 'Passer la cinematique' affiche.");
+            }
         }
         else
         {
@@ -819,9 +836,50 @@ public class gestionChapitres : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Interrompt la cinematique en cours et enchaine immediatement vers
+    /// la fin (chargement de la prochaine scene). Appele par l'onClick
+    /// du bouton "Passer la cinematique" dans l'UI. Si aucune cinematique
+    /// n'est en cours, l'appel est ignore.
+    /// </summary>
+    public void PasserCinematique()
+    {
+        if (playerCinematiques == null)
+        {
+            Debug.LogWarning("[Chapitre] PasserCinematique appele mais " +
+                "playerCinematiques est null.");
+            return;
+        }
+
+        if (!playerCinematiques.isPlaying)
+        {
+            Debug.LogWarning("[Chapitre] PasserCinematique appele mais " +
+                "aucune cinematique n'est en lecture.");
+            return;
+        }
+
+        Debug.Log("[Chapitre] Cinematique passee par le joueur (bouton skip).");
+
+        // Stopper la video et desabonner l'event pour eviter un double
+        // declenchement de OnCinematiqueFinie (Stop() ne declenche pas
+        // loopPointReached normalement, mais par securite on desabonne
+        // avant d'appeler manuellement la suite).
+        playerCinematiques.Stop();
+        playerCinematiques.loopPointReached -= OnCinematiqueFinie;
+
+        // Appeler manuellement la logique de fin (chargement de scene,
+        // restauration musique, etc.) avec la meme reference VideoPlayer.
+        OnCinematiqueFinie(playerCinematiques);
+    }
+
     private void OnCinematiqueFinie(VideoPlayer vp)
     {
         Debug.Log("[Chapitre] Cinematique terminee, chargement SCENE1");
+
+        // Cacher le bouton skip des que la cinematique se termine,
+        // qu'elle ait ete finie normalement ou passee manuellement.
+        if (boutonPasserCinematique != null)
+            boutonPasserCinematique.SetActive(false);
 
         // Sortir du mode cinématique (réactive curseur, etc.)
         // Le gestionInputsJeu de SCENE0 sera détruit au LoadScene —

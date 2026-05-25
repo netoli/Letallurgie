@@ -35,6 +35,13 @@ public class conditionIndicesEnigme : MonoBehaviour
              "de bannière.")]
     [SerializeField] private string _idChapitreBanniere = "enigme_resolue";
 
+    [Header("Action à signaler")]
+    [Tooltip("(Optionnel) ID d'action signalée à gestionChapitres au " +
+             "moment du déverrouillage. Permet à d'autres systèmes " +
+             "(bandeau info, activation pointeur, etc.) de réagir " +
+             "sans coupler la logique. Convention: 'tous_indices_ramasses'.")]
+    [SerializeField] private string _idActionASignaler = "tous_indices_ramasses";
+
     // ── État ─────────────────────────────────────────────────
 
     /// <summary>
@@ -98,6 +105,17 @@ public class conditionIndicesEnigme : MonoBehaviour
             _banniereAffichee = true;
             gestionChapitres.Instance.DemarrerChapitre(
                 _idChapitreBanniere);
+        }
+
+        // 3. Signaler l'action générique pour les bandeaux/pointeurs
+        //    qui doivent réagir au déverrouillage (ex : bandeau
+        //    "Trouve la porte usine" + activation prefab_pointeur_porte).
+        if (!string.IsNullOrEmpty(_idActionASignaler)
+            && gestionChapitres.Instance != null)
+        {
+            Debug.Log($"[ConditionIndices] Signal action: " +
+                      $"'{_idActionASignaler}'.");
+            gestionChapitres.Instance.SignalerAction(_idActionASignaler);
         }
     }
 }

@@ -139,8 +139,17 @@ public class gestionGlowIndices : MonoBehaviour
     private readonly List<LightAnime> lightsAnimees = new List<LightAnime>();
     private bool glowActifs = false;
 
+    void Awake()
+    {
+        Debug.Log($"[GlowIndices] AWAKE appele sur '{name}' " +
+            $"(scene='{gameObject.scene.name}', " +
+            $"activerImmediatement={activerImmediatement}).");
+    }
+
     void Start()
     {
+        Debug.Log($"[GlowIndices] START appele sur '{name}'.");
+
         // 1. Collecter tous les indices et leurs glow
         CollecterIndicesEtGlow();
 
@@ -345,11 +354,47 @@ public class gestionGlowIndices : MonoBehaviour
 
     private void RevelerTout()
     {
-        // 1. Reactiver les indices caches
+        // ROBUSTESSE : si la liste est vide (Start s'est execute avant
+        // que les indices soient prets, ex: gestion_journal vient de
+        // DontDestroyOnLoad et est arrive apres), on re-collecte ici.
+        // FindObjectsByType avec FindObjectsInactive.Include trouve
+        // aussi les GameObjects desactives par le Start, contrairement
+        // a FindGameObjectsWithTag qui les ignore.
+        if (indicesACacherEtReveler.Count == 0 && glowObjets.Count == 0)
+        {
+            Debug.LogWarning("[GlowIndices] Liste vide a la revelation " +
+                "- tentative de re-collecte des indices (peut-etre " +
+                "arrivee tardive via DontDestroyOnLoad).");
+            ReCollecterIndicesInclusInactifs();
+        }
+
+        // 1. Reactiver les indices caches ET TOUS LEURS PARENTS.
+        //    Unity n'affiche un GameObject que si TOUS ses parents sont
+        //    actifs. Si le parent direct (ex : 'indices' sous
+        //    gestion_journal) est desactive, SetActive(true) sur la cle
+        //    individuelle ne suffit pas a la rendre visible.
+        var parentsActives = new HashSet<GameObject>();
         foreach (var indice in indicesACacherEtReveler)
         {
-            if (indice != null)
-                indice.SetActive(true);
+            if (indice == null) continue;
+            indice.SetActive(true);
+
+            // Remonte la chaine de parents et active ceux qui sont
+            // desactives, en s'arretant a la racine de scene OU a
+            // DontDestroyOnLoad.
+            Transform parent = indice.transform.parent;
+            while (parent != null)
+            {
+                if (!parent.gameObject.activeSelf
+                    && parentsActives.Add(parent.gameObject))
+                {
+                    Debug.Log($"[GlowIndices] Activation parent " +
+                        $"'{parent.gameObject.name}' (necessaire pour " +
+                        $"que '{indice.name}' soit visible).");
+                    parent.gameObject.SetActive(true);
+                }
+                parent = parent.parent;
+            }
         }
         // 2. Activer tous les glow
         foreach (var glow in glowObjets)
@@ -361,5 +406,39 @@ public class gestionGlowIndices : MonoBehaviour
         //    que glowActifs = false, pour eviter les calculs inutiles
         //    en attendant le declencheur).
         glowActifs = true;
+
+        Debug.Log($"[GlowIndices] RevelerTout : " +
+            $"{indicesACacherEtReveler.Count} indices reactives, " +
+            $"{glowObjets.Count} glow actives.");
+    }
+
+    /// <summary>
+    /// Recollecte les indices via FindObjectsByType qui inclut les
+    /// GameObjects inactifs. Utilise comme fallback quand la collection
+    /// au Start a echoue (ex : gestion_journal pas encore arrive via
+    /// DontDestroyOnLoad). Cherche tous les RamasserIndice du projet
+    /// car ils sont presents uniquement sur les vrais indices.
+    /// </summary>
+    private void ReCollecterIndicesInclusInactifs()
+    {
+        indicesACacherEtReveler.Clear();
+        glowObjets.Clear();
+        lightsAnimees.Clear();
+
+        // Trouve tous les composants RamasserIndice, meme sur des
+        // GameObjects inactifs. C'est plus robuste que le tag car
+        // ne depend pas de l'ordre d'initialisation.
+        var ramasseurs = FindObjectsByType<RamasserIndice>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var r in ramasseurs)
+        {
+            if (r == null || r.gameObject == null) continue;
+            indicesACacherEtReveler.Add(r.gameObject);
+            AjouterGlowSiPresent(r.gameObject);
+        }
+
+        Debug.Log($"[GlowIndices] Re-collecte (inclus inactifs) : " +
+            $"{indicesACacherEtReveler.Count} indices trouves via " +
+            $"RamasserIndice.");
     }
 }

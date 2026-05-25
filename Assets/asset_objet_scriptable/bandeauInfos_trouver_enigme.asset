@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c5fe283b7bec54868951d0806ec0832c, type: 3}
-  m_Name: bandeauInfos_menu_pause
+  m_Name: bandeauInfos_trouver_enigme
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
-  idBandeau: menu_pause
-  texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">esc</gradient></font></b></size>
-    pour ouvrir/fermer le menu pause (maintiens 1s en dialogue)."
+  idBandeau: trouver_enigme
+  texte: "Trouve l'emplacement de l'\xE9nigme."
   dureeAffichage: 5
-  idActionDeclenchement: bandeau_aller_voir_tavernier_affiche
-  delaiAvantApparition: 3
+  idActionDeclenchement: tavernier_prisonnier_trouve
+  delaiAvantApparition: 6
   idActionAnnulation:
   autoriserMultipleAffichages: 0
+  idActionAApparition:
+  idActionAFinAffichage: pointeur_enigme_visible

@@ -56,6 +56,13 @@ public class gestionDisparitionAction : MonoBehaviour
         "respiration narratif. Default 0.")]
     [SerializeField] private float delaiAvantDisparition = 0f;
 
+    [Header("Options")]
+    [Tooltip("Si coche, le composant peut etre redeclenche plusieurs " +
+        "fois. Sinon il ne se declenche qu'une seule fois par session. " +
+        "Utile quand le meme objet sert a plusieurs phases du tuto " +
+        "(active, desactive, reactive, redesactive...).")]
+    [SerializeField] private bool autoReset = false;
+
     // Flag pour eviter de redeclencher si l'action est signalee plusieurs
     // fois (par ex. si l'utilisateur depose puis reprend puis redepose).
     private bool disparitionDeclenchee = false;
@@ -89,7 +96,7 @@ public class gestionDisparitionAction : MonoBehaviour
 
     private void AuActionSignalee(string idAction)
     {
-        if (disparitionDeclenchee) return;
+        if (disparitionDeclenchee && !autoReset) return;
         if (idAction != idActionDisparition) return;
 
         disparitionDeclenchee = true;
@@ -97,6 +104,16 @@ public class gestionDisparitionAction : MonoBehaviour
             $"'{idAction}' signalee, disparition dans " +
             $"{delaiAvantDisparition}s.");
         StartCoroutine(DisparaitreApresDelai());
+    }
+
+    /// <summary>
+    /// Permet de remettre le declencheur a zero manuellement
+    /// (ex : a la reinitialisation d'un chapitre, ou si autoReset est
+    /// decoche mais qu'on veut quand meme reutiliser le composant).
+    /// </summary>
+    public void Reinitialiser()
+    {
+        disparitionDeclenchee = false;
     }
 
     private IEnumerator DisparaitreApresDelai()

@@ -59,6 +59,18 @@ public class gestionActivationAction : MonoBehaviour
         "l'enfant a activer dans ce champ.")]
     [SerializeField] private GameObject objetAActiver;
 
+    [Tooltip("(Optionnel) Delai (s) entre la reception de l'action et " +
+        "l'activation effective du GameObject cible. Utile pour faire " +
+        "apparaitre un pointeur quelques secondes apres un bandeau qui " +
+        "annonce sa zone. 0 = activation immediate.")]
+    [SerializeField] private float delaiAvantActivation = 0f;
+
+    [Header("Options")]
+    [Tooltip("Si coche, le composant peut etre redeclenche plusieurs " +
+        "fois. Sinon il ne s'active qu'une seule fois par session. " +
+        "Utile quand le meme pointeur sert a plusieurs phases du tuto.")]
+    [SerializeField] private bool autoReset = false;
+
     private bool activationDeclenchee = false;
 
     void Start()
@@ -90,14 +102,38 @@ public class gestionActivationAction : MonoBehaviour
 
     private void AuActionSignalee(string idAction)
     {
-        if (activationDeclenchee) return;
+        if (activationDeclenchee && !autoReset) return;
         if (idAction != idActionActivation) return;
 
         activationDeclenchee = true;
 
+        if (delaiAvantActivation > 0f)
+            StartCoroutine(ActiverApresDelai(idAction));
+        else
+            ExecuterActivation(idAction);
+    }
+
+    private System.Collections.IEnumerator ActiverApresDelai(string idAction)
+    {
+        yield return new UnityEngine.WaitForSecondsRealtime(delaiAvantActivation);
+        ExecuterActivation(idAction);
+    }
+
+    private void ExecuterActivation(string idAction)
+    {
         GameObject cible = objetAActiver != null ? objetAActiver : gameObject;
         Debug.Log($"[ActivationAction] {name} : action " +
             $"'{idAction}' signalee, activation de '{cible.name}'.");
         cible.SetActive(true);
+    }
+
+    /// <summary>
+    /// Permet de remettre le declencheur a zero manuellement
+    /// (ex : a la reinitialisation d'un chapitre, ou si autoReset est
+    /// decoche mais qu'on veut quand meme reutiliser le composant).
+    /// </summary>
+    public void Reinitialiser()
+    {
+        activationDeclenchee = false;
     }
 }

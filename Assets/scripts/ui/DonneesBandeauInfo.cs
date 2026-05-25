@@ -70,4 +70,13 @@ public class DonneesBandeauInfo : ScriptableObject
         "bandeau, sans avoir a dupliquer le delai. Laisse vide si pas " +
         "necessaire.")]
     public string idActionAApparition;
+
+    [Header("Synchronisation a la fin d'affichage")]
+    [Tooltip("(Optionnel) ID d'action signalee au moment OU le bandeau " +
+        "disparait de l'ecran (apres dureeAffichage). Utile pour " +
+        "declencher l'apparition d'un pointeur OU une etape suivante " +
+        "APRES que le joueur ait fini de lire le message. Different de " +
+        "idActionAApparition qui se declenche au DEBUT de l'affichage. " +
+        "Laisse vide si pas necessaire.")]
+    public string idActionAFinAffichage;
 }

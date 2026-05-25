@@ -18,3 +18,4 @@ MonoBehaviour:
   explication: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">i</gradient></font></b></size>
     pour ouvrir ton inventaire. S\xE9lectionne la bouteille puis clique sur la table pour la d\xE9poser."
   image: {fileID: 0}
+  delaiAvantApparition: 11

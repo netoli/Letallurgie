@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c5fe283b7bec54868951d0806ec0832c, type: 3}
-  m_Name: bandeauInfos_menu_pause
+  m_Name: bandeauInfos_trouver_table
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
-  idBandeau: menu_pause
-  texte: "Touche <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">esc</gradient></font></b></size>
-    pour ouvrir/fermer le menu pause (maintiens 1s en dialogue)."
+  idBandeau: trouver_table
+  texte: "Trouve la bonne table o\xF9 d\xE9poser la bouteille."
   dureeAffichage: 5
-  idActionDeclenchement: bandeau_aller_voir_tavernier_affiche
+  idActionDeclenchement: bouteille_ramassee
   delaiAvantApparition: 3
   idActionAnnulation:
   autoriserMultipleAffichages: 0
+  idActionAApparition: bandeau_trouver_table_affiche
+  idActionAFinAffichage: pointeur_bouteille_visible
