@@ -2,15 +2,15 @@
 // ZoneDepotJoueur.cs
 // ------------------------------------------------------------
 // Auteur      : Fanny Fortier
-// Date créée  : 12 mai 2026
+// Date crï¿½ï¿½e  : 12 mai 2026
 // ------------------------------------------------------------
 // Description :
-//   Gère la liste des objets déposés par le joueur sur son
-//   côté de la balance. Recalcule le total à chaque ajout
+//   Gï¿½re la liste des objets dï¿½posï¿½s par le joueur sur son
+//   cï¿½tï¿½ de la balance. Recalcule le total ï¿½ chaque ajout
 //   ou retrait et notifie ControleurBalance.
 // ------------------------------------------------------------
-// Dépendances :
-//   - controleurBalance      : reçoit les poids
+// Dï¿½pendances :
+//   - controleurBalance      : reï¿½oit les poids
 //   - ZoneDepotAntagoniste   : fournit le poids adverse
 //   - objetPesable           : composant sur chaque objet
 // ============================================================
@@ -21,14 +21,13 @@ using UnityEngine;
 public class ZoneDepotJoueur : MonoBehaviour
 {
     // ===================== INSPECTEUR =====================
-    [Header("Références")]
+    [Header("Rï¿½fï¿½rences")]
     [SerializeField] private controleurBalance _controleurBalance;
-    [SerializeField] private ZoneDepotAntagoniste _zoneAdverse;
 
-    // ===================== ÉTAT INTERNE =====================
+    // ===================== ï¿½TAT INTERNE =====================
     private List<objetPesable> _objetsDeposes = new List<objetPesable>();
 
-    // ===================== MÉTHODES PUBLIQUES =====================
+    // ===================== Mï¿½THODES PUBLIQUES =====================
 
     public void AjouterObjet(objetPesable objet)
     {
@@ -36,7 +35,7 @@ public class ZoneDepotJoueur : MonoBehaviour
         _objetsDeposes.Add(objet);
 
         Debug.Log($"[ZoneDepotJoueur] Ajout : {objet.gameObject.name} " +
-                  $"(poids {objet.valeurPoids}) — total={CalculerPoidsTotal()}");
+                  $"(poids {objet.valeurPoids}) ï¿½ total={CalculerPoidsTotal()}");
 
         NotifierBalance();
     }
@@ -46,7 +45,7 @@ public class ZoneDepotJoueur : MonoBehaviour
         if (!_objetsDeposes.Remove(objet)) return;
 
         Debug.Log($"[ZoneDepotJoueur] Retrait : {objet.gameObject.name} " +
-                  $"— total={CalculerPoidsTotal()}");
+                  $"ï¿½ total={CalculerPoidsTotal()}");
 
         NotifierBalance();
     }
@@ -61,7 +60,7 @@ public class ZoneDepotJoueur : MonoBehaviour
 
     /// <summary>
     /// Vide le plateau sans notifier la balance.
-    /// Utilisé entre les phases pour reset proprement.
+    /// Utilisï¿½ entre les phases pour reset proprement.
     /// </summary>
     /// <summary>
     /// Retire un objet dÃ©truit extÃ©rieurement (ex: ramassÃ© par objetRamassable).
@@ -87,13 +86,13 @@ public class ZoneDepotJoueur : MonoBehaviour
         _objetsDeposes.Clear();
     }
 
-    // ===================== MÉTHODES PRIVÉES =====================
+    // ===================== Mï¿½THODES PRIVï¿½ES =====================
 
     private void NotifierBalance()
     {
-        _controleurBalance.MettreAJourPoids(
-            CalculerPoidsTotal(),
-            _zoneAdverse.CalculerPoidsTotal()
-        );
+        // Met Ã  jour uniquement le cÃ´tÃ© gauche (joueur).
+        // Le cÃ´tÃ© droit (antagoniste) est gÃ©rÃ© indÃ©pendamment
+        // par ZoneDepotAntagoniste â€” plus de dÃ©pendance croisÃ©e.
+        _controleurBalance.MettreAJourPoidsGauche(CalculerPoidsTotal());
     }
 }

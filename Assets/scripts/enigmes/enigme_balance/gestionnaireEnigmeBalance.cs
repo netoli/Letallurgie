@@ -26,13 +26,11 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
     [SerializeField] private controleurBalance _controleurBalance;
     [SerializeField] private comportementAntagoniste _antagoniste;
 
-    [Header("Textes de bandeau")]
-    [Tooltip("Texte du bandeau après la réaction de Phase 1 (équilibre 1/3).")]
-    [SerializeField] private string _texteEtape2 = "Étape 2/3 — Continuez !";
-    [Tooltip("Texte du bandeau après la réaction de Phase 2 (équilibre 2/3).")]
-    [SerializeField] private string _texteEtape3 = "Étape 3/3 — Dernière chance !";
-    [Tooltip("Durée d'affichage des bandeaux Étape 2/3 et 3/3.")]
-    [SerializeField] private float _dureeAffichageBandeau = 5f;
+    [Header("Chapitres (bannières d'étape)")]
+    [Tooltip("idChapitre du ScriptableObject DonneesChapitre à afficher après la réaction de Phase 1 (équilibre 1/3).")]
+    [SerializeField] private string _idChapitreEtape2 = "etape_manoir_2";
+    [Tooltip("idChapitre du ScriptableObject DonneesChapitre à afficher après la réaction de Phase 2 (équilibre 2/3).")]
+    [SerializeField] private string _idChapitreEtape3 = "etape_manoir_3";
 
     // ===================== �TAT INTERNE =====================
     public enum PhaseEnigme { Phase1, Phase2, Phase3, Terminee }
@@ -71,12 +69,12 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
         {
             case PhaseEnigme.Phase1:
                 _phaseActuelle = PhaseEnigme.Phase2;
-                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase1, _texteEtape2));
+                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase1, _idChapitreEtape2));
                 break;
 
             case PhaseEnigme.Phase2:
                 _phaseActuelle = PhaseEnigme.Phase3;
-                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase2, _texteEtape3));
+                StartCoroutine(SequenceReactionPhase(PhaseEnigme.Phase2, _idChapitreEtape3));
                 break;
 
             case PhaseEnigme.Phase3:
@@ -95,12 +93,13 @@ public class gestionnaireEnigmeBalance : MonoBehaviour
     ///   - Affiche le bandeau Étape X/3
     ///   - Libère _enAttente pour que le joueur puisse rejouer
     /// </summary>
-    private IEnumerator SequenceReactionPhase(PhaseEnigme phaseReaction, string texteBandeau)
+    private IEnumerator SequenceReactionPhase(PhaseEnigme phaseReaction, string idChapitre)
     {
         _antagoniste.DemarrerReactionPhase(phaseReaction);
         yield return new WaitUntil(() => _antagoniste.ReactionPhaseTerminee);
 
-        gestionBandeauInfo.Afficher(texteBandeau, _dureeAffichageBandeau);
+        gestionChapitres.Instance?.DemarrerChapitre(idChapitre);
+        Debug.Log($"[GestionnaireEnigme] Bannière chapitre '{idChapitre}' déclenchée.");
 
         _enAttente = false;
         Debug.Log($"[GestionnaireEnigme] Séquence {phaseReaction} terminée — " +

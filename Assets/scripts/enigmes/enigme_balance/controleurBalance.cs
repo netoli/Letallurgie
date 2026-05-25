@@ -27,6 +27,18 @@ public class controleurBalance : MonoBehaviour
              "Reçoit un float [-1 ; 1] proportionnel à l'écart de poids.")]
     [SerializeField] private balance_apparence _apparenceBalance;
 
+    [Header("Effets d'équilibration")]
+    [Tooltip("AudioSource portée par la balance (séparée de l'audio du boss).")]
+    [SerializeField] private AudioSource _sourceAudioBalance;
+    [Tooltip("Son joué une fois quand la balance s'équilibre parfaitement.")]
+    [SerializeField] private AudioClip _sfxEquilibre;
+    [Tooltip("Son joué chaque fois que les poids changent et que la balance " +
+             "n'est PAS à l'équilibre (bruit de balancement, chaînes, etc.).")]
+    [SerializeField] private AudioClip _sfxMouvement;
+    // Note : les particules d'équilibre sont sur comportementAntagoniste
+    // (_particulesEquilibre) et déclenchées dans JouerReactionPhaseCoroutine,
+    // une fois que la caméra balance est active.
+
     // ===================== ÉVÉNEMENTS =====================
     public event Action OnEquilibre;
 
@@ -37,14 +49,38 @@ public class controleurBalance : MonoBehaviour
     // ===================== MÉTHODES PUBLIQUES =====================
 
     /// <summary>
-    /// Appelé par ZoneDepotJoueur et ZoneDepotAntagoniste
-    /// à chaque changement de poids.
+    /// Appelé par ZoneDepotJoueur pour mettre à jour uniquement
+    /// le côté gauche (joueur). Le côté droit reste inchangé.
+    /// </summary>
+    public void MettreAJourPoidsGauche(int poids)
+    {
+        _poidsGauche = poids;
+        EvaluerEtNotifier();
+    }
+
+    /// <summary>
+    /// Appelé par ZoneDepotAntagoniste pour mettre à jour uniquement
+    /// le côté droit (antagoniste). Le côté gauche reste inchangé.
+    /// </summary>
+    public void MettreAJourPoidsDroit(int poids)
+    {
+        _poidsDroit = poids;
+        EvaluerEtNotifier();
+    }
+
+    /// <summary>
+    /// Ancienne API — conservée pour compatibilité si d'autres scripts
+    /// l'appellent encore. À retirer une fois la migration terminée.
     /// </summary>
     public void MettreAJourPoids(int poidsGauche, int poidsDroit)
     {
         _poidsGauche = poidsGauche;
         _poidsDroit = poidsDroit;
+        EvaluerEtNotifier();
+    }
 
+    private void EvaluerEtNotifier()
+    {
         int etat = CalculerEtat();
 
         Debug.Log($"[ControleurBalance] Gauche={_poidsGauche} " +
@@ -55,7 +91,21 @@ public class controleurBalance : MonoBehaviour
         // N'invoquer OnEquilibre que si les deux côtés ont du poids :
         // 0 == 0 (balance vide) ne compte pas comme un équilibre.
         if (etat == 0 && _poidsGauche > 0)
+        {
+            // Son d'égalisation (audible indépendamment de la caméra active).
+            // Les particules d'équilibre sont gérées par comportementAntagoniste
+            // directement dans JouerReactionPhaseCoroutine, une fois que la
+            // caméra balance est active.
+            if (_sourceAudioBalance != null && _sfxEquilibre != null)
+                _sourceAudioBalance.PlayOneShot(_sfxEquilibre);
             OnEquilibre?.Invoke();
+        }
+        else if (_poidsGauche > 0 || _poidsDroit > 0)
+        {
+            // Son de mouvement : joué quand la balance bouge mais n'est pas en équilibre.
+            if (_sourceAudioBalance != null && _sfxMouvement != null)
+                _sourceAudioBalance.PlayOneShot(_sfxMouvement);
+        }
     }
 
     // ===================== MÉTHODES PRIVÉES =====================
