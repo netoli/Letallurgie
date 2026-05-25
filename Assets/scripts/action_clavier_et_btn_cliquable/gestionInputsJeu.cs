@@ -1462,6 +1462,13 @@ public class gestionInputsJeu : MonoBehaviour
 
             // Reactiver inputs gameplay
             jeuActif = true;
+
+            // Restaurer le HUD : CacherContenuHud() a mis alpha=0
+            // pendant la cinematique. Sans cet appel, les sous-titres
+            // et le reste du HUD restent invisibles après la cinématique
+            // même si leurs GameObjects sont actifs (groupeContenuHud
+            // est un CanvasGroup parent commun à tout le contenu HUD).
+            MontrerContenuHud();
         }
     }
 
