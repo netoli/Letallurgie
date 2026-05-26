@@ -42,6 +42,11 @@ public class gestionSousTitre : MonoBehaviour
     private Color couleurOriginalePropos;
     private Coroutine coroutineMasquage;
 
+    // Vrai si AfficherSousTitre a ete appele avant que Start() tourne.
+    // Dans ce cas Start() ne doit pas cacher le conteneur (il affiche
+    // deja un sous-titre en cours).
+    private bool _premierAppelEffectue = false;
+
     void Start()
     {
         tailleOriginaleInterlocuteur = texteInterlocuteur.fontSize;
@@ -54,13 +59,21 @@ public class gestionSousTitre : MonoBehaviour
         couleurOriginaleInterlocuteur = texteInterlocuteur.color;
         couleurOriginalePropos = textePropos.color;
 
-        if (conteneurSousTitre != null)
+        // Ne cacher le conteneur que si AfficherSousTitre n'a pas deja
+        // ete appele avant Start(). Cela arrive quand canvas_hud etait
+        // inactif au chargement : Start() est differe au frame suivant,
+        // mais AfficherSousTitre peut etre appele dans le meme frame que
+        // canvasHud.SetActive(true). Sans ce guard, Start() cachait le
+        // premier sous-titre deja affiche.
+        if (!_premierAppelEffectue && conteneurSousTitre != null)
             conteneurSousTitre.SetActive(false);
     }
 
     public void AfficherSousTitre(string interlocuteur, string propos,
         float dureeCustom = -1f)
     {
+        _premierAppelEffectue = true;
+
         if (coroutineMasquage != null)
             StopCoroutine(coroutineMasquage);
 
@@ -194,6 +207,16 @@ public class gestionSousTitre : MonoBehaviour
         }
         else
         {
+            // Meme garde que pour la taille : Start() peut avoir lu
+            // couleurOriginale = (0,0,0,0) si canvas_hud etait inactif
+            // quand Start() s'est execute. Maintenant que SetActive(true)
+            // a ete appele avant cet appel, TMP est initialise et on peut
+            // relire la vraie couleur serialisee depuis l'Inspector.
+            if (couleurOriginaleInterlocuteur.a <= 0f)
+                couleurOriginaleInterlocuteur = texteInterlocuteur.color;
+            if (couleurOriginalePropos.a <= 0f)
+                couleurOriginalePropos = textePropos.color;
+
             // index 0 (defaut) : on restaure la couleur de l'Inspector
             texteInterlocuteur.color = couleurOriginaleInterlocuteur;
             textePropos.color = couleurOriginalePropos;

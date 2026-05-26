@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.009
+      value: 1.74
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.009
+      value: 1.74
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.009
+      value: 1.74
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -30,27 +30,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.012
+      value: -0.0059
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.00054427976
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.9999999
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 101.073
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -60,27 +60,36 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2982039770311979626, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6612614458774650622, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_Name
       value: HighlightObjet
       objectReference: {fileID: 0}
     - target: {fileID: 6612614458774650622, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
---- !u!1 &2890479776300322811 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6612614458774650622, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+--- !u!198 &6538066147982656367 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2982039770311979626, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 8347903333877100805}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8371588289516380914 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 8347903333877100805}
+  m_PrefabAsset: {fileID: 0}
+--- !u!108 &9019471309880524579 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 1076972206816906790, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 8347903333877100805}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8413594440150933966
@@ -222,7 +231,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  highlight: {fileID: 2890479776300322811}
+  _particulesHighlight: {fileID: 6538066147982656367}
+  _lumiereHighlight: {fileID: 9019471309880524579}
+  _intensiteBase: 0
+  _intensiteSurvol: 50
+  _dureeLerp: 0.3
 --- !u!114 &6721862238995274852
 MonoBehaviour:
   m_ObjectHideFlags: 0
