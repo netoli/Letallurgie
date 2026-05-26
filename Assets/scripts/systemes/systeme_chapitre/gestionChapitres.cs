@@ -59,6 +59,9 @@ public class gestionChapitres : MonoBehaviour
     [SerializeField] private gestionBanniere gestionBanniere;
     [SerializeField] private gestionTutoriel gestionTutoriel;
     [SerializeField] private VideoPlayer playerCinematiques;
+    [Tooltip("Volume de la piste audio de la cinématique (0–1). " +
+             "Réduire légèrement si la voix du boss est couverte pendant la cinématique finale.")]
+    [SerializeField] [Range(0f, 1f)] private float _volumeCinematique = 0.6f;
 
     [Header("Chapitres disponibles")]
     [SerializeField] private DonneesChapitre[] chapitres;
@@ -889,6 +892,10 @@ public class gestionChapitres : MonoBehaviour
             playerCinematiques.targetCameraAlpha = 1f;
             playerCinematiques.clip = clip;
             playerCinematiques.loopPointReached += OnCinematiqueFinie;
+            // Appliquer le volume configuré sur la piste audio 0 du VideoPlayer.
+            // SetDirectAudioVolume fonctionne si le VideoPlayer est en mode Direct ;
+            // si le son passe par un AudioSource, régler le volume sur cet AudioSource.
+            playerCinematiques.SetDirectAudioVolume(0, _volumeCinematique);
             playerCinematiques.Play();
 
             // Afficher le bouton "Passer la cinematique" pendant la

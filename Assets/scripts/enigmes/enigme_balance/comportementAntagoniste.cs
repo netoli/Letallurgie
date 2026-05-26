@@ -155,6 +155,10 @@ public class comportementAntagoniste : MonoBehaviour
     [Header("Délais entre répliques — défaite")]
     [Tooltip("Secondes de silence APRÈS chaque réplique de défaite.")]
     [SerializeField] private float[] _delaisDefaite = new float[6];
+    [Tooltip("Multiplicateur de volume appliqué à la voix pendant la cinématique finale. " +
+             "La voix du boss est souvent couverte par l'audio de la vidéo — " +
+             "augmenter ici (ex: 2) pour la rendre plus audible.")]
+    [SerializeField] private float _volumeVoixDefaite = 2f;
 
     [Header("Idles aléatoires")]
     [Tooltip("Secondes entre chaque idle spécial. 0 pour désactiver.")]
@@ -230,6 +234,7 @@ public class comportementAntagoniste : MonoBehaviour
     // pendant le délai de la réplique précédente. JouerReplique saute alors
     // son propre déclenchement pour éviter le double-trigger.
     private bool _animDejaPreDeclenche = false;
+    private Coroutine _coroutineFlashEchelle;
 
     // Référence aux inputs, stockée au début de JouerIntroScene pour pouvoir
     // l'utiliser depuis SkipIntroDialogue() déclenché par Update().
@@ -604,14 +609,32 @@ public class comportementAntagoniste : MonoBehaviour
         // Particules d'équilibre déclenchées maintenant qu'on voit la balance.
         if (_particulesEquilibre != null)
         {
+            // S'assurer que le GO est actif : Play() est silencieux
+            // si le GameObject parent est desactive.
+            if (!_particulesEquilibre.gameObject.activeInHierarchy)
+                _particulesEquilibre.gameObject.SetActive(true);
+
             _particulesEquilibre.Stop(true,
                 ParticleSystemStopBehavior.StopEmittingAndClear);
             _particulesEquilibre.Play(true);
+            Debug.Log("[ComportementAntagoniste] Particules equilibre : Play()");
+        }
+        else
+        {
+            Debug.LogWarning("[ComportementAntagoniste] _particulesEquilibre est null " +
+                             "— particules non declenchees.");
         }
 
         yield return new WaitForSeconds(_delaiVueBalance);
 
         // ── 2. Caméra boss — réaction ────────────────────────────────
+        // Stopper les particules d'équilibre ici : on quitte la caméra
+        // balance, elles ne sont plus visibles. StopEmitting laisse les
+        // particules déjà émises se terminer naturellement.
+        if (_particulesEquilibre != null)
+            _particulesEquilibre.Stop(true,
+                ParticleSystemStopBehavior.StopEmitting);
+
         _inputs?.ModeCinematique(true);
         if (_vcamIntroManoir != null) _vcamIntroManoir.Priority = 60;
         if (_vcamBalance != null)     _vcamBalance.Priority = 0;
@@ -670,11 +693,7 @@ public class comportementAntagoniste : MonoBehaviour
 
         if (aImpact)
         {
-            if (_animateurObjet != null)
-                _animateurObjet.SetTrigger(impactChoisi.grossit
-                    ? "DeclencherGrossir" : "DeclencherRapetisser");
-
-            AppliquerEchelleVisuelle(impactChoisi.multiplicateur);
+            AppliquerEchelleVisuelle(impactChoisi.multiplicateur, impactChoisi.grossit);
             JouerParticulesEtSon();
             _objetSurBalance.ModifierPoids(impactChoisi.multiplicateur);
             _zoneAdverse.NotifierChangementPoids();
@@ -724,11 +743,7 @@ public class comportementAntagoniste : MonoBehaviour
 
         yield return new WaitForSeconds(_delaiAvantParticules);
 
-        if (_animateurObjet != null)
-            _animateurObjet.SetTrigger(impact.grossit
-                ? "DeclencherGrossir" : "DeclencherRapetisser");
-
-        AppliquerEchelleVisuelle(impact.multiplicateur);
+        AppliquerEchelleVisuelle(impact.multiplicateur, impact.grossit);
         JouerParticulesEtSon();
         _objetSurBalance.ModifierPoids(impact.multiplicateur);
         _zoneAdverse.NotifierChangementPoids();
@@ -751,11 +766,7 @@ public class comportementAntagoniste : MonoBehaviour
 
         yield return new WaitForSeconds(_delaiAvantParticules);
 
-        if (_animateurObjet != null)
-            _animateurObjet.SetTrigger(impact.grossit
-                ? "DeclencherGrossir" : "DeclencherRapetisser");
-
-        AppliquerEchelleVisuelle(impact.multiplicateur);
+        AppliquerEchelleVisuelle(impact.multiplicateur, impact.grossit);
         JouerParticulesEtSon();
         _objetSurBalance.ModifierPoids(impact.multiplicateur);
         _zoneAdverse.NotifierChangementPoids();
@@ -846,7 +857,7 @@ public class comportementAntagoniste : MonoBehaviour
         {
             AudioClip clip = Clip(_sfxVoixDefaiteDialogue, i);
             if (clip != null && _sourceAudio != null)
-                _sourceAudio.PlayOneShot(clip);
+                _sourceAudio.PlayOneShot(clip, _volumeVoixDefaite);
 
             // Attendre la durée du clip + le délai configuré entre répliques
             float dureeClip  = (clip != null) ? clip.length : 0f;
@@ -1052,16 +1063,107 @@ public class comportementAntagoniste : MonoBehaviour
             && (_particulesExplosion == null || !_particulesExplosion.isPlaying);
     }
 
-    private void AppliquerEchelleVisuelle(float multiplicateur)
+    private void AppliquerEchelleVisuelle(float multiplicateur, bool grossit = true)
     {
-        if (_objetSurBalance == null) return;
-        Vector3 nouvelleEchelle =
-            _objetSurBalance.transform.localScale * multiplicateur;
+        if (_objetSurBalance == null)
+        {
+            Debug.LogWarning("[ComportementAntagoniste] _objetSurBalance est null — " +
+                             "impossible d'appliquer le changement d'echelle.");
+            return;
+        }
 
-        if (nouvelleEchelle.magnitude > _echelleMax)
-            nouvelleEchelle = nouvelleEchelle.normalized * _echelleMax;
+        Vector3 echelleDepart = _objetSurBalance.transform.localScale;
+        Vector3 echelleCible  = echelleDepart * multiplicateur;
 
-        _objetSurBalance.transform.localScale = Vector3.Max(
-            nouvelleEchelle, Vector3.one * _echelleMin);
+        Debug.Log($"[Flash] echelleDepart={echelleDepart}  " +
+                  $"mult={multiplicateur}  grossit={grossit}  " +
+                  $"echelleCible (avant clamp)={echelleCible}  " +
+                  $"_echelleMax={_echelleMax}");
+
+        // Clamp proportionnel : si le plus grand composant depasse _echelleMax,
+        // on reduit uniformement pour maintenir les proportions du diamant.
+        // L'ancien clamp par magnitude ecrasait les scales non-uniformes
+        // (Y=121 sur le diamant → magnitude deja ~121 a la base, ce qui
+        // rendait le diamant minuscule apres clamp).
+        float composantMax = Mathf.Max(
+            Mathf.Abs(echelleCible.x),
+            Mathf.Abs(echelleCible.y),
+            Mathf.Abs(echelleCible.z));
+        if (composantMax > _echelleMax)
+            echelleCible *= _echelleMax / composantMax;
+
+        echelleCible = Vector3.Max(echelleCible, Vector3.one * _echelleMin);
+
+        // Desactiver l'Animator s'il tourne encore : il ecrase localScale
+        // chaque frame (Write Defaults ON sur l'etat idle, sans clip) et
+        // rendrait le flash invisible.
+        if (_animateurObjet != null && _animateurObjet.enabled)
+            _animateurObjet.enabled = false;
+
+        // Annuler le flash precedent s'il n'est pas encore termine.
+        if (_coroutineFlashEchelle != null)
+            StopCoroutine(_coroutineFlashEchelle);
+
+        Debug.Log($"[Flash] echelleCible (apres clamp)={echelleCible} — " +
+                  $"lancement coroutine FlashEchelleImpact");
+
+        _coroutineFlashEchelle = StartCoroutine(
+            FlashEchelleImpact(echelleDepart, echelleCible, grossit));
+    }
+
+    /// <summary>
+    /// Anime visuellement le changement de scale du diamant en deux temps :
+    ///   - Si grossit : monte brievement au pic (x3 de l'echelle de depart),
+    ///     puis redescend doucement a l'echelle cible finale.
+    ///   - Si rapetisser : lerp direct vers l'echelle cible.
+    /// La scale cible (permanente) est atteinte a la fin dans les deux cas.
+    /// </summary>
+    private IEnumerator FlashEchelleImpact(
+        Vector3 echelleDepart, Vector3 echelleCible, bool grossit)
+    {
+        Transform cible = _objetSurBalance.transform;
+
+        if (grossit)
+        {
+            // Phase 1 : monte rapidement jusqu'au pic (x3 du depart)
+            Vector3 echellePic = echelleDepart * 3f;
+            float dureeGrossir = 0.1f;
+            float t = 0f;
+            while (t < dureeGrossir)
+            {
+                t += Time.deltaTime;
+                cible.localScale = Vector3.Lerp(
+                    echelleDepart, echellePic, t / dureeGrossir);
+                yield return null;
+            }
+
+            // Phase 2 : redescend jusqu'a l'echelle cible finale
+            float dureeReduit = 0.083f;
+            t = 0f;
+            while (t < dureeReduit)
+            {
+                t += Time.deltaTime;
+                cible.localScale = Vector3.Lerp(
+                    echellePic, echelleCible, t / dureeReduit);
+                yield return null;
+            }
+        }
+        else
+        {
+            // Rapetisser : lerp direct vers la cible (pas de pic)
+            float duree = 0.15f;
+            float t = 0f;
+            while (t < duree)
+            {
+                t += Time.deltaTime;
+                cible.localScale = Vector3.Lerp(
+                    echelleDepart, echelleCible, t / duree);
+                yield return null;
+            }
+        }
+
+        // S'assurer que la scale finale est exactement la cible
+        cible.localScale = echelleCible;
+        _coroutineFlashEchelle = null;
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: obj_3
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Lingot d'argent
-  icone: {fileID: 21300000, guid: d44c5beacb165024ea9f49246040530d, type: 3}
+  icone: {fileID: 21300000, guid: 7d1f6f5badd65b94697b9f556bccb082, type: 3}
   categorie: 2
   quantiteMax: 1
   prefabModele3D: {fileID: 0}
