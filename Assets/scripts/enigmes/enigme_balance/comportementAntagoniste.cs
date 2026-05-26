@@ -75,6 +75,9 @@ public class comportementAntagoniste : MonoBehaviour
     [SerializeField] private float _delaiAvantParticules = 0.6f;
     [SerializeField] private float _echelleMax = 3f;
     [SerializeField] private float _echelleMin = 0.3f;
+    [Tooltip("Distance (en unités locales Y) dont le diamant monte au pic x3. " +
+             "Ajuster si le diamant passe à travers la balance pendant le grossissement.")]
+    [SerializeField] private float _decalageHauteurGrossissement = 0.5f;
 
     [Header("Caméra intro")]
     [Tooltip("Nom exact du VideoClip de la cinématique d'ouverture de la scène manoir " +
@@ -831,10 +834,14 @@ public class comportementAntagoniste : MonoBehaviour
         // → DeclencherVictoire() → OnEnigmeTerminee
         if (gestionChapitres.Instance != null)
         {
+            // restaurerModeJeuApres: false — la dernière frame de la
+            // cinématique reste visible pendant le fade-in de l'écranFin.
+            // Évite le flash de la caméra de jeu entre la vidéo et l'écran fin.
             gestionChapitres.Instance.LancerCinematiqueAvecDelai(
                 _nomCinematiqueFin,
                 0f,
-                () => OnActionTerminee?.Invoke());
+                () => OnActionTerminee?.Invoke(),
+                restaurerModeJeuApres: false);
         }
         else
         {
@@ -1125,45 +1132,70 @@ public class comportementAntagoniste : MonoBehaviour
 
         if (grossit)
         {
-            // Phase 1 : monte rapidement jusqu'au pic (x3 du depart)
             Vector3 echellePic = echelleDepart * 3f;
+
+            // Position de départ du diamant (locale au snap point de la balance)
+            Vector3 posDepart = cible.localPosition;
+
+            // Au pic (x3) : le diamant monte de _decalageHauteurGrossissement
+            float posYPic = posDepart.y + _decalageHauteurGrossissement;
+
+            // À l'échelle finale : on reste proportionnellement surélevé
+            // (ratio = echelleCible.y / echellePic.y, entre 0 et 1)
+            // Exemple : si pic=x3 et cible=x1.5 → ratio≈0.5 → reste à mi-hauteur
+            float ratio = (echellePic.y > 0f)
+                ? Mathf.Clamp01(echelleCible.y / echellePic.y)
+                : 0f;
+            float posYCible = posDepart.y + _decalageHauteurGrossissement * ratio;
+
+            // ── Phase 1 : grossit jusqu'au pic x3 ───────────────────────
             float dureeGrossir = 0.1f;
             float t = 0f;
             while (t < dureeGrossir)
             {
                 t += Time.deltaTime;
-                cible.localScale = Vector3.Lerp(
-                    echelleDepart, echellePic, t / dureeGrossir);
+                float alpha = Mathf.Clamp01(t / dureeGrossir);
+                cible.localScale    = Vector3.Lerp(echelleDepart, echellePic, alpha);
+                cible.localPosition = new Vector3(
+                    posDepart.x,
+                    Mathf.Lerp(posDepart.y, posYPic, alpha),
+                    posDepart.z);
                 yield return null;
             }
 
-            // Phase 2 : redescend jusqu'a l'echelle cible finale
+            // ── Phase 2 : redescend jusqu'à l'échelle cible finale ───────
             float dureeReduit = 0.083f;
             t = 0f;
             while (t < dureeReduit)
             {
                 t += Time.deltaTime;
-                cible.localScale = Vector3.Lerp(
-                    echellePic, echelleCible, t / dureeReduit);
+                float alpha = Mathf.Clamp01(t / dureeReduit);
+                cible.localScale    = Vector3.Lerp(echellePic, echelleCible, alpha);
+                cible.localPosition = new Vector3(
+                    posDepart.x,
+                    Mathf.Lerp(posYPic, posYCible, alpha),
+                    posDepart.z);
                 yield return null;
             }
+
+            cible.localScale    = echelleCible;
+            cible.localPosition = new Vector3(posDepart.x, posYCible, posDepart.z);
         }
         else
         {
-            // Rapetisser : lerp direct vers la cible (pas de pic)
+            // Rapetisser : lerp direct vers la cible (pas de pic, pas de déplacement Y)
             float duree = 0.15f;
             float t = 0f;
             while (t < duree)
             {
                 t += Time.deltaTime;
                 cible.localScale = Vector3.Lerp(
-                    echelleDepart, echelleCible, t / duree);
+                    echelleDepart, echelleCible, Mathf.Clamp01(t / duree));
                 yield return null;
             }
+            cible.localScale = echelleCible;
         }
 
-        // S'assurer que la scale finale est exactement la cible
-        cible.localScale = echelleCible;
         _coroutineFlashEchelle = null;
     }
 }

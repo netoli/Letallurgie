@@ -844,17 +844,31 @@ public class gestionChapitres : MonoBehaviour
     // (signature imposée par VideoPlayer.loopPointReached).
     private System.Action _callbackFinCinematique;
 
+    // Quand false : OnCinematiqueFinie ne cache pas la dernière frame
+    // et ne restaure pas le mode jeu avant d'appeler le callback.
+    // Utilisé pour la cinématique finale dont le callback (ecranFin)
+    // s'affiche en fondu par-dessus la dernière frame de la vidéo.
+    private bool _restaurerModeJeuApres = true;
+
     /// <summary>
     /// Lance une cinématique identifiée par son nom, puis appelle
     /// onFin à la fin de la vidéo. Si onFin est null, utilise le
     /// comportement par défaut (chargement de scene1_taverne1).
     /// </summary>
+    /// <param name="restaurerModeJeuApres">
+    /// Si false, la dernière frame de la vidéo reste visible et le mode
+    /// jeu n'est PAS restauré avant d'appeler onFin. Utiliser pour la
+    /// cinématique finale : le callback (ex: ecranFin) s'affiche en
+    /// fondu par-dessus la dernière frame sans flash de la caméra de jeu.
+    /// </param>
     public Coroutine LancerCinematiqueAvecDelai(
         string nomCinematique,
         float delaiAvantCinematique,
-        System.Action onFin = null)
+        System.Action onFin = null,
+        bool restaurerModeJeuApres = true)
     {
         _callbackFinCinematique = onFin;
+        _restaurerModeJeuApres = restaurerModeJeuApres;
         return StartCoroutine(JouerCinematique(nomCinematique, delaiAvantCinematique));
     }
 
@@ -954,22 +968,35 @@ public class gestionChapitres : MonoBehaviour
     {
         playerCinematiques.loopPointReached -= OnCinematiqueFinie;
 
-        // Arrêter le VideoPlayer et masquer son rendu.
-        // En mode Camera Near Plane, Stop() seul ne vide pas la dernière
-        // frame — targetCameraAlpha = 0 la rend invisible immédiatement.
-        playerCinematiques.Stop();
-        playerCinematiques.targetCameraAlpha = 0f;
-
-        // Cacher le bouton skip des que la cinematique se termine,
-        // qu'elle ait ete finie normalement ou passee manuellement.
+        // Cacher le bouton skip dès que la cinématique se termine,
+        // qu'elle ait été finie normalement ou passée manuellement.
         if (boutonPasserCinematique != null)
             boutonPasserCinematique.SetActive(false);
 
-        // Sortir du mode cinématique (réactive curseur, etc.)
-        FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
+        if (_restaurerModeJeuApres)
+        {
+            // Chemin normal : arrêter la vidéo, masquer la dernière frame,
+            // restaurer le mode jeu, puis appeler le callback.
+            // En mode Camera Near Plane, Stop() seul ne vide pas la dernière
+            // frame — targetCameraAlpha = 0 la rend invisible immédiatement.
+            playerCinematiques.Stop();
+            playerCinematiques.targetCameraAlpha = 0f;
+            FindObjectOfType<gestionInputsJeu>()?.ModeCinematique(false);
+        }
+        else
+        {
+            // Chemin cinématique finale : arrêter la lecture SANS masquer
+            // la dernière frame (targetCameraAlpha reste à 1) et SANS
+            // restaurer le mode jeu. Le callback (ex: ecranFin) s'affiche
+            // en fondu par-dessus la dernière frame — aucun flash de la
+            // caméra de jeu. C'est le callback qui gère le curseur et
+            // l'interactivité (ecranFin.AfficherEcranFin le fait déjà).
+            playerCinematiques.Stop();
+            // Réinitialiser pour la prochaine cinématique (sécurité)
+            _restaurerModeJeuApres = true;
+        }
 
-        // Si un callback custom a été fourni (ex : scènes hors-tuto),
-        // on l'appelle et on s'arrête là — pas de chargement de scène.
+        // Si un callback custom a été fourni, on l'appelle et on s'arrête.
         if (_callbackFinCinematique != null)
         {
             System.Action cb = _callbackFinCinematique;

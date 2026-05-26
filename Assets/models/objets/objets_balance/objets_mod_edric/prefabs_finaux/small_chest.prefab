@@ -121,7 +121,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  highlight: {fileID: 1666939213355218186}
+  _particulesHighlight: {fileID: 7315188222552930718}
+  _lumiereHighlight: {fileID: 4761638742670788050}
+  _intensiteBase: 0
+  _intensiteSurvol: 50
+  _dureeLerp: 0.3
 --- !u!114 &2022096561526423987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,15 +219,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.02
+      value: 3.31
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.02
+      value: 3.31
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.02
+      value: 3.31
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -235,7 +239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0136
+      value: -0.0112
       objectReference: {fileID: 0}
     - target: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -269,22 +273,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: HighlightObjet
       objectReference: {fileID: 0}
-    - target: {fileID: 6612614458774650622, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
---- !u!1 &1666939213355218186 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6612614458774650622, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+--- !u!108 &4761638742670788050 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 1076972206816906790, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 5541276582295571444}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &5409666868339382275 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 5541276582295571444}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &7315188222552930718 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2982039770311979626, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 5541276582295571444}
   m_PrefabAsset: {fileID: 0}
