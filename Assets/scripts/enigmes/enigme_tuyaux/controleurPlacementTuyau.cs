@@ -43,6 +43,15 @@ public class controleurPlacementTuyau : MonoBehaviour
         if (Keyboard.current == null) return;
         if (cameraJoueur == null) return;
 
+        // Le placement n'est autorise QUE pendant que l'enigme est active
+        // (joueur a fait Enter dans la zone). Sans ce check, le joueur
+        // pouvait placer des tuyaux meme sans avoir lance l'enigme.
+        if (!zoneLancementEnigme.EnigmeActive)
+        {
+            NettoyerGhost();
+            return;
+        }
+
         objetInventaire selection =
             gestionSelectionInventaire.Instance.ObtenirSelection();
 
@@ -86,14 +95,22 @@ public class controleurPlacementTuyau : MonoBehaviour
         Vector2 positionSouris = Mouse.current.position.ReadValue();
         Ray rayon = cameraJoueur.ScreenPointToRay(positionSouris);
 
-        RaycastHit hit;
-        if (Physics.Raycast(rayon, out hit, distanceRaycast))
-        {
-            pointAncrageTuyau snap =
-                hit.collider.GetComponent<pointAncrageTuyau>();
-            return snap;
-        }
+        // RaycastAll : on ramasse TOUS les colliders sur le rayon, et on
+        // cherche le plus proche qui porte un pointAncrageTuyau. Sans ca,
+        // un tuyau deja en place (Collider sur son mesh) peut bloquer le
+        // ray avant qu'il n'atteigne le snap_point derriere.
+        var hits = Physics.RaycastAll(rayon, distanceRaycast);
+        if (hits == null || hits.Length == 0) return null;
 
+        // Trier par distance croissante pour cibler le snap le plus proche
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var h in hits)
+        {
+            if (h.collider == null) continue;
+            var snap = h.collider.GetComponent<pointAncrageTuyau>();
+            if (snap != null) return snap;
+        }
         return null;
     }
 

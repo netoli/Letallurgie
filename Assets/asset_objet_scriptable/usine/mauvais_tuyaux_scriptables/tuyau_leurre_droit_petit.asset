@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c41c9488488914f3fa2b9c487407363c, type: 3}
+  m_Name: tuyau_leurre_droit_petit
+  m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
+  nomObjet: 'Tuyau_leurre_droit_petit '
+  icone: {fileID: 21300000, guid: 6b165ecbb670347259d7809e2b96e1bc, type: 3}
+  categorie: 1
+  quantiteMax: 1
+  prefabModele3D: {fileID: 8565656403363016830, guid: c3cd0c43d486e4ac3b9d063b8df95bec, type: 3}
+  estLeurre: 1
+  descriptionInspection: 
+  prefab3D: {fileID: 0}
+  valeurPoidsBalance: 1
+  id: 

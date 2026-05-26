@@ -90,6 +90,10 @@ public class gestionInputsJeu : MonoBehaviour
     private EtatJeu etatAvantInventaire = EtatJeu.EnJeu;
     private EtatJeu etatAvantReinitialisation = EtatJeu.EnJeu;
     private bool jeuActif = false;
+    // Timestamp d'ouverture inventaire — sert au grace period pour que
+    // la fermeture auto (curseur hors zone) ne se declenche pas
+    // immediatement quand le curseur est encore au centre.
+    private float inventaireOuvertA = -10f;
     private bool attenteAction = false;
     private bool sourisVerrouillee = false;
 
@@ -131,6 +135,19 @@ public class gestionInputsJeu : MonoBehaviour
             // HUD visible immediatement (avant transition Cinemachine et
             // banniere annonce-chapitre). Comportement uniforme avec scene1.
             ActiverInputs();
+
+            // En scene2_usine : cacher le pointeur_centre pendant la
+            // transition Cinemachine d'ouverture. Il sera reactive a la
+            // fin de la banniere "A la rescousse" via OnBanniereChapitre-
+            // Terminee (handler ci-dessous).
+            if (SceneManager.GetActiveScene().name == "scene2_usine"
+                && pointeurCentre != null)
+            {
+                pointeurCentre.SetActive(false);
+                if (gestionChapitres.Instance != null)
+                    gestionChapitres.Instance.OnBanniereChapitreTerminee
+                        += AuFinBanniereSauvetage;
+            }
 
             // Activer la cam�ra premi�re personne par d�faut
             if (vcamJeu != null)
@@ -232,6 +249,21 @@ public class gestionInputsJeu : MonoBehaviour
                 groupeContenuHud =
                     canvasHud.GetComponentInChildren<CanvasGroup>(true);
         }
+    }
+
+    /// <summary>
+    /// Callback abonne a OnBanniereChapitreTerminee en scene2_usine.
+    /// Reactive le pointeur_centre apres la fin de la banniere
+    /// "A la rescousse" (qui suit la transition Cinemachine d'ouverture).
+    /// </summary>
+    private void AuFinBanniereSauvetage(string idChapitre)
+    {
+        if (idChapitre != "le_sauvetage") return;
+        if (pointeurCentre != null) pointeurCentre.SetActive(true);
+        // Une seule fois : on se desabonne.
+        if (gestionChapitres.Instance != null)
+            gestionChapitres.Instance.OnBanniereChapitreTerminee
+                -= AuFinBanniereSauvetage;
     }
 
     /// <summary>
@@ -499,6 +531,11 @@ public class gestionInputsJeu : MonoBehaviour
         if (Keyboard.current == null) return;
         if (attenteAction) return;
 
+        // (Anciennement : fermeture auto inventaire quand curseur sort du
+        // rect. Retire car cause un bug : la souris OS est au centre quand
+        // l'inventaire s'ouvre, donc fermeture immediate. Le joueur ferme
+        // l'inventaire avec 'i' comme avant.)
+
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             if (etatActuel == EtatJeu.EnJeu
@@ -620,6 +657,13 @@ public class gestionInputsJeu : MonoBehaviour
         // pendant escDureeLongPress (1s), on ouvre le menu pause. Si
         // relache avant, on execute l'action contextuelle (skip
         // dialogue, fermer tuile, etc.).
+        //
+        // EXCEPTION : si une enigme est active (zoneLancementEnigme),
+        // Esc est reserve a la sortie d'enigme. On ne touche pas au
+        // tracking pour eviter d'ouvrir le menu pause ou de faire une
+        // action contextuelle indesirable.
+        if (zoneLancementEnigme.EnigmeActive) return;
+
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             escAppuyeDepuis = Time.unscaledTime;

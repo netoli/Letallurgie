@@ -25818,7 +25818,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1440, y: 1100}
+  m_SizeDelta: {x: 2240, y: 1090}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &733496477
 MonoBehaviour:
@@ -53697,11 +53697,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8401015370042127218, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -800
+      value: -1000
       objectReference: {fileID: 0}
     - target: {fileID: 8401015370042127218, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -516
+      value: -500
       objectReference: {fileID: 0}
     - target: {fileID: 8401015370042127218, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -77551,6 +77551,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0226d3e269014a33b70bbfd13f616f64, type: 2}
   cinematique:
   - {fileID: 32900000, guid: 14b29d2f9beba3849a9479d6a81ce3a4, type: 3}
+  boutonPasserCinematique: {fileID: 0}
   indicesJouabilite: {fileID: 2137388722}
 --- !u!1001 &503214098243662239
 PrefabInstance:

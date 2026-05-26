@@ -50,6 +50,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GestionAudio
   sourceMusique: {fileID: 3615644855041728101}
   sourceSFX: {fileID: 6601681891371778347}
+  sourceAmbiance: {fileID: 0}
+  ambianceManoir: {fileID: 0}
+  ambianceUsine: {fileID: 8300000, guid: 6dde1dd682459440399e692a01c33dfb, type: 3}
+  volumeAmbiance: 1
   musiquesIntro:
   - clip: {fileID: 8300000, guid: 4deb65076bdd9db46aebecf4b65c9942, type: 3}
     volume: 0.03

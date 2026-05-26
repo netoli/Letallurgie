@@ -10,6 +10,16 @@ public class iconeFlottanteCurseur : MonoBehaviour
     [SerializeField] private Image iconeObjet;
     [SerializeField] private TMP_Text texteRotation;
 
+    [Header("Cible a suivre")]
+    [Tooltip("Si renseigne, l'icone se place a cote de ce RectTransform " +
+        "(typiquement le pointeur_centre / reticule visuel). Sinon, " +
+        "l'icone suit le curseur OS quand la souris est libre, ou le " +
+        "centre de l'ecran quand la souris est verrouillee. " +
+        "RECOMMANDE : glisser le pointeur_centre ici pour que l'icone " +
+        "reste toujours alignee avec le reticule, peu importe l'etat " +
+        "de la souris.")]
+    [SerializeField] private RectTransform pointeurCentreUI;
+
     [Header("Offset par rapport au curseur")]
     [SerializeField] private Vector2 offsetPixels;
 
@@ -74,20 +84,41 @@ public class iconeFlottanteCurseur : MonoBehaviour
     {
         if (groupeCanvas != null && groupeCanvas.alpha > 0f)
         {
-            if (Mouse.current != null && canvasRectTransform != null)
+            if (canvasRectTransform != null)
             {
-                Vector2 positionSouris = Mouse.current.position.ReadValue();
+                // PRIORITE 1 : si un pointeurCentreUI est reference dans
+                // l'Inspector, l'icone se cale sur sa position (typiquement
+                // le pointeur_centre visuel). C'est le comportement le
+                // plus propre : peu importe que la souris soit verrouillee
+                // ou libre, l'icone reste alignee avec le reticule visuel.
+                if (pointeurCentreUI != null)
+                {
+                    rectTransform.anchoredPosition =
+                        pointeurCentreUI.anchoredPosition + offsetPixels;
+                }
+                // PRIORITE 2 : fallback sur la souris OS. Si verrouillee
+                // (mode FPS), on calque sur le centre de l'ecran. Sinon
+                // sur la position OS.
+                else if (Mouse.current != null)
+                {
+                    Vector2 positionSouris;
+                    if (Cursor.lockState == CursorLockMode.Locked)
+                        positionSouris = new Vector2(
+                            Screen.width * 0.5f, Screen.height * 0.5f);
+                    else
+                        positionSouris = Mouse.current.position.ReadValue();
 
-                Vector2 positionLocale;
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvasRectTransform,
-                    positionSouris,
-                    canvasParent.renderMode == RenderMode.ScreenSpaceOverlay
-                        ? null
-                        : canvasParent.worldCamera,
-                    out positionLocale);
+                    Vector2 positionLocale;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        canvasRectTransform,
+                        positionSouris,
+                        canvasParent.renderMode == RenderMode.ScreenSpaceOverlay
+                            ? null
+                            : canvasParent.worldCamera,
+                        out positionLocale);
 
-                rectTransform.anchoredPosition = positionLocale + offsetPixels;
+                    rectTransform.anchoredPosition = positionLocale + offsetPixels;
+                }
             }
         }
 

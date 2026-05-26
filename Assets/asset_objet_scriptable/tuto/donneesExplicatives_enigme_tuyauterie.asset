@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c52abc164ba64a21baadd28d97832f5, type: 3}
+  m_Name: donneesExplicatives_enigme_tuyauterie
+  m_EditorClassIdentifier: Assembly-CSharp::DonneesTutoriel
+  idDeclencheur: enigme_tuyauterie_explication
+  idActionRequise: 
+  idActionAnnulation: 
+  titre: "R\xE9parer la tuyauterie"
+  explication: "Trouve les morceaux de tuyaux dans l'usine et place-les sur les
+    emplacements vides du circuit.\n\n<size=50><b><font=\"ManufacturingConsent-Regular
+    SDF\"><gradient=\"gradient_touche\">i</gradient></font></b></size> ouvrir
+    l'inventaire et choisir un tuyau.\n<size=50><b><font=\"ManufacturingConsent-Regular
+    SDF\"><gradient=\"gradient_touche\">r</gradient></font></b></size> tourner la
+    pi\xE8ce. <size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">e</gradient></font></b></size>
+    placer.\n<size=50><b><font=\"ManufacturingConsent-Regular SDF\"><gradient=\"gradient_touche\">esc</gradient></font></b></size>
+    quitter l'\xE9nigme.\n\nTrop d'erreurs ou la fin du minuteur : on recommence."
+  image: {fileID: 0}
+  afficherCommeBanniere: 0
+  dureeBanniere: 3
+  dureeAuto: 0
+  delaiAvantApparition: 0

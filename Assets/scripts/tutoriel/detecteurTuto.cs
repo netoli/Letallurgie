@@ -7,6 +7,14 @@ public class detecteurTuto : MonoBehaviour
     [Tooltip("ID de l'action attendue (doit correspondre à DonneesTutoriel.idActionRequise)")]
     [SerializeField] private string idActionRequise;
 
+    [Header("Comportement")]
+    [Tooltip("Si coche (defaut), le GameObject se desactive (SetActive " +
+        "false) apres le premier contact, pour eviter les retriggers. " +
+        "Decoche pour les pointeurs qui doivent rester visibles meme " +
+        "apres contact (ex : prefab_pointeur_enigme qui doit rester " +
+        "tant que l'enigme n'est pas completee).")]
+    [SerializeField] private bool desactiverApresContact = true;
+
     // lecture publique, écriture privée
     public string IdAction => idActionRequise;
 
@@ -33,8 +41,11 @@ public class detecteurTuto : MonoBehaviour
             // Notifie le gestionnaire de chapitres que l'action a été réalisée
             gestionChapitres.Instance.SignalerAction(IdAction);
 
-            //désactiver ce détecteur pour éviter retriggers
-            gameObject.SetActive(false);
+            // Optionnel : desactiver ce detecteur pour eviter retriggers.
+            // Decoche pour les pointeurs persistants (ex : pointeur_enigme
+            // qui doit rester visible jusqu'a la fin de l'enigme).
+            if (desactiverApresContact)
+                gameObject.SetActive(false);
         }
         else
         {

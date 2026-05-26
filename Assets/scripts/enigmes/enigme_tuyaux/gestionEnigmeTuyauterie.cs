@@ -93,6 +93,22 @@ public class gestionEnigmeTuyauterie : MonoBehaviour
             ecranReprise.LancerErreur();
         }
 
+        // Avant de vider les snap_points, on rend a l'inventaire les
+        // tuyaux qui avaient ete places (pieceAttendue de chaque snap
+        // rempli). Le joueur peut ainsi reessayer sans devoir refaire
+        // toute la fouille.
+        if (gestionInventaire.Instance != null)
+        {
+            foreach (pointAncrageTuyau point in pointsAncrage)
+            {
+                if (point.EstRempli() && point.pieceAttendue != null)
+                {
+                    gestionInventaire.Instance.AjouterObjet(
+                        point.pieceAttendue);
+                }
+            }
+        }
+
         foreach (pointAncrageTuyau point in pointsAncrage)
         {
             point.ReinitialiserPourReset();
@@ -102,5 +118,14 @@ public class gestionEnigmeTuyauterie : MonoBehaviour
         onProgression.Invoke(0, pointsAncrage.Count);
         onErreurs.Invoke(0, nombreErreursMax);
         onReset.Invoke();
+    }
+
+    /// <summary>
+    /// Force la reinitialisation publique (appelable depuis l'exterieur,
+    /// par exemple par le minuteur qui detecte l'expiration du temps).
+    /// </summary>
+    public void ForcerEchec()
+    {
+        ReinitialiserPuzzle();
     }
 }
