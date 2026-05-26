@@ -16482,11 +16482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
-  _intensiteBase: 5
-  _intensiteSurvol: 50
-  _dureeLerp: 0.3
+  highlight: {fileID: 0}
 --- !u!1 &555604673
 GameObject:
   m_ObjectHideFlags: 0
@@ -33696,6 +33692,79 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2148412142962102433, guid: 57970c6bb711ec24b8d98424b1806f3b, type: 3}
   m_PrefabInstance: {fileID: 970315077}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &975145884
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 19.37
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 19.37
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 19.37
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -48.292755
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -14.550007
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 67.27261
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
+      propertyPath: m_Name
+      value: test_tav_02
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0bd1331605367c84c998523c24ebacf8, type: 3}
 --- !u!1001 &975991604
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74893,7 +74962,6 @@ MonoBehaviour:
   gestionBanniere: {fileID: 1210908598}
   gestionTutoriel: {fileID: 1220303707}
   playerCinematiques: {fileID: 541201496}
-  _volumeCinematique: 0.6
   chapitres:
   - {fileID: 11400000, guid: 3e14e2d231f9b46e09fe59d97cf9eccd, type: 2}
   - {fileID: 11400000, guid: 0226d3e269014a33b70bbfd13f616f64, type: 2}
@@ -78581,3 +78649,4 @@ SceneRoots:
   - {fileID: 1151073529}
   - {fileID: 802474136}
   - {fileID: 1360950472}
+  - {fileID: 975145884}
