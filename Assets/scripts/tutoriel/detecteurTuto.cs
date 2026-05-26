@@ -40,17 +40,23 @@ public class detecteurTuto : MonoBehaviour
         {
             // Notifie le gestionnaire de chapitres que l'action a été réalisée
             gestionChapitres.Instance.SignalerAction(IdAction);
-
-            // Optionnel : desactiver ce detecteur pour eviter retriggers.
-            // Decoche pour les pointeurs persistants (ex : pointeur_enigme
-            // qui doit rester visible jusqu'a la fin de l'enigme).
-            if (desactiverApresContact)
-                gameObject.SetActive(false);
         }
         else
         {
             Debug.LogWarning("[DetecteurTuto] gestionChapitres introuvable (singleton non initialisé?)");
         }
+
+        // Desactivation du pointeur APRES contact, independamment du
+        // singleton gestionChapitres. Avant, ce SetActive(false) etait
+        // dans le if (Instance != null), donc si le singleton manquait
+        // (timing de chargement, scene sans gestionChapitres), le pointeur
+        // restait visible meme apres avoir ete touche. On le sort du if
+        // pour que le pointeur disparaisse toujours apres le premier contact.
+        // Decoche dans l'Inspector pour les pointeurs persistants
+        // (ex : prefab_pointeur_enigme qui doit rester tant que l'enigme
+        // n'est pas completee).
+        if (desactiverApresContact)
+            gameObject.SetActive(false);
     }
 
 

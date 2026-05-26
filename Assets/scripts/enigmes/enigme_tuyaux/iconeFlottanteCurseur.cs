@@ -20,6 +20,14 @@ public class iconeFlottanteCurseur : MonoBehaviour
         "de la souris.")]
     [SerializeField] private RectTransform pointeurCentreUI;
 
+    [Header("Auto-recherche")]
+    [Tooltip("Si pointeurCentreUI n'est pas assigne dans l'Inspector, " +
+        "le script cherche automatiquement un GameObject nomme ainsi " +
+        "dans le canvasParent (recherche inactifs inclus). Permet d'eviter " +
+        "que l'icone suive le curseur Windows si l'Inspector n'est pas " +
+        "configure (cas observe sur scene0 et scene1).")]
+    [SerializeField] private string nomPointeurCentreAutoFind = "pointeur_centre";
+
     [Header("Offset par rapport au curseur")]
     [SerializeField] private Vector2 offsetPixels;
 
@@ -59,6 +67,26 @@ public class iconeFlottanteCurseur : MonoBehaviour
         foreach (var g in GetComponentsInChildren<Graphic>(true))
         {
             g.raycastTarget = false;
+        }
+
+        // Auto-find pointeur_centre par nom si pas assigne dans
+        // l'Inspector. Sans cette securite, l'icone tombe sur le
+        // fallback "suivre le curseur Windows" qui est visible sur
+        // scene0/scene1 quand l'Inspector n'est pas configure.
+        // On cherche dans canvasParent en incluant les enfants inactifs,
+        // au cas ou le pointeur soit masque au demarrage de la scene.
+        if (pointeurCentreUI == null && canvasParent != null
+            && !string.IsNullOrEmpty(nomPointeurCentreAutoFind))
+        {
+            var tous = canvasParent.GetComponentsInChildren<RectTransform>(true);
+            foreach (var rt in tous)
+            {
+                if (rt != null && rt.name == nomPointeurCentreAutoFind)
+                {
+                    pointeurCentreUI = rt;
+                    break;
+                }
+            }
         }
     }
 

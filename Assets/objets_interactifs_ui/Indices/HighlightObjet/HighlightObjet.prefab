@@ -43,8 +43,8 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6612614458774650622}
   serializedVersion: 8
-  lengthInSec: 5
-  simulationSpeed: 1
+  lengthInSec: 1
+  simulationSpeed: 2
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
@@ -52,7 +52,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 1
   prewarm: 0
-  playOnAwake: 0
+  playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -289,7 +289,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 0.3
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -753,7 +753,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 2
+      value: 1.8
       mode: 0
       spread: 0
       speed:
@@ -4849,7 +4849,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 0.6320754, g: 0.062611245, b: 0.2346071, a: 0.9843137}
-  m_Intensity: 0
+  m_Intensity: 6
   m_Range: 12
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

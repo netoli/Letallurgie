@@ -167,6 +167,57 @@ public class gestionInputsJeu : MonoBehaviour
             canvasConfirmerReinitialisation.SetActive(false);
         if (ensembleMenuInventaire != null)
             ensembleMenuInventaire.SetActive(false);
+
+        // Abonnement aux changements de selection d'inventaire : quand
+        // le joueur clique un objet pendant que l'inventaire est ouvert,
+        // on verrouille le curseur Windows et on reaffiche le pointeur
+        // central (le HUD de visee). L'inventaire reste OUVERT. Le
+        // joueur peut alors voir le pointeur_centre + icone flottante
+        // au centre, parfait pour aller placer l'objet dans la 3D.
+        if (gestionSelectionInventaire.Instance != null)
+            gestionSelectionInventaire.Instance.onSelectionChangee
+                += SurSelectionInventaireChangee;
+    }
+
+    void OnDestroy()
+    {
+        if (gestionSelectionInventaire.Instance != null)
+            gestionSelectionInventaire.Instance.onSelectionChangee
+                -= SurSelectionInventaireChangee;
+    }
+
+    /// <summary>
+    /// Callback abonne a gestionSelectionInventaire.onSelectionChangee.
+    /// Quand le joueur clique un objet pendant l'inventaire ouvert, on
+    /// verrouille le curseur et on reaffiche le pointeur_centre (le HUD
+    /// reticule + l'icone flottante restent visibles). Quand la
+    /// selection est annulee (Esc, ou re-clic sur le meme objet), on
+    /// redeverrouille le curseur pour permettre de re-cliquer un autre
+    /// objet. Si l'inventaire est ferme, on ne touche a rien (le state
+    /// du curseur est gere normalement par FermerInventaire).
+    /// </summary>
+    private void SurSelectionInventaireChangee(objetInventaire nouvelle)
+    {
+        // Ne pas interferer si on n'est pas dans l'inventaire (la
+        // selection peut etre annulee depuis d'autres contextes ex :
+        // placement reussi qui appelle Deselectionner()).
+        if (etatActuel != EtatJeu.DansInventaire) return;
+
+        if (nouvelle != null)
+        {
+            // Selection faite : curseur cache, pointeur central visible.
+            VerrouillerSouris();
+            if (pointeurCentre != null) pointeurCentre.SetActive(true);
+        }
+        else
+        {
+            // Deselection : on redonne le curseur Windows pour pouvoir
+            // re-cliquer un autre objet dans l'inventaire. Le pointeur
+            // central est recache puisqu'on revient au mode "navigation
+            // inventaire".
+            DeverrouillerSouris();
+            if (pointeurCentre != null) pointeurCentre.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -530,11 +581,6 @@ public class gestionInputsJeu : MonoBehaviour
         if (!jeuActif) return;
         if (Keyboard.current == null) return;
         if (attenteAction) return;
-
-        // (Anciennement : fermeture auto inventaire quand curseur sort du
-        // rect. Retire car cause un bug : la souris OS est au centre quand
-        // l'inventaire s'ouvre, donc fermeture immediate. Le joueur ferme
-        // l'inventaire avec 'i' comme avant.)
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -1127,6 +1173,11 @@ public class gestionInputsJeu : MonoBehaviour
 
         if (Time.timeScale == 0f)
             Time.timeScale = 1f;
+
+        // Fermer toute tuile explicative d'enigme active : sans ca, elle
+        // capture les raycasts UI au-dessus des slots d'inventaire et le
+        // joueur ne peut pas selectionner ses objets.
+        zoneLancementEnigme.FermerTuilesActives();
 
         DeverrouillerSouris();
         MontrerContenuHud();

@@ -11223,17 +11223,21 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 935982172181589444, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
+      propertyPath: _dureeLerp
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 935982172181589444, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _intensiteBase
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 935982172181589444, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _lumiereHighlight
       value: 
-      objectReference: {fileID: 1129493557}
+      objectReference: {fileID: 419922514}
     - target: {fileID: 935982172181589444, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _particulesHighlight
       value: 
-      objectReference: {fileID: 1129493558}
+      objectReference: {fileID: 419922515}
     - target: {fileID: 1001475241311462683, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _lumiereHighlight
       value: 
@@ -11469,11 +11473,11 @@ PrefabInstance:
     - target: {fileID: 4807320813232060001, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _lumiereHighlight
       value: 
-      objectReference: {fileID: 779382863}
+      objectReference: {fileID: 419922514}
     - target: {fileID: 4807320813232060001, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _particulesHighlight
       value: 
-      objectReference: {fileID: 779382864}
+      objectReference: {fileID: 419922515}
     - target: {fileID: 4842632739365799572, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -11545,11 +11549,11 @@ PrefabInstance:
     - target: {fileID: 5709547887833984521, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _lumiereHighlight
       value: 
-      objectReference: {fileID: 419922516}
+      objectReference: {fileID: 419922514}
     - target: {fileID: 5709547887833984521, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _particulesHighlight
       value: 
-      objectReference: {fileID: 419922517}
+      objectReference: {fileID: 419922515}
     - target: {fileID: 5737836243824170207, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _intensiteBase
       value: 0
@@ -11557,11 +11561,11 @@ PrefabInstance:
     - target: {fileID: 5737836243824170207, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _lumiereHighlight
       value: 
-      objectReference: {fileID: 419922518}
+      objectReference: {fileID: 419922514}
     - target: {fileID: 5737836243824170207, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: _particulesHighlight
       value: 
-      objectReference: {fileID: 419922519}
+      objectReference: {fileID: 419922515}
     - target: {fileID: 5772281583836082821, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.86
@@ -11932,26 +11936,6 @@ Light:
 --- !u!198 &419922515 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 5421374967738977656, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!108 &419922516 stripped
-Light:
-  m_CorrespondingSourceObject: {fileID: 7956133391325742195, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &419922517 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 5330472991050070079, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!108 &419922518 stripped
-Light:
-  m_CorrespondingSourceObject: {fileID: 6932706244906397853, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &419922519 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 5162693361089711313, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
   m_PrefabInstance: {fileID: 419922513}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &420625250
@@ -16482,7 +16466,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  highlight: {fileID: 0}
+  _particulesHighlight: {fileID: 0}
+  _lumiereHighlight: {fileID: 0}
+  _intensiteBase: 0
+  _intensiteSurvol: 50
+  _dureeLerp: 0.8
 --- !u!1 &555604673
 GameObject:
   m_ObjectHideFlags: 0
@@ -25614,16 +25602,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 776242433}
   m_CullTransparentMesh: 1
---- !u!108 &779382863 stripped
-Light:
-  m_CorrespondingSourceObject: {fileID: 1586086776630867532, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &779382864 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 3572076188325431808, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &783753739
 GameObject:
   m_ObjectHideFlags: 0
@@ -38851,16 +38829,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1127827904}
   m_CullTransparentMesh: 1
---- !u!108 &1129493557 stripped
-Light:
-  m_CorrespondingSourceObject: {fileID: 5766362671915151403, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &1129493558 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 8617151453780315239, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1133173518
 GameObject:
   m_ObjectHideFlags: 0
@@ -74962,6 +74930,7 @@ MonoBehaviour:
   gestionBanniere: {fileID: 1210908598}
   gestionTutoriel: {fileID: 1220303707}
   playerCinematiques: {fileID: 541201496}
+  _volumeCinematique: 0.6
   chapitres:
   - {fileID: 11400000, guid: 3e14e2d231f9b46e09fe59d97cf9eccd, type: 2}
   - {fileID: 11400000, guid: 0226d3e269014a33b70bbfd13f616f64, type: 2}

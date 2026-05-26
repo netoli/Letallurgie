@@ -197,13 +197,23 @@ public class zoneLancementEnigme : MonoBehaviour
             return;
         }
 
-        // Apres lancement : Esc QUITTE l'enigme complete (pas juste
-        // la tuile). On desactive la tuile explicative, on signale
-        // l'action de sortie (pour restauration opacite, minuteur,
-        // etc.) et on autorise un nouveau lancement.
+        // Apres lancement : Esc ferme d'ABORD la tuile explicative si
+        // elle est ouverte, et seulement APRES (sur un second Esc) quitte
+        // l'enigme. Sans cette priorite, le joueur qui fait Esc juste
+        // pour fermer la tuile (lecture terminee) quittait toute l'enigme
+        // et perdait ses ghost / minuteur en pause.
         if (enigmeLancee
             && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            if (tuileExplicativeGameObject != null
+                && tuileExplicativeGameObject.activeSelf
+                && fermableAvecEsc)
+            {
+                tuileExplicativeGameObject.SetActive(false);
+                Debug.Log("[zoneLancementEnigme] Esc : tuile explicative "
+                    + "fermee. L'enigme reste active.");
+                return;
+            }
             QuitterEnigme();
         }
     }
@@ -226,7 +236,12 @@ public class zoneLancementEnigme : MonoBehaviour
             && !string.IsNullOrEmpty(idActionSortie))
             gestionChapitres.Instance.SignalerAction(idActionSortie);
 
-        // 4. Reinitialiser pour permettre de relancer l'enigme
+        // 4. Mettre le minuteur en pause (sans le reset). Le temps
+        // restant est conserve pour quand le joueur relancera l'enigme.
+        if (minuteurEnigmeTuyauterie.Instance != null)
+            minuteurEnigmeTuyauterie.Instance.MettreEnPause();
+
+        // 5. Reinitialiser pour permettre de relancer l'enigme
         enigmeLancee = false;
         EnigmeActive = false;
         if (joueurDansZone)
@@ -332,6 +347,25 @@ public class zoneLancementEnigme : MonoBehaviour
         enigmeLancee = false;
         if (joueurDansZone)
             gestionBandeauInfo.Afficher(texteApproche, 999f);
+    }
+
+    /// <summary>
+    /// Ferme toute tuile explicative actuellement active dans la scene.
+    /// Appele depuis gestionInputsJeu.OuvrirInventaire() pour eviter
+    /// que la tuile bloque les clics sur les slots d'inventaire.
+    /// </summary>
+    public static void FermerTuilesActives()
+    {
+        var instances = FindObjectsByType<zoneLancementEnigme>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var z in instances)
+        {
+            if (z.tuileExplicativeGameObject != null
+                && z.tuileExplicativeGameObject.activeSelf)
+            {
+                z.tuileExplicativeGameObject.SetActive(false);
+            }
+        }
     }
 
     /// <summary>
