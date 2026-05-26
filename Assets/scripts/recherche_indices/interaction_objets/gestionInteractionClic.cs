@@ -5,12 +5,17 @@
 // Date        : 22/04/2026
 // ------------------------------------------------------------
 // Description :
-//   Attach� sur la cam�ra first person. Au clic gauche, envoie
-//   un raycast depuis le centre de l'�cran. Si l'objet touch�
-//   a le tag "indice" ou "obj_int", appelle la m�thode de ramassage
+//   Attaché sur la caméra first person. Au clic gauche, envoie
+//   un raycast depuis le centre de l'écran. Si l'objet touché
+//   a le tag "indice" ou "obj_int", appelle la méthode de ramassage.
+//   Les objets avec le tag "pnj" déclenchent à la fois DialogueTuto
+//   (Interagir) ET RamasserIndice (Ramasser) si le composant est
+//   présent sur le même objet — nécessaire pour que le NPC de la
+//   taverne déclenche son dialogue ET enregistre l'indice au journal.
 // ------------------------------------------------------------
-// D�pendances :
+// Dépendances :
 //   - RamasserIndice.cs
+//   - DialogueTuto.cs
 // ============================================================
 
 using UnityEngine;
@@ -38,6 +43,10 @@ public class gestionInteractionClic : MonoBehaviour
     private objetRamassable _objetVise;
     private gestionHighlightHover _highlightVise;
     private DialogueTuto _tavernierVise;
+    // RamasserIndice optionnel porté par un PNJ tagué "pnj".
+    // Séparé de _indiceVise pour ne pas court-circuiter le Interagir()
+    // dans la chaîne else-if du clic.
+    private RamasserIndice _ramasserPnjVise;
     private gestionInputsJeu _gestionInputs;
 
 
@@ -106,7 +115,14 @@ public class gestionInteractionClic : MonoBehaviour
             else if (_objetVise != null)
                 _objetVise.Ramasser();
             else if (_tavernierVise != null)
+            {
                 _tavernierVise.Interagir();
+                // Si ce PNJ porte aussi un RamasserIndice (ex.: tavernier
+                // qui donne un indice au journal), on l'appelle aussi.
+                // Le flag _dejaInteragi dans RamasserIndice empêche
+                // les doublons si le joueur reclique.
+                _ramasserPnjVise?.Ramasser();
+            }
         }
 
 
@@ -161,9 +177,10 @@ public class gestionInteractionClic : MonoBehaviour
 
             if (tag == "indice")
             {
-                _indiceVise = impact.collider.GetComponentInParent<RamasserIndice>();
-                _objetVise = null;
-                _tavernierVise = null;
+                _indiceVise      = impact.collider.GetComponentInParent<RamasserIndice>();
+                _objetVise       = null;
+                _tavernierVise   = null;
+                _ramasserPnjVise = null;
 
                 // Si l'indice est porte par un PNJ (le npc / pnj_mysterieux
                 // de la taverne), on affiche le curseur PNJ plutot que
@@ -180,16 +197,22 @@ public class gestionInteractionClic : MonoBehaviour
             }
             else if (tag == "obj_int")
             {
-                _objetVise = impact.collider.GetComponentInParent<objetRamassable>();
-                _indiceVise = null;
-                _tavernierVise = null;
+                _objetVise       = impact.collider.GetComponentInParent<objetRamassable>();
+                _indiceVise      = null;
+                _tavernierVise   = null;
+                _ramasserPnjVise = null;
                 SetPointeur(gestionPointeur.EtatPointeur.Interactif);
             }
             else if (tag == "tavernier" || tag == "pnj")
             {
-                _tavernierVise = impact.collider.GetComponentInParent<DialogueTuto>();
-                _indiceVise = null;
-                _objetVise = null;
+                _tavernierVise    = impact.collider.GetComponentInParent<DialogueTuto>();
+                _indiceVise       = null;
+                _objetVise        = null;
+                // Pour les PNJ, on cherche aussi un RamasserIndice sur
+                // le même objet — utile quand le NPC doit à la fois
+                // déclencher son dialogue (DialogueTuto) ET enregistrer
+                // un indice dans le journal (RamasserIndice).
+                _ramasserPnjVise  = impact.collider.GetComponentInParent<RamasserIndice>();
                 SetPointeur(gestionPointeur.EtatPointeur.PNJ);
                 _highlightVise?.Highlighter(true);
             }
@@ -199,17 +222,19 @@ public class gestionInteractionClic : MonoBehaviour
                 // meuble, decor, pointeur tuto visuel, etc.) affiche
                 // le pointeur Mecanique. Seul le "rien-en-face" du
                 // raycast (branche else plus bas) reste en Defaut.
-                _indiceVise = null;
-                _objetVise = null;
-                _tavernierVise = null;
+                _indiceVise      = null;
+                _objetVise       = null;
+                _tavernierVise   = null;
+                _ramasserPnjVise = null;
                 SetPointeur(gestionPointeur.EtatPointeur.Mecanique);
             }
         }
         else
         {
-            _indiceVise = null;
-            _objetVise = null;
-            _tavernierVise = null;
+            _indiceVise      = null;
+            _objetVise       = null;
+            _tavernierVise   = null;
+            _ramasserPnjVise = null;
             SetPointeur(gestionPointeur.EtatPointeur.Defaut);
             if (_highlightVise != null)
             {

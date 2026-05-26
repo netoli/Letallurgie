@@ -28,11 +28,11 @@ public class gestionHighlightHover : MonoBehaviour
     [Tooltip("Point Light sur l'enfant HighlightObjet.")]
     [SerializeField] private Light _lumiereHighlight;
     [Tooltip("Intensité de base de la lumière (état inactif).")]
-    [SerializeField] private float _intensiteBase   = 5f;
+    [SerializeField] private float _intensiteBase   = 0f;
     [Tooltip("Intensité cible au survol.")]
     [SerializeField] private float _intensiteSurvol = 50f;
     [Tooltip("Durée du lerp d'intensité (secondes).")]
-    [SerializeField] private float _dureeLerp       = 0.3f;
+    [SerializeField] private float _dureeLerp       = 0.8f;
 
     private Coroutine _coroutineLumiere;
 
