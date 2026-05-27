@@ -201,22 +201,6 @@ public IEnumerator AfficherBanniere(
                 texteNomChapitre.fontSize = tailleTitre;
         }
 
-        // CRUCIAL : reset l'Animator avant chaque affichage. Sans ce
-        // Rebind, l'Animator joue sa default state UNE FOIS au start
-        // de la scene. En scene0_tuto, AfficherBanniere est appelee
-        // immediatement, donc le fade in du texte joue en sync avec
-        // les particules. En scene2_usine, il y a une transition
-        // Cinemachine (1-2s) avant l'appel a AfficherBanniere : le
-        // fade in est deja termine et le texte apparait instantanement
-        // (a alpha 1), AVANT les particules qui attendent
-        // delaiAvantParticules. Rebind() re-applique l'etat default
-        // -> le fade in du texte redemarre, synchro avec les particules.
-        if (animatorBanniere != null)
-        {
-            animatorBanniere.Rebind();
-            animatorBanniere.Update(0f);
-        }
-
         if (animatorBanniere != null
             && !string.IsNullOrEmpty(triggerApparition))
             animatorBanniere.SetTrigger(triggerApparition);

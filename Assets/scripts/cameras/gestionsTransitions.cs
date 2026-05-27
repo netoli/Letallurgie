@@ -81,16 +81,6 @@ public class gestionsTransitions : MonoBehaviour
 
     void Start()
     {
-        // Auto-resolve des refs par nom dans la scene si elles sont
-        // vides dans l'Inspector. Necessaire pour les scenes lancees
-        // en standalone (scene2_usine, scene1_taverne1, scene3) ou
-        // les references serialisees pointent vers des objets d'une
-        // autre scene (donc null au runtime). Sans ca, les onClick des
-        // boutons Menu (Nouvelle partie, Continuer, Options, etc.)
-        // crashent quand on retourne au menu principal depuis le jeu
-        // (ex: scene2 -> Q -> Oui).
-        AutoResoudreReferences();
-
         if (SceneManager.GetActiveScene().name != "scene0_tuto")
         {
             // D�sactiver le flou
@@ -127,16 +117,8 @@ public class gestionsTransitions : MonoBehaviour
             // ici, sinon double declenchement et banniere "A la
             // rescousse" qui s'affiche deux fois.
 
-            // ATTENTION : on NE desactive PAS ce script en scene2/3/etc.
-            // Si on faisait `this.enabled = false`, Update() ne tournerait
-            // plus et les LISTES DE FADE (groupesEnFadeIn / groupesEnFadeOut)
-            // ne seraient pas traitees. Resultat : les FadeOut(groupeMenu)
-            // / FadeIn(groupeMenu) dans OnOptions / OnCredits / OnRetour
-            // ne progresseraient pas visuellement -> les boutons "ne
-            // font rien". On laisse Update tourner ; il est null-safe sur
-            // brouillard1/2 et ne fait rien quand aucune fade n'est en
-            // cours et que dansOptionsDepuisMenu/dansCreditsDepuisMenu
-            // sont a false.
+            // D�sactiver compl�tement ce script pour �viter qu'il interf�re
+            this.enabled = false;
             return;
         }
 
@@ -180,108 +162,6 @@ public class gestionsTransitions : MonoBehaviour
             brouillard2.gameObject.SetActive(false);
             positionYCible2 = positionYDepart2;
         }
-    }
-
-    /// <summary>
-    /// Retrouve les references vides par nom dans la scene actuelle.
-    /// Conçu pour les scenes standalone (scene2_usine etc.) ou les
-    /// refs Inspector pointent vers des GameObjects d'une autre scene
-    /// (donc null au runtime). Liste exhaustive : canvas, CanvasGroups,
-    /// cameras virtuelles, brain Cinemachine, et bouton Continuer.
-    /// Ne touche RIEN si les refs sont deja remplies dans l'Inspector.
-    /// </summary>
-    private void AutoResoudreReferences()
-    {
-        // Cameras virtuelles : on cherche par nom precis observe en scene
-        if (vcamMenu == null)
-            vcamMenu = TrouverCinemachine(
-                "camera_virtuelle_menu_principal");
-        if (vcamJeu == null)
-            vcamJeu = TrouverCinemachine(
-                "camera_virtuelle_premiere_personne");
-        if (vcamOptionsCredits == null)
-            vcamOptionsCredits = TrouverCinemachine(
-                "camera_virtuelle_options_credits");
-
-        // CinemachineBrain : un seul dans la scene generalement
-        if (cinemachineBrain == null)
-            cinemachineBrain =
-                FindFirstObjectByType<CinemachineBrain>(
-                    FindObjectsInactive.Include);
-
-        // Canvas principaux du menu
-        if (canvasMenu == null)
-            canvasMenu = TrouverGameObject("canvas_menu_principal", true);
-        if (canvasOptions == null)
-            canvasOptions = TrouverGameObject("canvas_options", true);
-        if (canvasCredits == null)
-            canvasCredits = TrouverGameObject("canvas_credits", true);
-
-        // HUD
-        if (canvasHud == null)
-            canvasHud = TrouverGameObject("canvas_hud", true);
-        if (groupeHud == null)
-        {
-            var go = TrouverGameObject("contenu_hud", true);
-            if (go != null)
-                groupeHud = go.GetComponent<CanvasGroup>();
-            if (groupeHud == null && canvasHud != null)
-                groupeHud =
-                    canvasHud.GetComponentInChildren<CanvasGroup>(true);
-        }
-
-        // Onglets options
-        if (canvasOngletsOptions == null)
-            canvasOngletsOptions =
-                TrouverGameObject("canvas_onglets_options", true);
-        if (groupeOngletsOptions == null && canvasOngletsOptions != null)
-            groupeOngletsOptions =
-                canvasOngletsOptions.GetComponent<CanvasGroup>();
-
-        // CanvasGroups des canvas resolus ci-dessus
-        if (groupeMenu == null && canvasMenu != null)
-            groupeMenu = canvasMenu.GetComponent<CanvasGroup>();
-        if (groupeOptions == null && canvasOptions != null)
-            groupeOptions = canvasOptions.GetComponent<CanvasGroup>();
-        if (groupeCredits == null && canvasCredits != null)
-            groupeCredits = canvasCredits.GetComponent<CanvasGroup>();
-
-        // Bouton Continuer (peut s'appeler bouton_continuer ou btn_continuer)
-        if (btnContinuer == null)
-            btnContinuer = TrouverGameObject("bouton_continuer", true)
-                ?? TrouverGameObject("btn_continuer", true);
-    }
-
-    /// <summary>
-    /// Trouve un GameObject par nom dans la scene (inclut inactifs).
-    /// Exclut les prefabs assets pour ne pas retourner un asset.
-    /// </summary>
-    private GameObject TrouverGameObject(string nom, bool inclureInactifs)
-    {
-        var tous = Resources.FindObjectsOfTypeAll<GameObject>();
-        foreach (var go in tous)
-        {
-            if (go == null) continue;
-            if (go.name != nom) continue;
-            if (go.hideFlags != HideFlags.None) continue;
-            if (!go.scene.IsValid()) continue;
-            return go;
-        }
-        return null;
-    }
-
-    private CinemachineCamera TrouverCinemachine(string nom)
-    {
-        var tous = Resources.FindObjectsOfTypeAll<CinemachineCamera>();
-        foreach (var c in tous)
-        {
-            if (c == null || c.gameObject == null) continue;
-            if (c.gameObject.name != nom) continue;
-            if (c.gameObject.hideFlags != HideFlags.None) continue;
-            if (!c.gameObject.scene.IsValid()) continue;
-            return c;
-        }
-        return null;
     }
 
     // Helper coroutine pour demarrer un chapitre apres un delai
@@ -354,15 +234,9 @@ public class gestionsTransitions : MonoBehaviour
 
     private void AfficherOnglets()
     {
-        // Null-safe : canvasOngletsOptions n'existe pas en scene2/3
-        // (pas copie depuis scene0). On skip silencieusement.
-        if (canvasOngletsOptions == null) return;
         canvasOngletsOptions.SetActive(true);
-        if (groupeOngletsOptions != null)
-        {
-            groupeOngletsOptions.alpha = 0f;
-            FadeIn(groupeOngletsOptions, vitesseFadeOnglets);
-        }
+        groupeOngletsOptions.alpha = 0f;
+        FadeIn(groupeOngletsOptions, vitesseFadeOnglets);
     }
 
     void Update()
@@ -374,9 +248,7 @@ public class gestionsTransitions : MonoBehaviour
             && (dansOptionsDepuisMenu || dansCreditsDepuisMenu))
         {
             attenteRetour = true;
-            // Coroutine unscaled-time pour fonctionner meme avec
-            // Time.timeScale = 0 (overlay menu).
-            StartCoroutine(InvokeNonScale(nameof(ExecuterRetour), 0.15f));
+            Invoke(nameof(ExecuterRetour), 0.15f);
         }
 
         for (int i = groupesEnFadeIn.Count - 1; i >= 0; i--)
@@ -440,34 +312,8 @@ public class gestionsTransitions : MonoBehaviour
 
         gestionPartie.Instance.InitialiserNouvellePartie();
 
-        // Si on n'est PAS deja dans scene0_tuto, on charge scene0_tuto
-        // pour que la "nouvelle partie" recommence vraiment depuis le
-        // debut du tuto. Sans ca, le joueur reste dans la scene
-        // courante (ex: scene2_usine) apres "Nouvelle partie" — bug
-        // signale par l'utilisateur. On lance la musique d'intro/tuto
-        // AVANT le LoadScene pour qu'elle survive au changement.
-        if (SceneManager.GetActiveScene().name != "scene0_tuto")
-        {
-            Debug.Log("[Transitions] Nouvelle partie depuis " +
-                SceneManager.GetActiveScene().name +
-                " -> chargement de scene0_tuto.");
-            // CRUCIAL : remettre timeScale a 1 avant LoadScene, sinon
-            // scene0_tuto demarre figee (cas overlay menu via Q->Oui).
-            Time.timeScale = 1f;
-            // Reset IgnoreTimeScale du Brain (mis a true dans
-            // ConfirmerRetourMenuPrincipal). Le Brain de scene0 sera
-            // recree au LoadScene mais on reset celui-ci au cas oui il
-            // serait dontDestroyOnLoad.
-            if (cinemachineBrain != null)
-                cinemachineBrain.IgnoreTimeScale = false;
-            if (gestionAudio.Instance != null)
-                gestionAudio.Instance.JouerMusiquesTutoriel();
-            SceneManager.LoadScene("scene0_tuto");
-            return;
-        }
-
         FadeOut(groupeMenu);
-        if (vcamJeu != null) vcamJeu.Priority = 50;
+        vcamJeu.Priority = 50;
         positionYCible1 = positionYDepart1;
 
         if (gestionFlou != null)
@@ -475,7 +321,10 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            gestionAudio.Instance.JouerMusiquesTutoriel();
+            if (SceneManager.GetActiveScene().name == "scene0_tuto")
+            {
+                gestionAudio.Instance.JouerMusiquesTutoriel();
+            }
         }
 
 
@@ -493,88 +342,13 @@ public class gestionsTransitions : MonoBehaviour
         gestionPartie.DonneesSauvegarde donnees =
             gestionPartie.Instance.ChargerDerniereSauvegarde();
 
-        string sceneActuelle = SceneManager.GetActiveScene().name;
-
-        // CAS A : on est en overlay menu (Time.timeScale = 0 indique
-        // qu'on est arrive ici via Q -> Oui dans une scene de jeu).
-        // L'utilisateur veut REPRENDRE la scene actuelle telle quelle
-        // (peu importe ce que dit la sauvegarde) : juste un un-freeze.
-        // C'est plus robuste que de comparer donnees.nomScene car la
-        // sauvegarde peut contenir un ancien nom obsolete.
-        if (sceneActuelle != "scene0_tuto" && Time.timeScale == 0f)
-        {
-            Debug.Log("[Transitions] Continuer en overlay : un-freeze " +
-                "de la scene actuelle (" + sceneActuelle + ").");
-            if (gestionAudio.Instance != null)
-            {
-                if (sceneActuelle == "scene1_taverne1")
-                    gestionAudio.Instance.JouerMusiquesTaverne();
-                else if (sceneActuelle == "scene2_usine")
-                    gestionAudio.Instance.JouerMusiquesUsine();
-                else if (sceneActuelle == "scene4_manoir")
-                    gestionAudio.Instance.JouerMusiquesManoir();
-            }
-            var inputs = FindFirstObjectByType<gestionInputsJeu>(
-                FindObjectsInactive.Include);
-            if (inputs != null)
-                inputs.ReprendreJeuApresMenuOverlay();
-            estEnTransition = false;
-            return;
-        }
-
-        // CAS B : on est en scene0_tuto (vrai menu principal). Si la
-        // sauvegarde existe et pointe vers une autre scene, on la charge.
-        // Si la sauvegarde a un nomScene invalide ou inexistant, on
-        // fallback sur le comportement original (CAS C) au lieu de
-        // crasher avec un LoadScene impossible.
         if (donnees != null)
         {
             gestionPartie.Instance.ChargerPartieEnCours(donnees);
             Debug.Log("Chargement de: " + donnees.nomSauvegarde
                 + " | Scene: " + donnees.nomScene);
-
-            // Whitelist des scenes valides (build settings). Si le
-            // nomScene de la sauvegarde n'est pas dans cette liste, on
-            // l'ignore et on continue avec scene0_tuto.
-            bool nomSceneValide =
-                donnees.nomScene == "scene0_tuto"
-                || donnees.nomScene == "scene1_taverne1"
-                || donnees.nomScene == "scene2_usine"
-                || donnees.nomScene == "scene3_taverne2"
-                || donnees.nomScene == "scene4_manoir";
-
-            if (nomSceneValide
-                && !string.IsNullOrEmpty(donnees.nomScene)
-                && sceneActuelle != donnees.nomScene)
-            {
-                Debug.Log("[Transitions] Sauvegarde en '" +
-                    donnees.nomScene + "' mais on est en '" +
-                    sceneActuelle + "' -> chargement de la bonne scene.");
-                if (gestionAudio.Instance != null)
-                {
-                    if (donnees.nomScene == "scene1_taverne1")
-                        gestionAudio.Instance.JouerMusiquesTaverne();
-                    else if (donnees.nomScene == "scene2_usine")
-                        gestionAudio.Instance.JouerMusiquesUsine();
-                    else if (donnees.nomScene == "scene4_manoir")
-                        gestionAudio.Instance.JouerMusiquesManoir();
-                }
-                Time.timeScale = 1f;
-                SceneManager.LoadScene(donnees.nomScene);
-                return;
-            }
-            else if (!nomSceneValide && !string.IsNullOrEmpty(donnees.nomScene))
-            {
-                Debug.LogWarning("[Transitions] Sauvegarde avec " +
-                    "nomScene invalide '" + donnees.nomScene +
-                    "' (ancienne sauvegarde ?). On continue dans la " +
-                    "scene actuelle.");
-            }
         }
 
-        // CAS C : on est en scene0_tuto et la sauvegarde y correspond
-        // aussi (ou il n'y a pas de sauvegarde). Comportement original
-        // du menu principal : FadeOut + cut Cinemachine + activer HUD.
         FadeOut(groupeMenu);
         positionYCible1 = positionYDepart1;
 
@@ -583,15 +357,15 @@ public class gestionsTransitions : MonoBehaviour
 
         if (gestionAudio.Instance != null)
         {
-            if (sceneActuelle == "scene1_taverne1")
+            if (SceneManager.GetActiveScene().name == "scene1_taverne1")
             {
                 gestionAudio.Instance.JouerMusiquesTaverne();
             }
-            else if (sceneActuelle == "scene2_usine")
+            else if (SceneManager.GetActiveScene().name == "scene2_usine")
             {
                 gestionAudio.Instance.JouerMusiquesUsine();
             }
-            else if (sceneActuelle == "scene4_manoir")
+            else if (SceneManager.GetActiveScene().name == "scene4_manoir")
             {
                 gestionAudio.Instance.JouerMusiquesManoir();
             }
@@ -629,61 +403,39 @@ public class gestionsTransitions : MonoBehaviour
 
     public void OnOptions()
     {
-        Debug.Log("[Transitions] OnOptions CLIQUE");
         if (estEnTransition) return;
         estEnTransition = true;
 
         dansOptionsDepuisMenu = true;
 
-        if (groupeMenu != null) FadeOut(groupeMenu);
-        if (vcamOptionsCredits != null) vcamOptionsCredits.Priority = 40;
+        FadeOut(groupeMenu);
+        vcamOptionsCredits.Priority = 40;
 
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
 
-        // IMPORTANT : on utilise StartCoroutine + WaitForSecondsRealtime
-        // au lieu de Invoke, parce que Invoke depend de Time.timeScale.
-        // Quand on est en overlay menu (Q -> Oui depuis le jeu),
-        // Time.timeScale = 0 -> les Invoke ne se declenchent JAMAIS.
-        // Avec unscaled, les delais fonctionnent peu importe timeScale.
-        StartCoroutine(InvokeNonScale(nameof(AfficherOnglets),
-            delaiApparitionOnglets));
-        StartCoroutine(InvokeNonScale(nameof(ActiverBrouillard2),
-            delaiDebutBrouillard2));
-        StartCoroutine(InvokeNonScale(nameof(AfficherOptions),
-            delaiApparition));
-        StartCoroutine(InvokeNonScale(nameof(FinTransition), 2.5f));
+        Invoke(nameof(AfficherOnglets), delaiApparitionOnglets);
+        Invoke(nameof(ActiverBrouillard2), delaiDebutBrouillard2);
+        Invoke(nameof(AfficherOptions), delaiApparition);
+        Invoke(nameof(FinTransition), 2.5f);
     }
 
     public void OnCredits()
     {
-        Debug.Log("[Transitions] OnCredits CLIQUE");
         if (estEnTransition) return;
         estEnTransition = true;
 
         dansCreditsDepuisMenu = true;
 
-        if (groupeMenu != null) FadeOut(groupeMenu);
-        if (vcamOptionsCredits != null) vcamOptionsCredits.Priority = 40;
+        FadeOut(groupeMenu);
+        vcamOptionsCredits.Priority = 40;
 
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
 
-        StartCoroutine(InvokeNonScale(nameof(ActiverBrouillard2),
-            delaiDebutBrouillard2));
-        StartCoroutine(InvokeNonScale(nameof(AfficherCredits),
-            delaiApparition));
-        StartCoroutine(InvokeNonScale(nameof(FinTransition), 2.5f));
-    }
-
-    /// <summary>
-    /// Equivalent de Invoke mais base sur Time.unscaledDeltaTime, donc
-    /// fonctionne meme quand Time.timeScale = 0 (cas overlay menu).
-    /// </summary>
-    private IEnumerator InvokeNonScale(string methodName, float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        Invoke(methodName, 0f);
+        Invoke(nameof(ActiverBrouillard2), delaiDebutBrouillard2);
+        Invoke(nameof(AfficherCredits), delaiApparition);
+        Invoke(nameof(FinTransition), 2.5f);
     }
 
     public void OnRetour()
@@ -694,23 +446,18 @@ public class gestionsTransitions : MonoBehaviour
         dansOptionsDepuisMenu = false;
         dansCreditsDepuisMenu = false;
 
-        // Tous null-safe pour les scenes ou certains canvas peuvent
-        // manquer (scene2/3 sans canvas_onglets_options par exemple).
-        if (canvasOptions != null && canvasOptions.activeSelf
-            && groupeOptions != null)
+        if (canvasOptions.activeSelf)
             FadeOut(groupeOptions);
-        if (canvasCredits != null && canvasCredits.activeSelf
-            && groupeCredits != null)
+        if (canvasCredits.activeSelf)
             FadeOut(groupeCredits);
-        if (canvasOngletsOptions != null && canvasOngletsOptions.activeSelf
-            && groupeOngletsOptions != null)
+        if (canvasOngletsOptions.activeSelf)
             FadeOut(groupeOngletsOptions, vitesseFadeOnglets);
 
-        if (groupeMenu != null) FadeIn(groupeMenu);
+        FadeIn(groupeMenu);
 
-        if (vcamMenu != null) vcamMenu.Priority = 30;
-        if (vcamOptionsCredits != null) vcamOptionsCredits.Priority = 20;
-        if (vcamJeu != null) vcamJeu.Priority = 10;
+        vcamMenu.Priority = 30;
+        vcamOptionsCredits.Priority = 20;
+        vcamJeu.Priority = 10;
 
         positionYCible2 = positionYDepart2;
 
@@ -720,8 +467,7 @@ public class gestionsTransitions : MonoBehaviour
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesIntro();
 
-        // Coroutine unscaled-time (cf. OnOptions/OnCredits)
-        StartCoroutine(InvokeNonScale(nameof(DesactiverOptionsCredits), 2.5f));
+        Invoke(nameof(DesactiverOptionsCredits), 2.5f);
     }
 
     public void RetourEnJeuDepuisChargement()
@@ -769,24 +515,16 @@ public class gestionsTransitions : MonoBehaviour
 
     private void AfficherOptions()
     {
-        if (canvasOptions == null) return;
         canvasOptions.SetActive(true);
-        if (groupeOptions != null)
-        {
-            groupeOptions.alpha = 0f;
-            FadeIn(groupeOptions);
-        }
+        groupeOptions.alpha = 0f;
+        FadeIn(groupeOptions);
     }
 
     private void AfficherCredits()
     {
-        if (canvasCredits == null) return;
         canvasCredits.SetActive(true);
-        if (groupeCredits != null)
-        {
-            groupeCredits.alpha = 0f;
-            FadeIn(groupeCredits);
-        }
+        groupeCredits.alpha = 0f;
+        FadeIn(groupeCredits);
     }
 
     private void FadeIn(CanvasGroup groupe,
@@ -907,10 +645,9 @@ public class gestionsTransitions : MonoBehaviour
 
     private void DesactiverOptionsCredits()
     {
-        if (canvasOptions != null) canvasOptions.SetActive(false);
-        if (canvasCredits != null) canvasCredits.SetActive(false);
-        if (canvasOngletsOptions != null)
-            canvasOngletsOptions.SetActive(false);
+        canvasOptions.SetActive(false);
+        canvasCredits.SetActive(false);
+        canvasOngletsOptions.SetActive(false);
         if (brouillard2 != null)
         {
             positionYCible2 = positionYDepart2;
