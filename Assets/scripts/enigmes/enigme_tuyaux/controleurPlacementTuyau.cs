@@ -92,7 +92,26 @@ public class controleurPlacementTuyau : MonoBehaviour
     {
         if (Mouse.current == null) return null;
 
-        Vector2 positionSouris = Mouse.current.position.ReadValue();
+        // Choix de la position de raycast :
+        // - Curseur verrouille (mode FPS apres selection inventaire) :
+        //   on utilise le CENTRE de l'ecran (la oui le pointeur_centre
+        //   est visuellement affiche). Sans ca, Mouse.position reste
+        //   figee a sa derniere valeur OS et le raycast pointe ailleurs
+        //   que la oui le joueur croit viser. C'est le bug "je ne vois
+        //   pas le ghost lorsque je pointe avec le pointeur_centre".
+        // - Curseur libre (inventaire ouvert sans selection) : on utilise
+        //   la position OS de la souris (pour pointer directement avec
+        //   le curseur Windows visible).
+        Vector2 positionSouris;
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            positionSouris = new Vector2(
+                Screen.width * 0.5f, Screen.height * 0.5f);
+        }
+        else
+        {
+            positionSouris = Mouse.current.position.ReadValue();
+        }
         Ray rayon = cameraJoueur.ScreenPointToRay(positionSouris);
 
         // RaycastAll : on ramasse TOUS les colliders sur le rayon, et on

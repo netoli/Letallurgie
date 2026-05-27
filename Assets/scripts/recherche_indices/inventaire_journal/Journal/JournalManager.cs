@@ -59,6 +59,36 @@ public class JournalManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    // ── Auto-creation au demarrage du jeu ──────────────────────
+    /// <summary>
+    /// Garantit qu'un JournalManager existe meme si la scene de
+    /// demarrage n'instancie pas le prefab 'gestion_journal' (cas
+    /// scene2_usine en standalone). Sans ce filet, JournalUIDebug
+    /// dans le canvas_journal verrait Instance=null et n'afficherait
+    /// rien, meme apres avoir ramasse des indices.
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void EnsureExists()
+    {
+        if (Instance == null)
+        {
+            // Chercher d'abord s'il existe deja un dans la scene
+            // (cas normal : JournalManager attache a un prefab dans
+            // la scene en cours de chargement).
+            var existing = FindFirstObjectByType<JournalManager>(
+                FindObjectsInactive.Include);
+            if (existing != null)
+            {
+                // Awake va le set comme Instance, rien a faire.
+                return;
+            }
+            // Pas trouve : on en cree un minimal pour eviter Instance=null.
+            var go = new GameObject("JournalManager_AutoCreated");
+            go.AddComponent<JournalManager>();
+            Debug.Log("[JournalManager] Auto-cree (aucun trouve dans la scene).");
+        }
+    }
+
     // ── API publique ──────────────────────────────────────────
 
     /// <summary>

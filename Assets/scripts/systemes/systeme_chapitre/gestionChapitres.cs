@@ -278,6 +278,18 @@ public class gestionChapitres : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Vrai si l'action a deja ete signalee (au moins une fois) dans
+    /// cette session. Permet aux scripts qui s'abonnent tardivement
+    /// (ex : sonsSpatiauxAleatoires sur un GameObject active apres
+    /// le signal) de verifier si l'evenement est deja passe.
+    /// </summary>
+    public bool EstActionSignalee(string idAction)
+    {
+        if (string.IsNullOrEmpty(idAction)) return false;
+        return actionsSignalees.Contains(idAction);
+    }
+
     // Methode appelee par les objets du Tuto pour signaler qu'une
     // action a ete effectuee (detecteurTuto qui declenche, DialogueTuto
     // qui termine son etape, objet ramasse, etc.).

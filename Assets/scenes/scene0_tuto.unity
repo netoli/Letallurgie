@@ -53660,7 +53660,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8401015370042127218, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1000
+      value: -960
       objectReference: {fileID: 0}
     - target: {fileID: 8401015370042127218, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -76758,6 +76758,10 @@ PrefabInstance:
     - target: {fileID: 2023994911471107423, guid: c0a3c4c8b2f6f6940b655bb6321a0c66, type: 3}
       propertyPath: playOnAwake
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2023994911471107423, guid: c0a3c4c8b2f6f6940b655bb6321a0c66, type: 3}
+      propertyPath: ShapeModule.radius.value
+      value: 0.36
       objectReference: {fileID: 0}
     - target: {fileID: 2072764875943351398, guid: c0a3c4c8b2f6f6940b655bb6321a0c66, type: 3}
       propertyPath: m_LocalScale.x

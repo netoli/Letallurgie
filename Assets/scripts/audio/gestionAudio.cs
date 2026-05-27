@@ -84,11 +84,29 @@ public class gestionAudio : MonoBehaviour
             return;
         }
         Instance = this;
-        // gestionAudio a besoin de persister entre scenes : sinon la
-        // musique de fond se relance/coupe a chaque chargement de scene.
-        // On reste sur DontDestroyOnLoad(gameObject) car ce GameObject
-        // est attendu en tant que ROOT (jamais sous un parent UI).
         DontDestroyOnLoad(gameObject);
+
+        // FIX BUG : si sourceAmbiance et sourceMusique pointent vers la
+        // MEME AudioSource (cas observe dans scene2_usine : 'audio_manager'
+        // est rattache aux 2 champs Inspector), JouerMusiquesUsine() qui
+        // change sourceMusique.clip ECRASE le clip d'ambiance. Resultat :
+        // l'ambiance s'arrete des qu'une musique demarre. On detecte ce
+        // cas et on cree une AudioSource dediee a l'ambiance, attachee
+        // au meme GameObject, pour que les 2 sons coexistent.
+        if (sourceAmbiance != null && sourceMusique != null
+            && sourceAmbiance == sourceMusique)
+        {
+            Debug.LogWarning("[gestionAudio] sourceAmbiance == sourceMusique "
+                + "(meme AudioSource). Creation d'une AudioSource dediee "
+                + "pour l'ambiance pour eviter que la musique ecrase le "
+                + "clip d'ambiance.");
+            var nouvelleSource = sourceMusique.gameObject.AddComponent<AudioSource>();
+            nouvelleSource.playOnAwake = false;
+            nouvelleSource.spatialBlend = 0f;  // 2D
+            nouvelleSource.loop = true;
+            nouvelleSource.volume = volumeAmbiance;
+            sourceAmbiance = nouvelleSource;
+        }
     }
 
     void Start()

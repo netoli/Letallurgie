@@ -40,6 +40,17 @@ public class gestionHighlightHover : MonoBehaviour
 
     public void Highlighter(bool actif)
     {
+        // Auto-find des refs au premier appel si elles sont null
+        // (cas scene1 ou les enfants ParticleSystem + Light ont ete
+        // perdus apres un merge git). On cherche dans les enfants du
+        // GameObject porteur du script.
+        if (_particulesHighlight == null)
+            _particulesHighlight =
+                GetComponentInChildren<ParticleSystem>(true);
+        if (_lumiereHighlight == null)
+            _lumiereHighlight =
+                GetComponentInChildren<Light>(true);
+
         // --- Particules ---
         if (_particulesHighlight != null)
         {

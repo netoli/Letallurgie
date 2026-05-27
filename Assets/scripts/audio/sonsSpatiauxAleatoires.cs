@@ -39,8 +39,20 @@ public class sonsSpatiauxAleatoires : MonoBehaviour
 
     [Header("Delai initial")]
     [Tooltip("Delai avant le tout premier son (s). 0 = joue immediatement " +
-        "au moment ou le GameObject devient actif.")]
+        "au moment ou le GameObject devient actif (ou que " +
+        "idActionDemarrage est signalee, voir ci-dessous).")]
     [SerializeField] private float delaiInitial = 1f;
+
+    [Header("Demarrage sur signal narratif (optionnel)")]
+    [Tooltip("Si vide : les sons commencent des OnEnable + delaiInitial. " +
+        "Si rempli : on attend que cette action soit signalee a " +
+        "gestionChapitres.SignalerAction(...) avant de demarrer (la " +
+        "scheduling du 1er son se fait au moment du signal). Utile pour " +
+        "synchroniser les sons avec un moment narratif (ex : apres le " +
+        "bandeau 'Trouve ou est capture le tavernier').")]
+    [SerializeField] private string idActionDemarrage = "";
+
+    private bool sonsActives = true;
 
     [Header("Configuration AudioSource (applique en Awake)")]
     [Tooltip("Si coche, force la configuration 3D de l'AudioSource au " +
@@ -90,16 +102,73 @@ public class sonsSpatiauxAleatoires : MonoBehaviour
 
     void OnEnable()
     {
-        // Quand le GameObject devient actif (typiquement au signal
-        // narratif via gestionActivationAction), on programme le 1er
-        // son apres delaiInitial.
+        if (!string.IsNullOrEmpty(idActionDemarrage))
+        {
+            // Cas typique : ce composant est sur un GameObject active
+            // par gestionActivationAction au moment ou l'action est
+            // signalee. Donc au OnEnable, l'action est DEJA signalee.
+            // On verifie avec EstActionSignalee et on demarre direct
+            // si oui (sinon on rate l'evenement et les sons ne jouent
+            // jamais).
+            bool dejaSignalee = gestionChapitres.Instance != null
+                && gestionChapitres.Instance.EstActionSignalee(
+                    idActionDemarrage);
+
+            if (dejaSignalee)
+            {
+                sonsActives = true;
+                prochainSonTime = Time.time + delaiInitial;
+                Debug.Log($"[sonsSpatiauxAleatoires] {name} OnEnable : " +
+                    $"action '{idActionDemarrage}' deja signalee, " +
+                    $"1er son dans {delaiInitial}s.");
+            }
+            else
+            {
+                // Pas encore signalee : on s'abonne pour attendre.
+                sonsActives = false;
+                if (gestionChapitres.Instance != null)
+                {
+                    gestionChapitres.Instance.OnActionSignalee
+                        += SurActionSignalee;
+                }
+                Debug.Log($"[sonsSpatiauxAleatoires] {name} OnEnable : " +
+                    $"attend action '{idActionDemarrage}' avant de jouer.");
+            }
+        }
+        else
+        {
+            sonsActives = true;
+            prochainSonTime = Time.time + delaiInitial;
+            Debug.Log($"[sonsSpatiauxAleatoires] {name} OnEnable : " +
+                $"1er son dans {delaiInitial}s.");
+        }
+    }
+
+    void OnDisable()
+    {
+        if (!string.IsNullOrEmpty(idActionDemarrage)
+            && gestionChapitres.Instance != null)
+        {
+            gestionChapitres.Instance.OnActionSignalee
+                -= SurActionSignalee;
+        }
+    }
+
+    private void SurActionSignalee(string idAction)
+    {
+        if (idAction != idActionDemarrage) return;
+        if (sonsActives) return;  // deja active, eviter double schedule
+
+        sonsActives = true;
         prochainSonTime = Time.time + delaiInitial;
-        Debug.Log($"[sonsSpatiauxAleatoires] {name} OnEnable : " +
-            $"1er son dans {delaiInitial}s.");
+        Debug.Log($"[sonsSpatiauxAleatoires] {name} : action '" +
+            idActionDemarrage + "' recue, 1er son dans " + delaiInitial
+            + "s.");
     }
 
     void Update()
     {
+        if (!sonsActives) return;
         if (source == null) return;
         if (clips == null || clips.Count == 0) return;
 
