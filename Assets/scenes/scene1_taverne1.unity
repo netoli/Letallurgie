@@ -11962,10 +11962,7 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 3011743708729523862, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7939518798466196342, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1936411554}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
 --- !u!108 &419922514 stripped
 Light:
@@ -57214,9 +57211,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 7b7713ff8eb305a47a8e3cd54e30fcc5, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -68686,23 +68683,6 @@ ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 1201268099948108340, guid: 1943c1680d26848efa86da31f9867d39, type: 3}
   m_PrefabInstance: {fileID: 1782391372}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1936411552 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7939518798466196342, guid: 1cc0dca90e2e228479dab192f0713b17, type: 3}
-  m_PrefabInstance: {fileID: 419922513}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1936411554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936411552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 148adc190ca868f409e27c44e866b707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::objetImmortel
 --- !u!1001 &1938862689
 PrefabInstance:
   m_ObjectHideFlags: 0

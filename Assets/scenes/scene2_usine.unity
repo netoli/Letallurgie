@@ -9684,13 +9684,13 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6754105424777003995, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2147877360399730129, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 198.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 6754105424777003995, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7415830529200113922, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -27630,9 +27630,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 7b7713ff8eb305a47a8e3cd54e30fcc5, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -39974,6 +39974,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 637558620918008991, guid: e2e384ced3bd44f9b86801b0d3cdc9eb, type: 3}
   m_PrefabInstance: {fileID: 749883293}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &749883295 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1044791974616651559, guid: e2e384ced3bd44f9b86801b0d3cdc9eb, type: 3}
+  m_PrefabInstance: {fileID: 749883293}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02fa379ce247e4d209ccf0e841049781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionBanniere
 --- !u!1 &751234587
 GameObject:
   m_ObjectHideFlags: 0
@@ -45460,7 +45471,7 @@ Transform:
   - {fileID: 436401127}
   - {fileID: 1499864140}
   - {fileID: 541416685}
-  m_Father: {fileID: 1390446316}
+  m_Father: {fileID: 197624091}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &769496377
 MonoBehaviour:
@@ -76927,11 +76938,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ced39aec2f8c4d4d8d5a1893f230264, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!4 &1390446316 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7415830529200113922, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
-  m_PrefabInstance: {fileID: 197624090}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1393970556 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5804040040604534031, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
@@ -115919,7 +115925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd9eae8382d342609bd13ceb013b3d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionChapitres
-  gestionBanniere: {fileID: 0}
+  gestionBanniere: {fileID: 749883295}
   gestionTutoriel: {fileID: 0}
   playerCinematiques: {fileID: 0}
   _volumeCinematique: 0.6
@@ -115935,7 +115941,7 @@ MonoBehaviour:
   cinematique:
   - {fileID: 32900000, guid: 14b29d2f9beba3849a9479d6a81ce3a4, type: 3}
   boutonPasserCinematique: {fileID: 0}
-  indicesJouabilite: {fileID: 0}
+  indicesJouabilite: {fileID: 455027192}
 --- !u!1 &2147160850 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 532625923468999636, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
