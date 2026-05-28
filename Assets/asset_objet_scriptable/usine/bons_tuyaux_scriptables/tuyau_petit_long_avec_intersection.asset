@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: tuyau_petit_long_avec_intersection
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyau_petit_long_avec_intersection
-  icone: {fileID: 21300000, guid: c01f9b9905d1b4a24897b96be2bc6c43, type: 3}
+  icone: {fileID: 21300000, guid: 2ea178df21f514c53909764d99ceb0ba, type: 3}
   categorie: 1
   quantiteMax: 1
-  prefabModele3D: {fileID: 2406850770654843982, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
+  prefabModele3D: {fileID: 5537627822013228790, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
   estLeurre: 0
   descriptionInspection: 
   prefab3D: {fileID: 0}

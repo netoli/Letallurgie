@@ -25,8 +25,25 @@ public class gestionEnigmeTuyauterie : MonoBehaviour
 
     void Start()
     {
+        // AUTO-FIND : si pointsAncrage est vide ou contient des null,
+        // on cherche tous les pointAncrageTuyau dans la scene
+        // (inclus inactifs). Evite au user le drag-drop manuel des 9
+        // snap_points.
+        if (pointsAncrage == null
+            || pointsAncrage.Count == 0
+            || pointsAncrage.TrueForAll(p => p == null))
+        {
+            var tous = FindObjectsByType<pointAncrageTuyau>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            pointsAncrage = new List<pointAncrageTuyau>(tous);
+            Debug.Log($"[gestionEnigmeTuyauterie] AUTO-FIND : " +
+                $"{pointsAncrage.Count} snap_points trouves " +
+                "automatiquement dans la scene.");
+        }
+
         foreach (pointAncrageTuyau point in pointsAncrage)
         {
+            if (point == null) continue;
             point.onRempli.AddListener(SurRemplissage);
             point.onPlacementTente.AddListener(SurTentativePlacement);
         }

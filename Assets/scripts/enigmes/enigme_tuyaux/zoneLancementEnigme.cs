@@ -121,6 +121,32 @@ public class zoneLancementEnigme : MonoBehaviour
 
     void Start()
     {
+        // AUTO-FIND : si tuileExplicativeGameObject n'est pas assigne
+        // dans l'Inspector, on cherche un GameObject nomme
+        // 'ensemble_tuile_explicative' dans la scene (inclus inactifs).
+        // Evite au user le drag-drop manuel.
+        if (tuileExplicativeGameObject == null)
+        {
+            var tous = FindObjectsByType<Transform>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in tous)
+            {
+                if (t.name == "ensemble_tuile_explicative"
+                    || t.name == "tuile_explicative")
+                {
+                    tuileExplicativeGameObject = t.gameObject;
+                    Debug.Log("[zoneLancementEnigme] AUTO-FIND : tuile " +
+                        $"explicative trouvee : {t.name}");
+                    break;
+                }
+            }
+            if (tuileExplicativeGameObject == null)
+                Debug.LogWarning("[zoneLancementEnigme] Auto-find " +
+                    "tuile_explicative : aucun GameObject 'ensemble_" +
+                    "tuile_explicative' ou 'tuile_explicative' trouve " +
+                    "dans la scene. La tuile ne s'affichera pas.");
+        }
+
         // Si une action d'activation est requise, on attend qu'elle
         // soit signalee avant de reagir aux OnTriggerEnter.
         if (!string.IsNullOrEmpty(idActionPourActiverZone))

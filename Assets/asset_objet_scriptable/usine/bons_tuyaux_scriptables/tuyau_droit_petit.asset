@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: tuyau_droit_petit
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyau_droit_petit
-  icone: {fileID: 21300000, guid: 4129ae27dae3a4f68aeb25383b6dfa49, type: 3}
+  icone: {fileID: 21300000, guid: 2632507535c164e3f9944eea3d850567, type: 3}
   categorie: 1
   quantiteMax: 1
-  prefabModele3D: {fileID: 7718557937840499382, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
+  prefabModele3D: {fileID: 4039621287494326851, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
   estLeurre: 0
   descriptionInspection: 
   prefab3D: {fileID: 0}

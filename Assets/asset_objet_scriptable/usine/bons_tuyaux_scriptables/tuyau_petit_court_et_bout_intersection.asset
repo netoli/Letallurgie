@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: tuyau_petit_court_et_bout_intersection
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyau_petit_court_et_bout_intersection
-  icone: {fileID: 21300000, guid: c70559b2998004d93a231803367ae03f, type: 3}
+  icone: {fileID: 21300000, guid: fa3a8f90fa3f24b818430cb7609d7473, type: 3}
   categorie: 1
   quantiteMax: 1
-  prefabModele3D: {fileID: 5453794398035110224, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
+  prefabModele3D: {fileID: 3950314401025220134, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
   estLeurre: 0
   descriptionInspection: 
   prefab3D: {fileID: 0}

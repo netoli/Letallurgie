@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: tuyau_l_gros_et_petit
   m_EditorClassIdentifier: Assembly-CSharp::objetInventaire
   nomObjet: Tuyau_l_gros_et_petit
-  icone: {fileID: 21300000, guid: 093ebad5dea414e6abf93430cb774e8b, type: 3}
+  icone: {fileID: 21300000, guid: dc0652b81135a43adac92d993028b812, type: 3}
   categorie: 1
   quantiteMax: 1
-  prefabModele3D: {fileID: 8460428265527348668, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
+  prefabModele3D: {fileID: 3531556859897747729, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
   estLeurre: 0
   descriptionInspection: 
   prefab3D: {fileID: 0}
