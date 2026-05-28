@@ -60,7 +60,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
   m_LocalPosition: {x: 10.37, y: 5.72, z: 0.12}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1839984758843097887}
@@ -106,6 +106,7 @@ MonoBehaviour:
   idActionActivation: joueur_a_atteint_enigme
   objetAActiver: {fileID: 0}
   delaiAvantActivation: 0
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!1001 &1259693788469663615
 PrefabInstance:

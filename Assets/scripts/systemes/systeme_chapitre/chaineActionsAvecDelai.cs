@@ -39,6 +39,7 @@
 // ============================================================
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class chaineActionsAvecDelai : MonoBehaviour
 {
@@ -80,31 +81,67 @@ public class chaineActionsAvecDelai : MonoBehaviour
     [SerializeField] private bool debug = true;
 
     private bool dejaDeclenche = false;
+    private bool estInscrit = false;
+
+    // Auto-inscription apres chaque chargement de scene (meme pattern
+    // que gestionActivationAction). Robuste face au timing :
+    // gestionChapitres.Instance peut etre null au OnEnable de cette
+    // instance — on retente via RuntimeInitializeOnLoadMethod qui
+    // s'execute APRES que toutes les scenes/singletons soient prets.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void InitGlobalHook()
+    {
+        SceneManager.sceneLoaded -= OnSceneChargee;
+        SceneManager.sceneLoaded += OnSceneChargee;
+        InscrireToutes();
+    }
+
+    private static void OnSceneChargee(Scene s, LoadSceneMode m)
+    {
+        InscrireToutes();
+    }
+
+    public static void InscrireToutes()
+    {
+        var tous = Object.FindObjectsByType<chaineActionsAvecDelai>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous) inst.SInscrire();
+    }
+
+    private void SInscrire()
+    {
+        if (estInscrit) return;
+        if (string.IsNullOrEmpty(idActionEcoutee)) return;
+        if (gestionChapitres.Instance == null) return;
+        gestionChapitres.Instance.OnActionSignalee += SurActionSignalee;
+        estInscrit = true;
+        Log($"Inscrit a OnActionSignalee, ecoute '{idActionEcoutee}'.");
+    }
 
     void OnEnable()
     {
-        if (gestionChapitres.Instance != null)
-        {
-            gestionChapitres.Instance.OnActionSignalee += SurActionSignalee;
-        }
-        else
-        {
-            Debug.LogWarning($"[chaineActions:{name}] gestionChapitres." +
-                "Instance introuvable au OnEnable.");
-        }
+        SInscrire();
     }
 
-    void OnDisable()
+    void Start()
     {
-        if (gestionChapitres.Instance != null)
+        // Garde-fou : si AfterSceneLoad n'a pas inscrit (cas rare ou
+        // singleton tardif), on retente ici.
+        SInscrire();
+    }
+
+    void OnDestroy()
+    {
+        if (gestionChapitres.Instance != null && estInscrit)
             gestionChapitres.Instance.OnActionSignalee -= SurActionSignalee;
+        estInscrit = false;
     }
 
     private void SurActionSignalee(string idAction)
     {
         if (idAction != idActionEcoutee) return;
         if (dejaDeclenche && !autoReset) return;
-        Log($"Action '{idAction}' reçue, déclenchement dans " +
+        Log($"Action '{idAction}' recue, declenchement dans " +
             $"{delaiAvantSuite}s.");
         StartCoroutine(LancerApresDelai());
     }

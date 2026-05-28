@@ -22,6 +22,7 @@
 
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
 
@@ -68,11 +69,53 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
     // (le puzzle est unique). Si plusieurs, le dernier reveille gagne.
     public static minuteurEnigmeTuyauterie Instance { get; private set; }
 
+    private bool estInscrit = false;
+
     void Awake()
     {
         // Inscription du singleton AVANT Start() : ainsi zoneLancement-
         // Enigme.Start() peut deja le voir si l'ordre d'execution joue.
         Instance = this;
+    }
+
+    // Auto-inscription apres chaque chargement de scene, robuste face au
+    // cas ou le GameObject porteur est INACTIF au demarrage (UI souvent
+    // cachee jusqu'au lancement de l'enigme). Sans ca, Awake/Start ne
+    // tournent jamais et le minuteur n'ecoute pas 'enigme_tuyauterie_lancee'.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void InitGlobalHook()
+    {
+        SceneManager.sceneLoaded -= OnSceneChargee;
+        SceneManager.sceneLoaded += OnSceneChargee;
+        InscrireToutes();
+    }
+
+    private static void OnSceneChargee(Scene s, LoadSceneMode m)
+    {
+        InscrireToutes();
+    }
+
+    public static void InscrireToutes()
+    {
+        var tous = Object.FindObjectsByType<minuteurEnigmeTuyauterie>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous)
+        {
+            if (Instance == null) Instance = inst;
+            inst.SInscrire();
+        }
+    }
+
+    private void SInscrire()
+    {
+        if (estInscrit) return;
+        if (!autoDemarrerSurAction) return;
+        if (string.IsNullOrEmpty(idActionDemarrage)) return;
+        if (gestionChapitres.Instance == null) return;
+        gestionChapitres.Instance.OnActionSignalee += AuActionSignalee;
+        estInscrit = true;
+        Debug.Log($"[minuteurEnigme] {name} : inscrit a OnActionSignalee, " +
+            $"ecoute '{idActionDemarrage}' (gameObject active={gameObject.activeInHierarchy}).");
     }
 
     void OnDestroy()
@@ -97,8 +140,9 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
             enigme.onVictoire.AddListener(ArreterMinuteur);
         }
 
-        if (autoDemarrerSurAction && gestionChapitres.Instance != null)
-            gestionChapitres.Instance.OnActionSignalee += AuActionSignalee;
+        // Garde-fou : inscription via Start si l'auto-inscription
+        // RuntimeInitializeOnLoadMethod n'a pas marche (timing tardif).
+        SInscrire();
 
         // Auto-find UI si pas assignee dans l'Inspector. Cherche un
         // TMP_Text enfant nomme "texte_minuteur" ou contenant "minuteur".
@@ -163,6 +207,21 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
 
     public void DemarrerMinuteur()
     {
+        // Avant tout : activer le GameObject et tous ses ancetres si
+        // l'UI etait cachee (cas typique : minuteur_enigme desactive
+        // au demarrage pour ne pas etre visible avant le lancement de
+        // l'enigme). Sans ca, Update() ne tournerait pas et l'UI ne
+        // s'afficherait pas.
+        if (!gameObject.activeInHierarchy)
+        {
+            Transform t = transform;
+            while (t != null)
+            {
+                if (!t.gameObject.activeSelf) t.gameObject.SetActive(true);
+                t = t.parent;
+            }
+        }
+
         // Cas 1 : deja en pause (le joueur avait quitte l'enigme avec
         // Esc). On reprend la oui on s'etait arrete, SANS reset.
         if (enPause)
@@ -201,7 +260,24 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
         if (!actif) return;
         actif = false;
         enPause = true;
-        Debug.Log($"[minuteurEnigme] Mis en pause a {tempsRestant:F1}s.");
+        Debug.Log($"[minuteurEnigme] {name} mis en pause a " +
+            $"{tempsRestant:F1}s.");
+    }
+
+    /// <summary>
+    /// Met en pause TOUTES les instances de minuteurEnigmeTuyauterie
+    /// (au cas ou il y en aurait plusieurs dans la scene — typiquement
+    /// 1 logique + 1 UI sous des GameObjects distincts). Securise par
+    /// rapport a MettreEnPause() qui ne touche que Instance.
+    /// </summary>
+    public static void MettreEnPauseTous()
+    {
+        var tous = Object.FindObjectsByType<minuteurEnigmeTuyauterie>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous)
+        {
+            inst.MettreEnPause();
+        }
     }
 
     /// <summary>
@@ -214,7 +290,20 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
         if (!enPause) return;
         actif = true;
         enPause = false;
-        Debug.Log($"[minuteurEnigme] Repris a {tempsRestant:F1}s.");
+        Debug.Log($"[minuteurEnigme] {name} repris a {tempsRestant:F1}s.");
+    }
+
+    /// <summary>
+    /// Reprend toutes les instances en pause. Pendant de MettreEnPauseTous.
+    /// </summary>
+    public static void ReprendreTous()
+    {
+        var tous = Object.FindObjectsByType<minuteurEnigmeTuyauterie>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous)
+        {
+            inst.Reprendre();
+        }
     }
 
     public void ReinitialiserMinuteur()

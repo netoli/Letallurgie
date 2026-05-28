@@ -38,6 +38,17 @@ public class gestionInputsJeu : MonoBehaviour
     [SerializeField] private GameObject ensembleMenuInventaire;
     [SerializeField] private CanvasGroup groupeContenuHud;
 
+    /// <summary>
+    /// Vrai si le canvas d'inventaire est actuellement ouvert.
+    /// Permet a d'autres scripts (ex : zoneLancementEnigme) de
+    /// verifier l'etat avant d'appeler FermerInventaire — evite de
+    /// signaler 'objet_utilise' par erreur quand l'inventaire est
+    /// deja ferme.
+    /// </summary>
+    public bool EstInventaireOuvert =>
+        ensembleMenuInventaire != null
+        && ensembleMenuInventaire.activeSelf;
+
     [Tooltip("GameObject du pointeur central (reticule de visee). " +
         "Sera cache automatiquement quand l'inventaire est ouvert " +
         "pour eviter d'avoir deux pointeurs a l'ecran (le pointeur " +
@@ -258,8 +269,12 @@ public class gestionInputsJeu : MonoBehaviour
         if (ensembleTuileTutoEtBoutonRetour == null)
             ensembleTuileTutoEtBoutonRetour =
                 TrouverParNom("ensemble_tuile_tuto_et_bouton_retour", true);
+        // Note : le canvas s'appelle 'canvas_menu_principal' (le nom
+        // 'canvas_menu' n'existe pas dans la hierarchie). On cherche
+        // d'abord le bon nom, fallback sur l'ancien au cas oui.
         if (canvasMenu == null)
-            canvasMenu = TrouverParNom("canvas_menu", true);
+            canvasMenu = TrouverParNom("canvas_menu_principal", true)
+                ?? TrouverParNom("canvas_menu", true);
 
         // CanvasGroups : recuperer depuis le canvas associe
         if (groupeMenuPause == null && canvasMenuPause != null)
@@ -309,8 +324,20 @@ public class gestionInputsJeu : MonoBehaviour
     /// </summary>
     private void AuFinBanniereSauvetage(string idChapitre)
     {
+        Debug.Log("[gestionInputsJeu] AuFinBanniereSauvetage recu pour "
+            + "chapitre='" + idChapitre + "'");
         if (idChapitre != "le_sauvetage") return;
-        if (pointeurCentre != null) pointeurCentre.SetActive(true);
+        if (pointeurCentre != null)
+        {
+            pointeurCentre.SetActive(true);
+            Debug.Log("[gestionInputsJeu] pointeur_centre reactive "
+                + "apres banniere 'A la rescousse'.");
+        }
+        else
+        {
+            Debug.LogWarning("[gestionInputsJeu] pointeurCentre est null "
+                + "-> pas de reactivation.");
+        }
         // Une seule fois : on se desabonne.
         if (gestionChapitres.Instance != null)
             gestionChapitres.Instance.OnBanniereChapitreTerminee
@@ -327,7 +354,8 @@ public class gestionInputsJeu : MonoBehaviour
     {
         Debug.Log("[gestionInputsJeu] AutoBindBoutonsHud sur scene "
             + SceneManager.GetActiveScene().name);
-        // (nom_du_bouton, methode_a_appeler)
+        // (nom_du_bouton, methode_a_appeler) — boutons aux noms UNIQUES
+        // dans la scene (HUD principal + boutons du menu pause).
         var bindings = new (string nom, System.Action act)[]
         {
             ("bouton_journal",         BoutonJournal),
@@ -341,6 +369,161 @@ public class gestionInputsJeu : MonoBehaviour
         };
         foreach (var (nom, act) in bindings)
             RebindBoutonHud(nom, act);
+
+        // Boutons Oui/Non des canvas de confirmation : leurs noms sont
+        // GENERIQUES (bouton_oui / bouton_non) et reutilises dans 3 canvas
+        // differents. On les rebind via leur canvas parent. Cas observe
+        // en scene2_usine : les 14 onClick gestionInputsJeu avaient
+        // m_Target=0 (refs Inspector perdues), donc les clics Oui/Non
+        // ne faisaient rien. Le rebind runtime contourne ca proprement
+        // sans toucher au YAML de la scene.
+        var bindingsParCanvas = new (string canvas, string bouton, System.Action act)[]
+        {
+            // Canvas "Vraiment quitter le jeu ?"
+            ("canvas_confirmer_quitter",
+                "bouton_oui", ConfirmerQuitter),
+            ("canvas_confirmer_quitter",
+                "bouton_non", FermerConfirmationQuitter),
+            // Canvas "Retourner au menu principal ?" (ouvert par Q)
+            ("canvas_confirmer_retourner_au_menu_principal",
+                "bouton_oui", ConfirmerRetourMenuPrincipal),
+            ("canvas_confirmer_retourner_au_menu_principal",
+                "bouton_non", FermerConfirmationRetourMenu),
+            // Canvas "Reinitialiser les options ?"
+            ("canvas_confirmer_reinitialisation",
+                "bouton_oui", ConfirmerReinitialisation),
+            ("canvas_confirmer_reinitialisation",
+                "bouton_non", FermerConfirmationReinitialisation),
+        };
+        foreach (var (canvas, bouton, act) in bindingsParCanvas)
+            RebindBoutonDansCanvas(canvas, bouton, act);
+
+        // Boutons du canvas_menu_principal : OnContinuer, OnNouvellePartie,
+        // OnOptions, OnCredits, OnQuitter sont des methodes de
+        // gestionsTransitions. En scene2 (canvas copie de scene0), les
+        // m_Target des onClick sont 0 -> les boutons sont morts. On rebind
+        // au runtime en pointant vers le gestionsTransitions local.
+        var transitions = GetComponent<gestionsTransitions>();
+        if (transitions == null)
+        {
+            transitions = FindFirstObjectByType<gestionsTransitions>(
+                FindObjectsInactive.Include);
+        }
+        if (transitions != null)
+        {
+            var menuPrincipalBindings = new (string canvas, string bouton, System.Action act)[]
+            {
+                ("canvas_menu_principal", "btn_continuer",
+                    transitions.OnContinuer),
+                ("canvas_menu_principal", "btn_nouvelle_partie",
+                    transitions.OnNouvellePartie),
+                ("canvas_menu_principal", "btn_options",
+                    transitions.OnOptions),
+                ("canvas_menu_principal", "btn_credit",
+                    transitions.OnCredits),
+                ("canvas_menu_principal", "btn_credits",
+                    transitions.OnCredits),
+                // btn_quiter / btn_quitter du MENU principal : on affiche
+                // d'abord le canvas_confirmer_quitter (Oui/Non), pas
+                // Application.Quit direct. C'est le comportement attendu
+                // par le user pour le menu principal.
+                ("canvas_menu_principal", "btn_quiter",
+                    AfficherConfirmationQuitter),
+                ("canvas_menu_principal", "btn_quitter",
+                    AfficherConfirmationQuitter),
+            };
+            foreach (var (canvas, bouton, act) in menuPrincipalBindings)
+                RebindBoutonDansCanvas(canvas, bouton, act);
+        }
+        else
+        {
+            Debug.LogWarning("[gestionInputsJeu] gestionsTransitions " +
+                "introuvable : boutons du menu principal pas rebindes.");
+        }
+    }
+
+    /// <summary>
+    /// Rebind un bouton aux noms generiques (ex : bouton_oui, bouton_non)
+    /// en l'identifiant par son ancetre canvas. Necessaire dans 2 cas :
+    /// 1. m_Target=0 (refs Inspector perdues, ex : scene2_usine apres
+    ///    plusieurs setup/merge)
+    /// 2. m_MethodName INCORRECT cable a la mauvaise methode (ex :
+    ///    canvas_confirmer_retourner_au_menu_principal qui appelle
+    ///    ConfirmerQuitter au lieu de ConfirmerRetourMenuPrincipal —
+    ///    erreur de copy-paste presente dans toutes les scenes).
+    ///
+    /// On preserve LancerEffetClic (effet sonore/visuel du clic) en le
+    /// re-ajoutant comme listener apres RemoveAllListeners, sinon le
+    /// rebind aurait l'effet secondaire de casser le retour utilisateur.
+    /// </summary>
+    private void RebindBoutonDansCanvas(
+        string nomCanvas, string nomBouton, System.Action act)
+    {
+        int trouves = 0;
+        var tous = Resources.FindObjectsOfTypeAll<UnityEngine.UI.Button>();
+        foreach (var btn in tous)
+        {
+            if (btn == null || btn.gameObject == null) continue;
+            if (btn.gameObject.name != nomBouton) continue;
+            if (btn.gameObject.hideFlags != HideFlags.None) continue;
+            if (!btn.gameObject.scene.IsValid()) continue;
+
+            // Verifier que ce bouton a un ancetre nomme nomCanvas.
+            // Sans ce filtre, on rebinderait TOUS les bouton_oui/non
+            // du jeu vers la meme methode, cassant les autres canvas
+            // de confirmation.
+            Transform t = btn.transform;
+            bool dansBonCanvas = false;
+            while (t != null)
+            {
+                if (t.gameObject.name == nomCanvas)
+                {
+                    dansBonCanvas = true;
+                    break;
+                }
+                t = t.parent;
+            }
+            if (!dansBonCanvas) continue;
+
+            // Preserver l'effet sonore/visuel du clic : on cherche le
+            // composant gestionEffetsBoutonsCliques sur le bouton (ou
+            // un enfant) AVANT de modifier les listeners, pour le
+            // re-ajouter ensuite.
+            var effets = btn.GetComponent<gestionEffetsBoutonsCliques>();
+            if (effets == null)
+                effets = btn.GetComponentInChildren<
+                    gestionEffetsBoutonsCliques>(true);
+
+            // IMPORTANT : RemoveAllListeners() ne supprime QUE les
+            // listeners ajoutes via AddListener (runtime). Il ne touche
+            // PAS les listeners PERSISTANTS serialises dans le YAML
+            // (ceux configures via l'Inspector). On doit donc desactiver
+            // chaque listener persistant individuellement via
+            // SetPersistentListenerState(Off), sinon la mauvaise methode
+            // serialisee (ex: ConfirmerQuitter sur le bouton Oui du
+            // canvas RetourMenu) continue de s'executer en plus de
+            // notre rebind. Bug observe : cliquer Oui appelait a la
+            // fois ConfirmerRetourMenuPrincipal (notre rebind) ET
+            // ConfirmerQuitter (le persistant), donc l'app quittait.
+            int persistantCount = btn.onClick.GetPersistentEventCount();
+            for (int i = 0; i < persistantCount; i++)
+            {
+                btn.onClick.SetPersistentListenerState(i,
+                    UnityEngine.Events.UnityEventCallState.Off);
+            }
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => act());
+            if (effets != null)
+                btn.onClick.AddListener(() => effets.LancerEffetClic());
+
+            Debug.Log($"[gestionInputsJeu] Rebind '{nomCanvas}/" +
+                $"{nomBouton}' (persistantsDesactives={persistantCount}, " +
+                $"effetClic={(effets != null)}).");
+            trouves++;
+        }
+        if (trouves == 0)
+            Debug.LogWarning($"[gestionInputsJeu] Aucun bouton " +
+                $"'{nomCanvas}/{nomBouton}' trouve pour rebind.");
     }
 
     private void RebindBoutonHud(string nom, System.Action act)
@@ -1295,45 +1478,275 @@ public class gestionInputsJeu : MonoBehaviour
     {
         Debug.Log("[RetourMenu] 1. Methode appelee");
 
-        StopAllCoroutines();
-        etatActuel = EtatJeu.EnJeu;
+        // === Logique overlay menu (Q -> Oui dans n'importe quelle scene) ===
+        // On NE charge PAS scene0_tuto. On affiche le canvas_menu_principal
+        // par-dessus le decor de la scene courante. Le joueur peut alors :
+        //  - Continuer : on un-freeze la scene courante (pas de LoadScene
+        //    si la sauvegarde correspond a la scene actuelle)
+        //  - Nouvelle partie : LoadScene scene0_tuto (recommence du debut)
+        //  - Quitter : Application.Quit
+
+        // Etat machine : on passe en EnPause pour que Update sorte tot
+        // (jeuActif=false suffit deja mais EtatJeu.EnPause est plus clair
+        // semantiquement et coherent avec le comportement attendu).
+        etatActuel = EtatJeu.EnPause;
         jeuActif = false;
         attenteAction = false;
-        Time.timeScale = 1f;
         DeverrouillerSouris();
 
-        canvasRetournerMenuPrincipal.SetActive(false);
-        canvasMenuPause.SetActive(false);
-        canvasOptions.SetActive(false);
-        canvasJournal.SetActive(false);
-        canvasCredits.SetActive(false);
-        canvasConfirmerReinitialisation.SetActive(false);
-        ensembleMenuInventaire.SetActive(false);
+        // FREEZE de la scene : Time.timeScale = 0 gele animations, physique,
+        // coroutines normales, AudioSource (sauf ceux configures ignoreList-
+        // enerPause). Cela suffit a "arreter" visuellement la scene.
+        Time.timeScale = 0f;
+        Debug.Log("[RetourMenu] Time.timeScale = "
+            + Time.timeScale + " (devrait etre 0)");
+
+        // Bloque explicitement le mouvement du joueur via les composants.
+        // Cherche dans toute la scene (inclus inactifs).
+        var pm = FindFirstObjectByType<PlayerMovement>(
+            FindObjectsInactive.Include);
+        if (pm != null)
+        {
+            pm.enabled = false;
+            Debug.Log("[RetourMenu] PlayerMovement desactive sur "
+                + pm.gameObject.name);
+        }
+        else
+        {
+            Debug.LogWarning("[RetourMenu] PlayerMovement NON trouve");
+        }
+        var pbr = FindFirstObjectByType<PlayerBodyRotation>(
+            FindObjectsInactive.Include);
+        if (pbr != null)
+        {
+            pbr.enabled = false;
+            Debug.Log("[RetourMenu] PlayerBodyRotation desactive sur "
+                + pbr.gameObject.name);
+        }
+        else
+        {
+            Debug.LogWarning("[RetourMenu] PlayerBodyRotation NON trouve");
+        }
+        // Bloque la rotation cam via Cinemachine InputAxisController
+        var inputAxis = FindFirstObjectByType<
+            Unity.Cinemachine.CinemachineInputAxisController>(
+            FindObjectsInactive.Include);
+        if (inputAxis != null)
+        {
+            inputAxis.enabled = false;
+            Debug.Log("[RetourMenu] InputAxisController desactive sur "
+                + inputAxis.gameObject.name);
+        }
+        else
+        {
+            Debug.LogWarning("[RetourMenu] InputAxisController NON trouve");
+        }
+
+        // Mettre tous les AudioSource de la scene en pause (le gameplay).
+        // L'AudioSource n'est PAS affecte par Time.timeScale, donc les
+        // musiques et SFX continuent. On les pause individuellement.
+        var tousAudios = FindObjectsByType<AudioSource>(
+            FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var src in tousAudios)
+        {
+            if (src != null && src.isPlaying)
+                src.Pause();
+        }
+        Debug.Log("[RetourMenu] " + tousAudios.Length
+            + " AudioSources mises en pause.");
+
+        // Fermer toutes les fenetres UI ouvertes (null-safe). On laisse
+        // canvasHud actif pour que d'eventuels elements en arriere
+        // restent neutralises ; on cache son contenu via CacherContenuHud.
+        if (canvasRetournerMenuPrincipal != null)
+            canvasRetournerMenuPrincipal.SetActive(false);
+        if (canvasMenuPause != null) canvasMenuPause.SetActive(false);
+        if (canvasOptions != null) canvasOptions.SetActive(false);
+        if (canvasJournal != null) canvasJournal.SetActive(false);
+        if (canvasCredits != null) canvasCredits.SetActive(false);
+        if (canvasConfirmerReinitialisation != null)
+            canvasConfirmerReinitialisation.SetActive(false);
+        if (ensembleMenuInventaire != null)
+            ensembleMenuInventaire.SetActive(false);
         CacherContenuHud();
-        canvasHud.SetActive(false);
 
+        // Verification null-safe : si canvasMenu manque, on log et sort.
+        if (canvasMenu == null)
+        {
+            Debug.LogError("[RetourMenu] canvasMenu introuvable dans " +
+                "cette scene. Ajoute 'canvas_menu_principal' au " +
+                "GameObject --UI et rattache la ref sur gestionInputsJeu.");
+            return;
+        }
+
+        // Activer TOUS les parents inactifs jusqu'a la racine (sinon
+        // SetActive(true) sur le canvas est inutile si un ancetre est
+        // desactive — cas observe sur ensembles UI).
+        Transform tr = canvasMenu.transform;
+        while (tr != null)
+        {
+            if (!tr.gameObject.activeSelf)
+                tr.gameObject.SetActive(true);
+            tr = tr.parent;
+        }
         canvasMenu.SetActive(true);
-        groupeMenu.alpha = 0f;
-        DebloquerCanvasGroup(groupeMenu);
 
-        Debug.Log("[RetourMenu] 2. Avant StartCoroutine cut");
+        // On NE touche PAS a la position, ni au scale, ni au RenderMode
+        // du canvas_menu_principal. On l'active simplement. C'est la
+        // camera courante qui doit le filmer (camera_virtuelle_menu_
+        // principal en scene0_tuto). Si une scene n'a pas cette camera,
+        // c'est a toi de la copier dans la scene pour que le canvas
+        // soit visible.
+
+        if (groupeMenu != null)
+        {
+            groupeMenu.alpha = 1f;
+            DebloquerCanvasGroup(groupeMenu);
+        }
+
+        // Switcher la priorite Cinemachine vers vcamMenu pour que la
+        // Main Camera prenne sa position et voie le canvas_menu_principal.
         StartCoroutine(CutInstantaneVersMenu());
-        Debug.Log("[RetourMenu] 3. Apres StartCoroutine cut");
 
-        GetComponent<gestionsTransitions>()
-            .MettreAJourBoutonContinuer();
+        // CRUCIAL : le Brain a IgnoreTimeScale=false par defaut. Donc
+        // avec Time.timeScale=0 (overlay menu), il ne fait plus aucun
+        // blend entre vcam. Resultat : si le joueur clique Options
+        // depuis le menu overlay, le switch vcamMenu->vcamOptionsCredits
+        // ne produit aucune transition visible. On active IgnoreTimeScale
+        // pour que les blends fonctionnent malgre le freeze de la scene.
+        if (cinemachineBrain != null)
+            cinemachineBrain.IgnoreTimeScale = true;
 
+        Debug.Log("[RetourMenu] 2. Canvas menu active. ActiveSelf=" +
+            canvasMenu.activeSelf + " ActiveInHierarchy=" +
+            canvasMenu.activeInHierarchy);
+
+        // Mettre a jour le bouton Continuer (active si sauvegarde existe)
+        var transitions = GetComponent<gestionsTransitions>();
+        if (transitions != null)
+            transitions.MettreAJourBoutonContinuer();
+
+        // Effet flou sur le decor 3D derriere le menu (comme menu pause)
         if (gestionFlou != null)
             gestionFlou.ActiverFlou();
 
+        // Musique d'intro du menu (peut etre coupee par OnNouvellePartie
+        // /OnContinuer si on switch de scene apres)
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.JouerMusiquesIntro();
 
-        StartCoroutine(FadeCanvasGroup(groupeMenu, 1f));
+        Debug.Log("[RetourMenu] 3. Overlay menu actif, scene figee.");
+    }
+
+    /// <summary>
+    /// Restaure le jeu apres avoir affiche le menu overlay via
+    /// ConfirmerRetourMenuPrincipal. Appele par gestionsTransitions.
+    /// OnContinuer quand la sauvegarde correspond a la scene actuelle :
+    /// on un-freeze tout sans LoadScene. Si on a besoin de switcher de
+    /// scene (OnNouvellePartie, ou Continuer vers une autre scene), le
+    /// LoadScene s'en charge dans gestionsTransitions.
+    /// </summary>
+    public void ReprendreJeuApresMenuOverlay()
+    {
+        Debug.Log("[ReprendreOverlay] Un-freeze de la scene.");
+
+        // Un-freeze
+        Time.timeScale = 1f;
+
+        // Restaurer IgnoreTimeScale du Brain a false (etat normal en
+        // jeu). On avait mis a true dans ConfirmerRetourMenuPrincipal
+        // pour que les blends marchent malgre timeScale=0.
+        if (cinemachineBrain != null)
+            cinemachineBrain.IgnoreTimeScale = false;
+
+        // Reactiver les composants du joueur
+        var pm = FindFirstObjectByType<PlayerMovement>(
+            FindObjectsInactive.Include);
+        if (pm != null) pm.enabled = true;
+        var pbr = FindFirstObjectByType<PlayerBodyRotation>(
+            FindObjectsInactive.Include);
+        if (pbr != null) pbr.enabled = true;
+        var inputAxis = FindFirstObjectByType<
+            Unity.Cinemachine.CinemachineInputAxisController>(
+            FindObjectsInactive.Include);
+        if (inputAxis != null) inputAxis.enabled = true;
+
+        // Relancer toutes les AudioSources qui etaient en pause
+        var tousAudios = FindObjectsByType<AudioSource>(
+            FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var src in tousAudios)
+        {
+            if (src != null) src.UnPause();
+        }
+
+        // Cacher le menu overlay
+        if (canvasMenu != null) canvasMenu.SetActive(false);
+
+        // CUT INSTANTANE vers la vcam Jeu (pas un blend de 2s du Brain).
+        // Sans ca, on voit la camera glisser doucement de vcamMenu a
+        // vcamJeu pendant 2 secondes, alors qu'on veut un retour immediat
+        // au gameplay. Pattern identique a CutInstantaneVersJeu de
+        // gestionsTransitions : disable Brain -> change priorities ->
+        // reenable Brain (qui prend instantanement vcamJeu en position).
+        StartCoroutine(CutInstantaneVersJeu());
+
+        // Reactiver le HUD
+        if (canvasHud != null) canvasHud.SetActive(true);
+        MontrerContenuHud();
+
+        // Desactiver le flou
+        if (gestionFlou != null)
+            gestionFlou.DesactiverFlou();
+
+        // Reverrouiller la souris (mode gameplay)
+        VerrouillerSouris();
+
+        // Restaurer l'etat machine et reactiver les inputs gameplay
+        etatActuel = EtatJeu.EnJeu;
+        jeuActif = true;
+        attenteAction = false;
+    }
+
+    /// <summary>
+    /// Cut Cinemachine instantane vers vcamJeu (sans blend). Necessaire
+    /// quand on reprend le jeu depuis le menu overlay : sinon le Brain
+    /// fait un blend de DefaultBlend.Time (typiquement 2s) qui donne
+    /// l'impression que le retour au jeu est lent.
+    /// </summary>
+    private System.Collections.IEnumerator CutInstantaneVersJeu()
+    {
+        if (cinemachineBrain == null)
+        {
+            // Fallback sans Brain : juste switcher les priorites.
+            if (vcamJeu != null) vcamJeu.Priority = 50;
+            if (vcamMenu != null) vcamMenu.Priority = 10;
+            yield break;
+        }
+        cinemachineBrain.enabled = false;
+        if (vcamJeu != null) vcamJeu.Priority = 50;
+        if (vcamMenu != null) vcamMenu.Priority = 10;
+        yield return null;  // attendre 1 frame pour que les priorites s'appliquent
+        cinemachineBrain.enabled = true;
     }
 
     private IEnumerator CutInstantaneVersMenu()
     {
+        // Null-safe : si vcamMenu ou vcamJeu manquent (cas scene2_usine
+        // ou il n'y a pas de camera "menu principal"), on saute la
+        // transition Cinemachine. Le canvas_menu_principal est en
+        // ScreenSpace-Overlay donc il s'affiche par-dessus l'image de
+        // la camera courante meme sans switch. Avant ce check, un NRE
+        // sur vcamMenu.Priority bloquait toute la coroutine et le menu
+        // ne s'affichait pas.
+        if (vcamMenu == null || vcamJeu == null)
+        {
+            Debug.LogWarning("[CutInstantane] vcamMenu ou vcamJeu " +
+                "introuvable -> on saute le switch Cinemachine. Le " +
+                "canvas_menu_principal s'affichera par-dessus la " +
+                "camera courante (ScreenSpace-Overlay).");
+            yield break;
+        }
+
         if (cinemachineBrain == null)
         {
             Debug.LogWarning(

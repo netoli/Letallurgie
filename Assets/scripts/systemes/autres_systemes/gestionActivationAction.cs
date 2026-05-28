@@ -66,6 +66,14 @@ public class gestionActivationAction : MonoBehaviour
         "annonce sa zone. 0 = activation immediate.")]
     [SerializeField] private float delaiAvantActivation = 0f;
 
+    [Tooltip("Si coche, active aussi RECURSIVEMENT tous les enfants " +
+        "desactives de la cible. Necessaire quand les enfants ont leur " +
+        "propre m_IsActive: 0 — dans ce cas, activer le parent ne suffit " +
+        "PAS a rendre les enfants visibles (Unity respecte le state " +
+        "individuel des enfants). Exemple : tuyaux_a_placer avec ses 9 " +
+        "tuyaux enfants individuellement desactives.")]
+    [SerializeField] private bool activerEnfantsAussi = false;
+
     [Header("Options")]
     [Tooltip("Si coche, le composant peut etre redeclenche plusieurs " +
         "fois. Sinon il ne s'active qu'une seule fois par session. " +
@@ -137,9 +145,26 @@ public class gestionActivationAction : MonoBehaviour
         activationDeclenchee = true;
 
         if (delaiAvantActivation > 0f)
-            StartCoroutine(ActiverApresDelai(idAction));
+        {
+            // Lancer la coroutine sur un host TOUJOURS actif. Ce
+            // composant peut etre porte par un GameObject inactif au
+            // demarrage (ex : prefab_pointeur_enigme), auquel cas
+            // StartCoroutine(this, ...) echoue avec :
+            // "Coroutine couldn't be started because the game object
+            //  'X' is inactive!". On retombe alors sur
+            // gestionChapitres.Instance (singleton sur GameObject actif).
+            MonoBehaviour host = this;
+            if (!gameObject.activeInHierarchy
+                && gestionChapitres.Instance != null)
+            {
+                host = gestionChapitres.Instance;
+            }
+            host.StartCoroutine(ActiverApresDelai(idAction));
+        }
         else
+        {
             ExecuterActivation(idAction);
+        }
     }
 
     private System.Collections.IEnumerator ActiverApresDelai(string idAction)
@@ -154,6 +179,29 @@ public class gestionActivationAction : MonoBehaviour
         Debug.Log($"[ActivationAction] {name} : action " +
             $"'{idAction}' signalee, activation de '{cible.name}'.");
         cible.SetActive(true);
+
+        // Option : reactiver aussi recursivement les enfants desactives.
+        // Necessaire pour le cas ou la cible a des enfants individuellement
+        // desactives (m_IsActive: 0 enregistre sur chaque enfant) — Unity
+        // garde ces enfants invisibles meme apres SetActive(true) du parent.
+        // Ex : tuyaux_a_placer avec ses 9 tuyaux enfants desactives.
+        if (activerEnfantsAussi)
+        {
+            int n = 0;
+            var enfants = cible.GetComponentsInChildren<Transform>(true);
+            foreach (var t in enfants)
+            {
+                if (t.gameObject == cible) continue;
+                if (!t.gameObject.activeSelf)
+                {
+                    t.gameObject.SetActive(true);
+                    n++;
+                }
+            }
+            if (n > 0)
+                Debug.Log($"[ActivationAction] {name} : {n} enfant(s) " +
+                    "desactive(s) reactive(s).");
+        }
     }
 
     /// <summary>

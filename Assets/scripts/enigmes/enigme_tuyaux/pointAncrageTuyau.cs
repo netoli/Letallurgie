@@ -253,6 +253,12 @@ public class pointAncrageTuyau : MonoBehaviour
 
         onRempli.Invoke();
 
+        // Etape 8 du flow scene2 : au 1er placement (et aux suivants),
+        // fermer la tuile_explicative pour ne pas masquer l'enigme.
+        // Elle reapparaitra quand le joueur quittera et reviendra dans
+        // la zone (LancerEnigme la reactive).
+        zoneLancementEnigme.FermerTuilesActives();
+
         // Auto-disparition du snap apres remplissage (option Inspector).
         // Pour les snap d'aide visuelle (ex : snap_table_bouteille avec
         // un prefab_pointeur_bouteille en enfant) qui n'ont plus de

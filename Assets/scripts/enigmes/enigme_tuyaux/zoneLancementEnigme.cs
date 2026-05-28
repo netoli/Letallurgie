@@ -108,9 +108,16 @@ public class zoneLancementEnigme : MonoBehaviour
         "bandeau s'affiche. Defaut : 4.")]
     [SerializeField] private int minimumTuyauxRequis = 4;
 
+    [Header("Element a cacher pendant l'enigme (optionnel)")]
+    [Tooltip("GameObject (ex : indices_jouabilite, ATH HUD) a desactiver " +
+        "quand l'enigme est lancee et a reactiver quand le joueur quitte. " +
+        "Si vide, auto-find par nom 'indices_jouabilite'.")]
+    [SerializeField] private GameObject indicesJouabilite;
+
     private bool joueurDansZone = false;
     private bool enigmeLancee = false;
     private bool zoneActivee = true;
+    private gestionInputsJeu cacheInputs;
 
     /// <summary>
     /// Vrai si une enigme est actuellement en cours (entre Enter et Esc).
@@ -146,6 +153,28 @@ public class zoneLancementEnigme : MonoBehaviour
                     "tuile_explicative' ou 'tuile_explicative' trouve " +
                     "dans la scene. La tuile ne s'affichera pas.");
         }
+
+        // AUTO-FIND indices_jouabilite par nom si non assigne.
+        if (indicesJouabilite == null)
+        {
+            var tous = FindObjectsByType<Transform>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in tous)
+            {
+                if (t.name == "indices_jouabilite"
+                    || t.name == "indice_jouabilite")
+                {
+                    indicesJouabilite = t.gameObject;
+                    Debug.Log("[zoneLancementEnigme] AUTO-FIND : " +
+                        $"indices_jouabilite trouve : {t.name}");
+                    break;
+                }
+            }
+        }
+
+        // Cache de gestionInputsJeu pour FermerInventaire au QuitterEnigme.
+        cacheInputs = FindFirstObjectByType<gestionInputsJeu>(
+            FindObjectsInactive.Include);
 
         // Si une action d'activation est requise, on attend qu'elle
         // soit signalee avant de reagir aux OnTriggerEnter.
@@ -203,9 +232,27 @@ public class zoneLancementEnigme : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         joueurDansZone = false;
-        if (!enigmeLancee)
-            gestionBandeauInfo.Effacer();
         Debug.Log("[zoneLancementEnigme] Joueur sort de zone.");
+
+        if (enigmeLancee)
+        {
+            // Si l'enigme etait en cours et le joueur s'eloigne de la
+            // zone sans appuyer Esc : on traite ca comme une sortie
+            // d'enigme (auto-Esc). Met le minuteur en pause, ferme la
+            // tuile, et le bandeau 'Appuyer Entree' reapparaitra
+            // automatiquement quand le joueur reviendra dans la zone
+            // (via OnTriggerEnter).
+            Debug.Log("[zoneLancementEnigme] Joueur quitte la zone " +
+                "pendant l'enigme → auto-Esc.");
+            QuitterEnigme();
+            // QuitterEnigme appelle gestionBandeauInfo.Effacer() ET
+            // n'affiche pas le bandeau approche (car joueurDansZone=false).
+        }
+        else
+        {
+            // Cas normal : juste effacer le bandeau d'approche.
+            gestionBandeauInfo.Effacer();
+        }
     }
 
     void Update()
@@ -257,17 +304,36 @@ public class zoneLancementEnigme : MonoBehaviour
         // 2. Effacer un eventuel bandeau d'inventaire vide en cours
         gestionBandeauInfo.Effacer();
 
-        // 3. Signaler l'action de sortie (restaure opacite, etc.)
+        // 3. Fermer l'inventaire si ouvert (le joueur peut avoir clique
+        // dans l'inventaire pendant l'enigme — Esc doit tout fermer).
+        if (cacheInputs == null)
+            cacheInputs = FindFirstObjectByType<gestionInputsJeu>(
+                FindObjectsInactive.Include);
+        if (cacheInputs != null && cacheInputs.EstInventaireOuvert)
+        {
+            cacheInputs.FermerInventaire();
+            Debug.Log("[zoneLancementEnigme] Inventaire ferme " +
+                "automatiquement a la sortie de l'enigme.");
+        }
+
+        // 4. Reactiver indices_jouabilite (l'ATH explicatif joueur).
+        if (indicesJouabilite != null && !indicesJouabilite.activeSelf)
+        {
+            indicesJouabilite.SetActive(true);
+            Debug.Log("[zoneLancementEnigme] indices_jouabilite reactive.");
+        }
+
+        // 5. Signaler l'action de sortie (restaure opacite, etc.)
         if (gestionChapitres.Instance != null
             && !string.IsNullOrEmpty(idActionSortie))
             gestionChapitres.Instance.SignalerAction(idActionSortie);
 
-        // 4. Mettre le minuteur en pause (sans le reset). Le temps
-        // restant est conserve pour quand le joueur relancera l'enigme.
-        if (minuteurEnigmeTuyauterie.Instance != null)
-            minuteurEnigmeTuyauterie.Instance.MettreEnPause();
+        // 6. Mettre TOUS les minuteurs en pause (sans reset). Le
+        // temps restant est conserve. Il peut y avoir plusieurs
+        // instances (1 logique + 1 UI), donc on les pause toutes.
+        minuteurEnigmeTuyauterie.MettreEnPauseTous();
 
-        // 5. Reinitialiser pour permettre de relancer l'enigme
+        // 7. Reinitialiser pour permettre de relancer l'enigme
         enigmeLancee = false;
         EnigmeActive = false;
         if (joueurDansZone)
@@ -280,6 +346,14 @@ public class zoneLancementEnigme : MonoBehaviour
         EnigmeActive = true;
         gestionBandeauInfo.Effacer();
         Debug.Log("[zoneLancementEnigme] Lancement enigme.");
+
+        // Cacher indices_jouabilite (ATH explicatif joueur) pendant
+        // l'enigme — sera reaffiche au QuitterEnigme.
+        if (indicesJouabilite != null && indicesJouabilite.activeSelf)
+        {
+            indicesJouabilite.SetActive(false);
+            Debug.Log("[zoneLancementEnigme] indices_jouabilite cache.");
+        }
 
         // 1. Signaler l'action de lancement (hook externe : minuteur, etc.)
         if (gestionChapitres.Instance != null
@@ -309,10 +383,36 @@ public class zoneLancementEnigme : MonoBehaviour
                 ? donneesTuileSource.titre : titreTuile;
             string explicationFinal = donneesTuileSource != null
                 ? donneesTuileSource.explication : explicationTuile;
-            RemplirTexteEnfant(tuileExplicativeGameObject,
+            // Strategie de remplissage des textes :
+            // 1) Tenter par nom exact (titre_tuto, titre, explication_tuto,
+            //    explication).
+            // 2) Si echec, fallback par INDEX : 1er TMP_Text descendant
+            //    = titre, 2e = explication. Robuste face aux renommages.
+            bool titreRempli = RemplirTexteEnfant(tuileExplicativeGameObject,
                 new[] { "titre_tuto", "titre" }, titreFinal);
-            RemplirTexteEnfant(tuileExplicativeGameObject,
-                new[] { "explication_tuto", "explication" }, explicationFinal);
+            bool explicRempli = RemplirTexteEnfant(tuileExplicativeGameObject,
+                new[] { "explication_tuto", "explication" },
+                explicationFinal);
+
+            if (!titreRempli || !explicRempli)
+            {
+                var tousTextes = tuileExplicativeGameObject
+                    .GetComponentsInChildren<TMP_Text>(true);
+                if (tousTextes.Length >= 1 && !titreRempli
+                    && !string.IsNullOrEmpty(titreFinal))
+                {
+                    tousTextes[0].text = titreFinal;
+                    Debug.Log("[zoneLancementEnigme] Titre rempli par " +
+                        $"fallback index (1er TMP_Text : '{tousTextes[0].name}').");
+                }
+                if (tousTextes.Length >= 2 && !explicRempli
+                    && !string.IsNullOrEmpty(explicationFinal))
+                {
+                    tousTextes[1].text = explicationFinal;
+                    Debug.Log("[zoneLancementEnigme] Explication remplie " +
+                        $"par fallback index (2e TMP_Text : '{tousTextes[1].name}').");
+                }
+            }
             Debug.Log("[zoneLancementEnigme] Tuile explicative " +
                 "GameObject activee.");
         }
@@ -400,10 +500,10 @@ public class zoneLancementEnigme : MonoBehaviour
     /// un). Ne fait rien si le texte est vide (preserve le contenu existant
     /// dans l'Inspector).
     /// </summary>
-    private void RemplirTexteEnfant(
+    private bool RemplirTexteEnfant(
         GameObject racine, string[] nomsCandidats, string texte)
     {
-        if (string.IsNullOrEmpty(texte)) return;
+        if (string.IsNullOrEmpty(texte)) return false;
         var tousTextes = racine.GetComponentsInChildren<TMP_Text>(true);
         foreach (var t in tousTextes)
         {
@@ -413,12 +513,13 @@ public class zoneLancementEnigme : MonoBehaviour
                 if (t.gameObject.name == nom)
                 {
                     t.text = texte;
-                    return;
+                    return true;
                 }
             }
         }
         Debug.LogWarning($"[zoneLancementEnigme] Aucun TMP_Text enfant " +
             $"avec un nom dans [{string.Join(",", nomsCandidats)}] trouve " +
             $"sous '{racine.name}'.");
+        return false;
     }
 }

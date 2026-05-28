@@ -1955,15 +1955,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -19934,15 +19934,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -25585,6 +25585,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 436401127}
+  - component: {fileID: 436401128}
   m_Layer: 0
   m_Name: tuyaux_a_placer
   m_TagString: Untagged
@@ -25616,6 +25617,23 @@ Transform:
   - {fileID: 5979983720334027180}
   m_Father: {fileID: 769496376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &436401128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436401126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d7f859d7a0f489a856ded7ccb69a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionActivationAction
+  idActionActivation: joueur_a_atteint_enigme
+  objetAActiver: {fileID: 436401126}
+  delaiAvantActivation: 1
+  activerEnfantsAussi: 1
+  autoReset: 0
 --- !u!1 &436716017 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8774409223693684767, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
@@ -26952,6 +26970,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 468164831}
   m_CullTransparentMesh: 1
+--- !u!1 &471032314
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 471032315}
+  - component: {fileID: 471032316}
+  m_Layer: 0
+  m_Name: chaine_contact_tavernier_to_banniere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &471032315
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471032314}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1742103080}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &471032316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471032314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb467bdba77664a1cafa8a1e18f6fccc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::chaineActionsAvecDelai
+  idActionEcoutee: tavernier_trouve
+  delaiAvantSuite: 3
+  idChapitreADemarrer: enigme_tuyauterie
+  idActionASignaler: 
+  objetAActiver: {fileID: 0}
+  objetADesactiver: {fileID: 0}
+  autoReset: 0
+  debug: 1
 --- !u!1 &472159222
 GameObject:
   m_ObjectHideFlags: 0
@@ -51011,7 +51081,19 @@ MonoBehaviour:
   ecranReprise: {fileID: 2037528393}
   onVictoire:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6109877}
+        m_TargetAssemblyTypeName: gestionChapitres, Assembly-CSharp
+        m_MethodName: SignalerAction
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: enigme_tuyauterie_reussie
+          m_BoolArgument: 0
+        m_CallState: 2
   onReset:
     m_PersistentCalls:
       m_Calls: []
@@ -64504,13 +64586,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1629983709815276022, guid: 5226bb8a98af04ab38cd0af607a05970, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 841083349}
   m_SourcePrefab: {fileID: 100100000, guid: 5226bb8a98af04ab38cd0af607a05970, type: 3}
 --- !u!1 &841083344 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1629983709815276022, guid: 5226bb8a98af04ab38cd0af607a05970, type: 3}
   m_PrefabInstance: {fileID: 841083343}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &841083349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 841083344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d7f859d7a0f489a856ded7ccb69a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionActivationAction
+  idActionActivation: chapitre_enigme_tuyauterie_banniere_terminee
+  objetAActiver: {fileID: 841083344}
+  delaiAvantActivation: 3
+  activerEnfantsAussi: 0
+  autoReset: 0
 --- !u!1001 &841361256
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69254,15 +69356,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -76496,15 +76598,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -87245,6 +87347,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 8198053285712179364, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8264898766014886917, guid: 7a79eb7931c07435eaa9e39a78cb5bfb, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -87755,6 +87861,7 @@ MonoBehaviour:
   idActionActivation: enigme_tuyauterie_reussie
   objetAActiver: {fileID: 1271888669}
   delaiAvantActivation: 3
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!114 &1271888675
 MonoBehaviour:
@@ -91432,15 +91539,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -91509,6 +91616,10 @@ PrefabInstance:
     - target: {fileID: 7100000000000000004, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: ignorerOrientation
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7100000000000000004, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
+      propertyPath: orientationAttendue
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -102414,8 +102525,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 120, y: 30, z: 27}
-  m_Center: {x: -0.8, y: 0, z: 0}
+  m_Size: {x: 120, y: 54, z: 33}
+  m_Center: {x: -0.8, y: 5.3, z: 0}
 --- !u!4 &1464870047
 Transform:
   m_ObjectHideFlags: 0
@@ -102425,7 +102536,7 @@ Transform:
   m_GameObject: {fileID: 1464870045}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 294.5, y: 11.5, z: 472.8}
+  m_LocalPosition: {x: 294.5, y: 11.5, z: 465.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106493,9 +106604,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5d7f859d7a0f489a856ded7ccb69a3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionActivationAction
-  idActionActivation: pointeur_enigme_visible
+  idActionActivation: chapitre_enigme_tuyauterie_banniere_terminee
   objetAActiver: {fileID: 841083344}
-  delaiAvantActivation: 0
+  delaiAvantActivation: 3
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!4 &1564325144
 Transform:
@@ -109663,15 +109775,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -110419,15 +110531,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -113844,6 +113956,54 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4493585093827132993, guid: 2f40c4e983bf5314f86e7286feda7ba9, type: 3}
+--- !u!1 &1733959070
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1733959071}
+  - component: {fileID: 1733959072}
+  m_Layer: 0
+  m_Name: surveillance_4_tuyaux
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1733959071
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733959070}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1742103080}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1733959072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733959070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9d09db4c97c4db8a8a89afb658bd1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::surveillanceInventaire
+  categorieCible: 1
+  seuil: 4
+  idActionAtteindreSeuil: joueur_a_4_tuyaux
+  autoReset: 0
 --- !u!1 &1733992330 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8294448991606763922, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
@@ -114030,6 +114190,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a7cb65be99687c94c96586a5f88c23a2, type: 3}
   m_PrefabInstance: {fileID: 1741466955}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1742103079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1742103080}
+  m_Layer: 0
+  m_Name: chaine_narrative_enigme
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1742103080
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742103079}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 471032315}
+  - {fileID: 1733959071}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1742949570 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7010990041662336343, guid: b515d92c8b4da8645833f41019a0abf8, type: 3}
@@ -119826,15 +120019,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -123409,7 +123602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99b57d16314834c10968377122c5b0da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::persistanceCanvasHUD
-  debug: 1
 --- !u!1 &1903192227
 GameObject:
   m_ObjectHideFlags: 0
@@ -131066,6 +131258,7 @@ MonoBehaviour:
   idActionActivation: pointeur_tavernier_prisonnier_visible
   objetAActiver: {fileID: 2014688377}
   delaiAvantActivation: 0
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!1 &2014688377 stripped
 GameObject:
@@ -133669,15 +133862,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7100000000000000002, guid: 7a8b9c0d1e2f30412345678900abcdef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -139676,9 +139869,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 17b8c9d0e1f2a3b4c5d6e7f8091a2b3c, type: 2}
   - {fileID: 11400000, guid: 7713945776b94b5dbf65ad11392661f0, type: 2}
   - {fileID: 11400000, guid: 138aebe36c804aa9888e23496c697b74, type: 2}
-  - {fileID: 11400000, guid: 17b8c9d0e1f2a3b4c5d6e7f8091a2b3c, type: 2}
-  - {fileID: 11400000, guid: 7713945776b94b5dbf65ad11392661f0, type: 2}
-  - {fileID: 11400000, guid: 138aebe36c804aa9888e23496c697b74, type: 2}
+  - {fileID: 11400000, guid: e1f2a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
   cinematique:
   - {fileID: 32900000, guid: 14b29d2f9beba3849a9479d6a81ce3a4, type: 3}
   boutonPasserCinematique: {fileID: 0}
@@ -140050,10 +140241,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -140061,7 +140252,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &2491638995605528554
@@ -140076,8 +140267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -140092,6 +140283,18 @@ PrefabInstance:
     - target: {fileID: 722656515047840619, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
       propertyPath: m_Layer
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 834477962664828004, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 834477962664828004, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 834477962664828004, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 834477962664828004, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140133,6 +140336,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 834477962664828004, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919338540568453392, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
       propertyPath: m_Layer
       value: 12
@@ -140143,7 +140350,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1393760109945653233, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1395917114624357386, guid: 6738dcf8cf8a34e86bbce3896971602e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140244,7 +140451,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 359453885016161398, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2430109232620922545, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_Layer
@@ -140269,6 +140476,18 @@ PrefabInstance:
     - target: {fileID: 4618268367160984206, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_Layer
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140309,6 +140528,10 @@ PrefabInstance:
     - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6077412320982405345, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6399015134347448703, guid: 972b4d91f5a84430892d2c04ac1b0a0e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140394,7 +140617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1245048282311655125, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2563861174388584015, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
       propertyPath: m_Layer
@@ -140449,6 +140672,18 @@ PrefabInstance:
       value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 180
       objectReference: {fileID: 0}
@@ -140487,6 +140722,10 @@ PrefabInstance:
     - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 5768393043404159145, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7197210010591621697, guid: d8bac487f37614ce5b98d03ad7e90b8c, type: 3}
       propertyPath: ShapeModule.radius.value
@@ -140542,7 +140781,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4582147042779786757, guid: b3caff0190cec43a583eccf42a56e07d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023337443671694743, guid: b3caff0190cec43a583eccf42a56e07d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023337443671694743, guid: b3caff0190cec43a583eccf42a56e07d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023337443671694743, guid: b3caff0190cec43a583eccf42a56e07d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5023337443671694743, guid: b3caff0190cec43a583eccf42a56e07d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140675,10 +140926,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -140686,7 +140937,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &4809658568715100314
@@ -140701,8 +140952,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -140720,7 +140971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2015073797375668053, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2017067990251412654, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140783,6 +141034,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -42.42
       objectReference: {fileID: 0}
@@ -140821,6 +141084,10 @@ PrefabInstance:
     - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8820612650951447212, guid: 1b42294ae7fd64f9c8a5b6f0074ac8dd, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -140901,7 +141168,7 @@ MonoBehaviour:
   tagsAReveler:
   - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
+  cacherIndicesAuDemarrage: 0
   nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
@@ -140957,7 +141224,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1007763187226535442, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1469973677334629253, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
       propertyPath: m_Layer
@@ -141028,6 +141295,18 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 39.6
       objectReference: {fileID: 0}
@@ -141066,6 +141345,10 @@ PrefabInstance:
     - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6608097544917963805, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7404069291410261777, guid: 5a6fada17b59840cf8de2978e0fe5b6e, type: 3}
       propertyPath: playOnAwake
@@ -141142,7 +141425,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1560428445372670983, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1562515082920024060, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
       propertyPath: m_LocalPosition.y
@@ -141189,6 +141472,18 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
       propertyPath: m_LocalPosition.x
       value: 17
       objectReference: {fileID: 0}
@@ -141227,6 +141522,10 @@ PrefabInstance:
     - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7817938227465045325, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8203742883586369953, guid: 1fedb15f2fc47436d896b39825fce389, type: 3}
       propertyPath: m_Layer
@@ -141276,6 +141575,18 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 57.88
       objectReference: {fileID: 0}
@@ -141314,6 +141625,10 @@ PrefabInstance:
     - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537359885295012382, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1942755983549677606, guid: 48750a38ef839473fb016f4369f2add6, type: 3}
       propertyPath: playOnAwake
@@ -141534,10 +141849,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -141545,7 +141860,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &7166339282659217370
@@ -141560,8 +141875,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -141625,10 +141940,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -141636,7 +141951,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &7572639978991666138
@@ -141651,8 +141966,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -141757,10 +142072,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -141768,7 +142083,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &7715802953003897814
@@ -141783,8 +142098,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -141848,10 +142163,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -141859,7 +142174,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &8104163600728024448
@@ -141874,8 +142189,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -141939,10 +142254,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -141950,7 +142265,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &8310911641556948483
@@ -141965,8 +142280,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -142063,6 +142378,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 105.15
       objectReference: {fileID: 0}
@@ -142101,6 +142428,10 @@ PrefabInstance:
     - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 9066616082829196579, guid: 1ab467a9c99df4ce59dcada580dcbd3f, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -142241,10 +142572,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionGlowIndices
   tagsAReveler:
-  - indice
+  - obj_int
   tagsRecevantGlowSeulement: []
-  cacherIndicesAuDemarrage: 1
-  nomEnfantGlow: Glow
+  cacherIndicesAuDemarrage: 0
+  nomEnfantGlow: prefab_glow
   animerGlow: 1
   modeAnimation: 2
   intensiteMin: 1.2
@@ -142252,7 +142583,7 @@ MonoBehaviour:
   dureeCyclePulse: 2
   amplitudeFlicker: 0.15
   vitesseFlicker: 3
-  idActionDeclencheur: 
+  idActionDeclencheur: indices_visibles
   idChapitreCible: mener_enquete
   activerImmediatement: 0
 --- !u!114 &8423508041391365331
@@ -142267,8 +142598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
-  _particulesHighlight: {fileID: 0}
-  _lumiereHighlight: {fileID: 0}
+  _particulesHighlight: {fileID: 1752702916}
+  _lumiereHighlight: {fileID: 1752702914}
   _intensiteBase: 0
   _intensiteSurvol: 50
   _dureeLerp: 0.8
@@ -142306,6 +142637,7 @@ MonoBehaviour:
   idActionActivation: joueur_a_atteint_enigme
   objetAActiver: {fileID: 0}
   delaiAvantActivation: 0
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!114 &8650136054419235711
 MonoBehaviour:
@@ -142420,3 +142752,4 @@ SceneRoots:
   - {fileID: 1464870047}
   - {fileID: 1425652186}
   - {fileID: 197624090}
+  - {fileID: 1742103080}
