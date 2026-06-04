@@ -142,37 +142,41 @@ public class slotObjetInventaire : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log($"[Slot] Clic detecte sur " +
+        Debug.Log($"[Slot] (1) Clic detecte sur " +
             $"{(objetAffiche != null ? objetAffiche.nomObjet : "(slot vide)")}");
 
         if (objetAffiche == null)
         {
-            Debug.LogWarning("[Slot] objetAffiche est null, clic ignore.");
+            Debug.LogWarning("[Slot] (2a) objetAffiche null, clic ignore.");
             return;
         }
+        Debug.Log($"[Slot] (2b) objetAffiche OK : {objetAffiche.nomObjet}");
 
-        if (gestionSelectionInventaire.Instance == null)
+        var inst = gestionSelectionInventaire.Instance;
+        Debug.Log($"[Slot] (3) Instance = " +
+            $"{(inst == null ? "NULL" : inst.gameObject.name)}");
+
+        if (inst == null)
         {
-            Debug.LogWarning("[Slot] gestionSelectionInventaire.Instance " +
-                "est null, clic ignore.");
+            Debug.LogWarning("[Slot] (3a) Instance null, clic ignore.");
             return;
         }
 
-        // Toggle : si cet objet est deja celui qui est selectionne,
-        // un re-clic le deselectionne. Sinon on le selectionne.
-        objetInventaire selectionActuelle =
-            gestionSelectionInventaire.Instance.ObtenirSelection();
+        objetInventaire selectionActuelle = inst.ObtenirSelection();
+        Debug.Log($"[Slot] (4) selectionActuelle = " +
+            $"{(selectionActuelle == null ? "null" : selectionActuelle.nomObjet)}");
 
         if (selectionActuelle == objetAffiche)
         {
-            Debug.Log($"[Slot] Deselection de '{objetAffiche.nomObjet}'.");
-            gestionSelectionInventaire.Instance.Deselectionner();
+            Debug.Log($"[Slot] (5a) Deselection de '{objetAffiche.nomObjet}'.");
+            inst.Deselectionner();
         }
         else
         {
-            Debug.Log($"[Slot] Selection de '{objetAffiche.nomObjet}'.");
-            gestionSelectionInventaire.Instance.Selectionner(objetAffiche);
+            Debug.Log($"[Slot] (5b) Selection de '{objetAffiche.nomObjet}'.");
+            inst.Selectionner(objetAffiche);
         }
+        Debug.Log($"[Slot] (6) Fin OnPointerClick.");
     }
 
     private void SurSelectionChangee(objetInventaire nouvelle)

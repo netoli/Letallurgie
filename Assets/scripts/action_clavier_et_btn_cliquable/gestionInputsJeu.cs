@@ -537,6 +537,13 @@ public class gestionInputsJeu : MonoBehaviour
             if (btn.gameObject.name != nom) continue;
             if (btn.gameObject.hideFlags != HideFlags.None) continue;
             if (!btn.gameObject.scene.IsValid()) continue;
+            // EXCLUSION : les boutons des TUILES de sauvegarde portent les
+            // memes noms (bouton_sauvegarder...) que le bouton du menu
+            // pause. Les rebinder ici ecrasait leur logique de slot
+            // (SauvegarderPartie sans slot -> ecrit dans un slot fantome
+            // que l'UI n'affiche pas). gestionTuileSauvegarde les cable
+            // lui-meme avec le bon slot : on ne touche pas a ces boutons.
+            if (EstDansTuileSauvegarde(btn.transform)) continue;
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener(() => act());
             Debug.Log($"[gestionInputsJeu] Rebind '{nom}' " +
@@ -546,6 +553,23 @@ public class gestionInputsJeu : MonoBehaviour
         if (trouves == 0)
             Debug.LogWarning($"[gestionInputsJeu] Aucun bouton " +
                 $"'{nom}' trouve pour rebind.");
+    }
+
+    // Vrai si le transform est a l'interieur d'une tuile de sauvegarde
+    // (ancetre nomme regroupement_contenus_et_bouton_sauvegarde* ou
+    // conteneur_bouton_sauvegarde).
+    private bool EstDansTuileSauvegarde(Transform t)
+    {
+        Transform courant = t;
+        while (courant != null)
+        {
+            if (courant.name == "conteneur_bouton_sauvegarde"
+                || courant.name.StartsWith(
+                    "regroupement_contenus_et_bouton_sauvegarde"))
+                return true;
+            courant = courant.parent;
+        }
+        return false;
     }
 
     /// <summary>
@@ -729,23 +753,31 @@ public class gestionInputsJeu : MonoBehaviour
         {
             confirmation.AnnulerChangements();
 
+            // Include les INACTIFS : seuls le panneau de l'onglet
+            // courant est actif. Sans ca, annuler depuis un autre
+            // onglet ne rollbackait pas les effets deja appliques
+            // (luminosite, volumes, tailles...).
             gestionOptionsAudio audio =
-                FindFirstObjectByType<gestionOptionsAudio>();
+                FindFirstObjectByType<gestionOptionsAudio>(
+                    FindObjectsInactive.Include);
             if (audio != null)
                 audio.RechargerPreferences();
 
             gestionOptionsGraphiques graphiques =
-                FindFirstObjectByType<gestionOptionsGraphiques>();
+                FindFirstObjectByType<gestionOptionsGraphiques>(
+                    FindObjectsInactive.Include);
             if (graphiques != null)
                 graphiques.RechargerPreferences();
 
             gestionOptionsAccessibilite accessibilite =
-                FindFirstObjectByType<gestionOptionsAccessibilite>();
+                FindFirstObjectByType<gestionOptionsAccessibilite>(
+                    FindObjectsInactive.Include);
             if (accessibilite != null)
                 accessibilite.RechargerPreferences();
 
             gestionOptionsControle controle =
-                FindFirstObjectByType<gestionOptionsControle>();
+                FindFirstObjectByType<gestionOptionsControle>(
+                    FindObjectsInactive.Include);
             if (controle != null)
                 controle.RechargerPreferences();
         }
@@ -1407,6 +1439,11 @@ public class gestionInputsJeu : MonoBehaviour
         {
             etatActuel = EtatJeu.EnJeu;
             VerrouillerSouris();
+
+            // Si une enigme de tuyauterie est en cours, la tuile
+            // explicative (fermee a l'ouverture de l'inventaire) doit
+            // reapparaitre maintenant que l'inventaire se referme.
+            zoneLancementEnigme.ReouvrirTuilesSiEnigmeActive();
         }
     }
 

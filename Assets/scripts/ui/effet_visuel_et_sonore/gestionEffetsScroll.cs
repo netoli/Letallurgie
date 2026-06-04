@@ -41,13 +41,21 @@ public class gestionEffetsScroll : MonoBehaviour
         }
     }
 
+    // Meme correctif que gestionEffetsBoutonsCliques : inclure les
+    // INACTIFS (le panneau audio est ferme la plupart du temps, le find
+    // actif-seulement retournait null -> volume 1 -> toggle ignore).
+    // Cache statique : un seul find par scene pour tous les scrolls.
+    private static gestionOptionsAudio optionsAudioCache;
+
     private float ObtenirVolumeScroll()
     {
-        gestionOptionsAudio options =
-            FindFirstObjectByType<gestionOptionsAudio>();
+        if (optionsAudioCache == null)
+            optionsAudioCache =
+                FindFirstObjectByType<gestionOptionsAudio>(
+                    FindObjectsInactive.Include);
 
-        if (options != null)
-            return options.ObtenirVolumeScroll();
+        if (optionsAudioCache != null)
+            return optionsAudioCache.ObtenirVolumeScroll();
 
         return 1f;
     }

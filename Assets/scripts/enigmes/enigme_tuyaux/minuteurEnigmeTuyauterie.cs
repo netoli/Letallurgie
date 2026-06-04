@@ -29,8 +29,8 @@ using UnityEngine.UI;
 public class minuteurEnigmeTuyauterie : MonoBehaviour
 {
     [Header("Configuration")]
-    [Tooltip("Duree totale du minuteur en secondes.")]
-    [SerializeField] private float dureeTotale = 120f;
+    [Tooltip("Duree totale du minuteur en secondes. Defaut 360s = 6min.")]
+    [SerializeField] private float dureeTotale = 360f;
 
     [Tooltip("Si coche, demarre automatiquement le minuteur quand " +
         "l'action 'enigme_tuyauterie_lancee' est signalee a " +
@@ -232,7 +232,27 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
         // Cas 2 : deja actif (re-appel redondant), ne rien faire.
         if (actif) return;
 
-        // Cas 3 : premier demarrage OU redemarrage apres arret complet.
+        // Cas 3 : deja demarre une fois et il reste du temps, mais ni
+        // actif ni en pause (typiquement : le GameObject UI du minuteur
+        // a ete cache puis reactive entre deux entrees dans la zone, ou
+        // un etat ou MettreEnPause n'a pas pu marquer enPause parce que
+        // l'instance n'etait pas active). On REPREND sans reinitialiser
+        // le temps. C'EST LE CORRECTIF du bug "le minuteur recommence a
+        // chaque fois" : avant, ce cas tombait dans le demarrage frais
+        // ci-dessous et remettait tempsRestant a dureeTotale a chaque
+        // relance de l'enigme.
+        if (aDejaDemarre && tempsRestant > 0f)
+        {
+            actif = true;
+            enPause = false;
+            MettreAJourUI();
+            Debug.Log($"[minuteurEnigme] Repris sans reset a " +
+                $"{tempsRestant:F1}s.");
+            return;
+        }
+
+        // Cas 4 : tout premier demarrage (ou redemarrage explicite apres
+        // un ReinitialiserMinuteur qui a remis tempsRestant a plein).
         actif = true;
         aDejaDemarre = true;
         enPause = false;
@@ -281,6 +301,31 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
     }
 
     /// <summary>
+    /// Cache les GameObjects UI de tous les minuteurs (typiquement le
+    /// canvas "minuteur_enigme"). Le state interne (tempsRestant,
+    /// enPause) est conserve : un appel ulterieur a DemarrerMinuteur
+    /// reactivera le GameObject et reprendra la oui on s'etait arrete.
+    /// On ne cache que les GameObjects dont le nom contient "minuteur"
+    /// pour ne pas eteindre la logique attachee au GameObject racine
+    /// de l'enigme (qui doit rester active pour continuer a ecouter
+    /// les events).
+    /// </summary>
+    public static void CacherUITous()
+    {
+        var tous = Object.FindObjectsByType<minuteurEnigmeTuyauterie>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous)
+        {
+            string n = inst.gameObject.name.ToLowerInvariant();
+            if (n.Contains("minuteur") || n.Contains("timer"))
+            {
+                inst.gameObject.SetActive(false);
+                Debug.Log($"[minuteurEnigme] UI cachee : {inst.name}.");
+            }
+        }
+    }
+
+    /// <summary>
     /// Reprend le minuteur la oui il avait ete mis en pause.
     /// Appele depuis zoneLancementEnigme.LancerEnigme() quand le
     /// joueur relance l'enigme apres l'avoir quittee.
@@ -313,6 +358,36 @@ public class minuteurEnigmeTuyauterie : MonoBehaviour
         enPause = false;
         aDejaDemarre = false;
         MettreAJourUI();
+    }
+
+    /// <summary>
+    /// Redemarre le minuteur a plein temps ET le laisse actif (il compte
+    /// immediatement). Utilise apres un echec (3 erreurs ou temps ecoule)
+    /// pour offrir une nouvelle tentative avec un minuteur frais, sans que
+    /// le joueur ait a ressortir puis rerentrer dans la zone.
+    /// </summary>
+    public void RedemarrerComplet()
+    {
+        tempsRestant = dureeTotale;
+        actif = true;
+        enPause = false;
+        aDejaDemarre = true;
+        MettreAJourUI();
+        Debug.Log($"[minuteurEnigme] {name} : redemarrage complet " +
+            $"({dureeTotale}s).");
+    }
+
+    /// <summary>
+    /// Redemarre completement TOUTES les instances (logique + UI).
+    /// Pendant de MettreEnPauseTous / ReprendreTous. Appele a chaque
+    /// echec de l'enigme pour repartir a 6:00.
+    /// </summary>
+    public static void RedemarrerCompletTous()
+    {
+        var tous = Object.FindObjectsByType<minuteurEnigmeTuyauterie>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var inst in tous)
+            inst.RedemarrerComplet();
     }
 
     private void MettreAJourUI()

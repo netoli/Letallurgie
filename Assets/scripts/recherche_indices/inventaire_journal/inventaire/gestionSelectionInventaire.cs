@@ -51,12 +51,16 @@ public class gestionSelectionInventaire : MonoBehaviour
 
     void OnDestroy()
     {
-        // Si c'est l'instance principale qui se fait detruire (changement
-        // de scene, fin du jeu), on bloque toute auto-recreation pour
-        // eviter le warning "spawned during scene close".
+        // BUG HISTORIQUE : ce code mettait _isShuttingDown = true a
+        // CHAQUE destroy de l'instance — y compris lors d'un LoadScene
+        // non-DDOL. Resultat : Instance retournait null pour le reste
+        // de la session, cassant le clic d'inventaire en scene2 quand
+        // on venait de scene0. Maintenant, Awake fait
+        // DontDestroyOnLoad → OnDestroy n'est appele qu'a la fermeture
+        // du jeu (geree par OnApplicationQuit). On nettoie juste le
+        // pointeur sans toucher au flag _isShuttingDown.
         if (_instance == this)
         {
-            _isShuttingDown = true;
             _instance = null;
         }
     }
@@ -82,10 +86,42 @@ public class gestionSelectionInventaire : MonoBehaviour
         // Si un autre singleton existe deja, on detruit ce doublon.
         if (_instance != null && _instance != this)
         {
+            // FIX (analogue JournalManager) : si ce doublon a des enfants,
+            // les transferer au singleton persistant pour qu'ils ne soient
+            // pas detruits avec ce GameObject. Cas rare ici car gestion_
+            // selection_inventaire n'a pas typiquement d'enfants, mais on
+            // applique le pattern par robustesse.
+            int nbEnfantsTransferes = 0;
+            while (transform.childCount > 0)
+            {
+                Transform enfant = transform.GetChild(0);
+                enfant.SetParent(_instance.transform, true);
+                nbEnfantsTransferes++;
+            }
+            if (nbEnfantsTransferes > 0)
+            {
+                Debug.Log($"[gestionSelectionInventaire] Doublon '{name}' " +
+                    $"detecte avec {nbEnfantsTransferes} enfant(s) — " +
+                    "transferes au singleton avant destruction.");
+            }
             Destroy(gameObject);
             return;
         }
         _instance = this;
+
+        // CRITIQUE : detache du parent + DontDestroyOnLoad. Sinon le
+        // GameObject est detruit au prochain LoadScene, ce qui declenche
+        // OnDestroy() → _isShuttingDown = true → le getter Instance
+        // retourne null pour TOUTE la session. Le clic d'inventaire ne
+        // marche plus en scene2 si on vient de scene0.
+        if (transform.parent != null)
+        {
+            Debug.LogWarning($"[gestionSelectionInventaire] '{name}' " +
+                $"était parenté à '{transform.parent.name}'. " +
+                "Détachement pour que DontDestroyOnLoad fonctionne.");
+            transform.SetParent(null, true);
+        }
+        DontDestroyOnLoad(gameObject);
     }
 
     public void Selectionner(objetInventaire objet)

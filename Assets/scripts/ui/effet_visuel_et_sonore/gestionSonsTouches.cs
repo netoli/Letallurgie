@@ -38,16 +38,23 @@ public class gestionSonsTouches : MonoBehaviour
         }
     }
 
+    // Include les INACTIFS (le panneau audio est ferme la plupart du
+    // temps; le find actif-seulement ignorait les toggles). Cache
+    // statique : un seul find par scene.
+    private static gestionOptionsAudio optionsAudioCache;
+
     private void JouerSon()
     {
         if (sonTouche == null || sourceAudio == null) return;
 
-        gestionOptionsAudio options =
-            FindFirstObjectByType<gestionOptionsAudio>();
+        if (optionsAudioCache == null)
+            optionsAudioCache =
+                FindFirstObjectByType<gestionOptionsAudio>(
+                    FindObjectsInactive.Include);
 
         float vol = volume;
-        if (options != null)
-            vol *= options.ObtenirVolumeBouton();
+        if (optionsAudioCache != null)
+            vol *= optionsAudioCache.ObtenirVolumeBouton();
 
         if (vol > 0f)
             sourceAudio.PlayOneShot(sonTouche, vol);

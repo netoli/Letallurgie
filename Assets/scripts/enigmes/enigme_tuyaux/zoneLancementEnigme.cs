@@ -102,12 +102,6 @@ public class zoneLancementEnigme : MonoBehaviour
     [SerializeField] private CategorieObjet categorieAttendue =
         CategorieObjet.Tuyaux;
 
-    [Tooltip("Nombre minimum de tuyaux (categorieAttendue) dans " +
-        "l'inventaire pour NE PAS afficher le bandeau 'ramasse les " +
-        "tuyaux' au lancement. Si le joueur a moins de ce nombre, le " +
-        "bandeau s'affiche. Defaut : 4.")]
-    [SerializeField] private int minimumTuyauxRequis = 4;
-
     [Header("Element a cacher pendant l'enigme (optionnel)")]
     [Tooltip("GameObject (ex : indices_jouabilite, ATH HUD) a desactiver " +
         "quand l'enigme est lancee et a reactiver quand le joueur quitte. " +
@@ -118,6 +112,8 @@ public class zoneLancementEnigme : MonoBehaviour
     private bool enigmeLancee = false;
     private bool zoneActivee = true;
     private gestionInputsJeu cacheInputs;
+    private Collider zoneCollider;
+    private Transform joueurTransform;
 
     /// <summary>
     /// Vrai si une enigme est actuellement en cours (entre Enter et Esc).
@@ -176,6 +172,20 @@ public class zoneLancementEnigme : MonoBehaviour
         cacheInputs = FindFirstObjectByType<gestionInputsJeu>(
             FindObjectsInactive.Include);
 
+        // Cache du Collider de la zone (utilise pour le confinement
+        // physique du joueur pendant l'enigme).
+        zoneCollider = GetComponent<Collider>();
+        if (zoneCollider == null)
+            Debug.LogWarning("[zoneLancementEnigme] Pas de Collider sur " +
+                "ce GameObject — le confinement du joueur ne marchera pas.");
+
+        // #3 : repere visuel de la zone (boite translucide). On ajoute le
+        // composant s'il n'est pas deja present, pour que ce BoxCollider
+        // invisible soit perceptible par le joueur. Pour personnaliser la
+        // couleur, ajoute visuelZoneEnigme toi-meme dans l'Inspector.
+        if (GetComponent<visuelZoneEnigme>() == null)
+            gameObject.AddComponent<visuelZoneEnigme>();
+
         // Si une action d'activation est requise, on attend qu'elle
         // soit signalee avant de reagir aux OnTriggerEnter.
         if (!string.IsNullOrEmpty(idActionPourActiverZone))
@@ -231,32 +241,41 @@ public class zoneLancementEnigme : MonoBehaviour
     void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        joueurDansZone = false;
-        Debug.Log("[zoneLancementEnigme] Joueur sort de zone.");
 
+        // FIX bandeau qui reapparait a chaque tuyau place :
+        // Pendant l'enigme, le joueur est CONFINE dans la zone
+        // (ConfinerJoueurDansZone le reclampe chaque frame). Il ne peut
+        // donc PAS en sortir reellement. Un OnTriggerExit recu ici est
+        // forcement SPURIOUS, provoque par :
+        //   - le toggle CharacterController.enabled fait dans le clamp de
+        //     confinement (re-declenche les events de trigger), et
+        //   - le collider d'un tuyau qui, au placement, pousse legerement
+        //     le joueur hors du volume du trigger l'espace d'une frame.
+        // Avant, ce faux exit appelait QuitterEnigme (auto-Esc), ce qui
+        // remettait enigmeLancee=false et faisait reafficher le bandeau
+        // "Appuie sur Entree" par OnTriggerEnter a CHAQUE tuyau place.
+        // On ignore donc tout exit pendant l'enigme : la seule vraie
+        // sortie est la touche Esc (geree dans Update -> QuitterEnigme).
         if (enigmeLancee)
         {
-            // Si l'enigme etait en cours et le joueur s'eloigne de la
-            // zone sans appuyer Esc : on traite ca comme une sortie
-            // d'enigme (auto-Esc). Met le minuteur en pause, ferme la
-            // tuile, et le bandeau 'Appuyer Entree' reapparaitra
-            // automatiquement quand le joueur reviendra dans la zone
-            // (via OnTriggerEnter).
-            Debug.Log("[zoneLancementEnigme] Joueur quitte la zone " +
-                "pendant l'enigme → auto-Esc.");
-            QuitterEnigme();
-            // QuitterEnigme appelle gestionBandeauInfo.Effacer() ET
-            // n'affiche pas le bandeau approche (car joueurDansZone=false).
+            Debug.Log("[zoneLancementEnigme] OnTriggerExit ignore " +
+                "(enigme en cours, joueur confine — faux exit).");
+            return;
         }
-        else
-        {
-            // Cas normal : juste effacer le bandeau d'approche.
-            gestionBandeauInfo.Effacer();
-        }
+
+        // Hors enigme : le joueur quitte vraiment la zone d'approche.
+        joueurDansZone = false;
+        gestionBandeauInfo.Effacer();
+        Debug.Log("[zoneLancementEnigme] Joueur sort de zone (hors enigme).");
     }
 
     void Update()
     {
+        // Confinement physique : pendant l'enigme, le joueur ne peut
+        // pas sortir des bounds du BoxCollider de cette zone. Sa
+        // position est clampee a chaque frame.
+        if (enigmeLancee) ConfinerJoueurDansZone();
+
         if (Keyboard.current == null) return;
 
         // Avant lancement : Enter dans la zone = lancer l'enigme
@@ -296,6 +315,10 @@ public class zoneLancementEnigme : MonoBehaviour
         Debug.Log("[zoneLancementEnigme] Joueur quitte l'enigme " +
             "(Esc) -> action '" + idActionSortie + "'.");
 
+        // 0. Confinement leve : le joueur peut a nouveau se deplacer
+        // librement dans toute la scene (cf. UpdateConfinement qui
+        // ne s'active que si enigmeLancee=true).
+
         // 1. Fermer la tuile explicative si encore ouverte
         if (tuileExplicativeGameObject != null
             && tuileExplicativeGameObject.activeSelf)
@@ -333,6 +356,10 @@ public class zoneLancementEnigme : MonoBehaviour
         // instances (1 logique + 1 UI), donc on les pause toutes.
         minuteurEnigmeTuyauterie.MettreEnPauseTous();
 
+        // 6b. Cacher l'UI du minuteur (sera reactivee au prochain
+        // LancerEnigme — DemarrerMinuteur reactive le GameObject).
+        minuteurEnigmeTuyauterie.CacherUITous();
+
         // 7. Reinitialiser pour permettre de relancer l'enigme
         enigmeLancee = false;
         EnigmeActive = false;
@@ -346,6 +373,11 @@ public class zoneLancementEnigme : MonoBehaviour
         EnigmeActive = true;
         gestionBandeauInfo.Effacer();
         Debug.Log("[zoneLancementEnigme] Lancement enigme.");
+
+        // Confinement physique : le joueur garde WASD libre, mais le
+        // script clampera sa position dans les bounds du BoxCollider
+        // de cette zone pendant chaque Update (cf. UpdateConfinement).
+        // Le confinement est leve au QuitterEnigme.
 
         // Cacher indices_jouabilite (ATH explicatif joueur) pendant
         // l'enigme — sera reaffiche au QuitterEnigme.
@@ -435,9 +467,15 @@ public class zoneLancementEnigme : MonoBehaviour
                 "dans l'Inspector.");
         }
 
-        // 3. Verifier inventaire : si le joueur n'a pas le minimum de
-        //    tuyaux requis (somme des quantites de la categorie), on
-        //    affiche le bandeau qui lui dit d'aller en chercher.
+        // 3. Bandeau objectif "Trouver les 9 tuyaux" UNIQUEMENT si le
+        //    joueur lance l'enigme avec AUCUN tuyau (il n'a rien ramasse,
+        //    donc rien a placer). Avant, il s'affichait des qu'on avait
+        //    moins de 4 tuyaux (ancien seuil) — reste de la logique
+        //    "il faut 4 tuyaux pour commencer". Du coup le bandeau
+        //    reapparaissait alors que le joueur avait deja ramasse des
+        //    tuyaux et lance l'enigme, en doublon du bandeau dynamique
+        //    "Il reste N tuyaux" (bandeauTuyauxRestants). On le limite
+        //    donc au cas 0 tuyau pour eviter cette incoherence.
         if (gestionInventaire.Instance != null)
         {
             var tuyauxEnInventaire = gestionInventaire.Instance
@@ -448,18 +486,17 @@ public class zoneLancementEnigme : MonoBehaviour
                 foreach (var kvp in tuyauxEnInventaire)
                     totalTuyaux += kvp.Value;
             }
-            if (totalTuyaux < minimumTuyauxRequis)
+            if (totalTuyaux <= 0)
             {
                 gestionBandeauInfo.Afficher(texteInventaireVide, 5f);
-                Debug.Log($"[zoneLancementEnigme] Inventaire : " +
-                    $"{totalTuyaux}/{minimumTuyauxRequis} tuyaux, bandeau " +
-                    "'cherche les tuyaux' affiche.");
+                Debug.Log("[zoneLancementEnigme] Lancement avec 0 tuyau " +
+                    "→ bandeau objectif affiche.");
             }
             else
             {
-                Debug.Log($"[zoneLancementEnigme] Inventaire : " +
-                    $"{totalTuyaux} tuyaux (>={minimumTuyauxRequis}), " +
-                    "pas de bandeau.");
+                Debug.Log($"[zoneLancementEnigme] Lancement avec " +
+                    $"{totalTuyaux} tuyau(x) → pas de bandeau objectif " +
+                    "(bandeauTuyauxRestants gere deja l'info).");
             }
         }
     }
@@ -473,6 +510,54 @@ public class zoneLancementEnigme : MonoBehaviour
         enigmeLancee = false;
         if (joueurDansZone)
             gestionBandeauInfo.Afficher(texteApproche, 999f);
+    }
+
+    /// <summary>
+    /// Confine le joueur a l'interieur des bounds du Collider de cette
+    /// zone. Appele a chaque frame quand enigmeLancee est true.
+    /// Strategie : si la position monde du joueur sort des bounds,
+    /// on la clampe. Le joueur ne sent qu'un mur invisible.
+    /// L'axe Y (hauteur) n'est PAS clampe pour ne pas interferer
+    /// avec la gravite / le saut.
+    /// </summary>
+    private void ConfinerJoueurDansZone()
+    {
+        if (zoneCollider == null) return;
+
+        // Localiser le joueur (cache sur premier passage).
+        if (joueurTransform == null)
+        {
+            var go = GameObject.FindWithTag("Player");
+            if (go == null) return;
+            joueurTransform = go.transform;
+        }
+
+        Bounds b = zoneCollider.bounds;
+        Vector3 pos = joueurTransform.position;
+        bool clampe = false;
+
+        if (pos.x < b.min.x) { pos.x = b.min.x; clampe = true; }
+        else if (pos.x > b.max.x) { pos.x = b.max.x; clampe = true; }
+        if (pos.z < b.min.z) { pos.z = b.min.z; clampe = true; }
+        else if (pos.z > b.max.z) { pos.z = b.max.z; clampe = true; }
+
+        if (clampe)
+        {
+            // Le joueur a un CharacterController dans ce projet : on doit
+            // l'utiliser pour la teleportation, sinon le controller
+            // reannule le changement de position au prochain Move().
+            var cc = joueurTransform.GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                cc.enabled = false;
+                joueurTransform.position = pos;
+                cc.enabled = true;
+            }
+            else
+            {
+                joueurTransform.position = pos;
+            }
+        }
     }
 
     /// <summary>
@@ -491,6 +576,35 @@ public class zoneLancementEnigme : MonoBehaviour
             {
                 z.tuileExplicativeGameObject.SetActive(false);
             }
+        }
+    }
+
+    /// <summary>
+    /// Reaffiche la tuile explicative des zones dont l'enigme est en
+    /// cours (enigmeLancee). Appele par gestionInputsJeu.FermerInventaire
+    /// pour que la tuile REAPPARAISSE quand le joueur referme l'inventaire
+    /// (elle avait ete fermee par FermerTuilesActives a l'ouverture de
+    /// l'inventaire). Ne touche pas aux zones dont l'enigme n'est pas
+    /// lancee.
+    /// </summary>
+    public static void ReouvrirTuilesSiEnigmeActive()
+    {
+        var instances = FindObjectsByType<zoneLancementEnigme>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var z in instances)
+        {
+            if (!z.enigmeLancee) continue;
+            if (z.tuileExplicativeGameObject == null) continue;
+
+            // Reactiver la tuile ET ses ancetres (comme dans LancerEnigme),
+            // au cas ou un parent (ex : canvas_hud) serait desactive.
+            Transform t = z.tuileExplicativeGameObject.transform;
+            while (t != null)
+            {
+                if (!t.gameObject.activeSelf) t.gameObject.SetActive(true);
+                t = t.parent;
+            }
+            z.tuileExplicativeGameObject.SetActive(true);
         }
     }
 

@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 5023337443671694743}
   - component: {fileID: 1554532594861285225}
   - component: {fileID: 6588101466658698915}
+  - component: {fileID: 2472467357715370178}
   m_Layer: 12
   m_Name: tuyau_l_gros_et_petit_1
   m_TagString: obj_int
@@ -108,6 +109,23 @@ MonoBehaviour:
   delaiAvantActivation: 0
   activerEnfantsAussi: 0
   autoReset: 0
+--- !u!114 &2472467357715370178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7383625786988253307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
+  _particulesHighlight: {fileID: 5562476582396322449}
+  _lumiereHighlight: {fileID: 7683593009583840989}
+  _intensiteBase: 0
+  _intensiteSurvol: 50
+  _dureeLerp: 0.8
 --- !u!1001 &1259693788469663615
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -521,8 +539,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+--- !u!198 &5562476582396322449 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2982039770311979626, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 7229323749959471355}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7180947061437334284 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 7229323749959471355}
+  m_PrefabAsset: {fileID: 0}
+--- !u!108 &7683593009583840989 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 1076972206816906790, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 7229323749959471355}
   m_PrefabAsset: {fileID: 0}

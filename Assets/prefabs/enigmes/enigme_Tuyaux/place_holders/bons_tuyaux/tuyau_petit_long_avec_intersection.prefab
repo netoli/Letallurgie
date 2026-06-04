@@ -42,6 +42,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7817938227465045325}
+  - component: {fileID: 6925139733421125596}
   m_Layer: 0
   m_Name: tuyau_petit_long_avec_intersection
   m_TagString: Untagged
@@ -68,6 +69,23 @@ Transform:
   - {fileID: 1562515082920024060}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6925139733421125596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5537627822013228790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35a178912a7d3045a4f00c732a5d112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::gestionHighlightHover
+  _particulesHighlight: {fileID: 4214263888918275927}
+  _lumiereHighlight: {fileID: 2156216479567633179}
+  _intensiteBase: 0
+  _intensiteSurvol: 50
+  _dureeLerp: 0.8
 --- !u!1001 &1377617644340024637
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -148,6 +166,16 @@ PrefabInstance:
 --- !u!4 &1507062214509987530 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 573205011291083767, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 1377617644340024637}
+  m_PrefabAsset: {fileID: 0}
+--- !u!108 &2156216479567633179 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 1076972206816906790, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
+  m_PrefabInstance: {fileID: 1377617644340024637}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &4214263888918275927 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2982039770311979626, guid: ddf59614b1230974e80190eb012a0ea3, type: 3}
   m_PrefabInstance: {fileID: 1377617644340024637}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1884100012197317146

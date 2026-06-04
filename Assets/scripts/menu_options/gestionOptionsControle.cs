@@ -41,14 +41,18 @@ public class gestionOptionsControle : MonoBehaviour
         ChargerParametres();
     }
 
+    private gestionConfirmationOptions confirmationCache;
+
     private void MarquerModification()
     {
         if (enChargement) return;
 
-        gestionConfirmationOptions confirmation =
-            FindFirstObjectByType<gestionConfirmationOptions>();
-        if (confirmation != null)
-            confirmation.MarquerModification();
+        // Cache : evite un FindFirstObjectByType a chaque drag de slider.
+        if (confirmationCache == null)
+            confirmationCache =
+                FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmationCache != null)
+            confirmationCache.MarquerModification();
     }
 
     private void ChargerParametres()
@@ -86,6 +90,7 @@ public class gestionOptionsControle : MonoBehaviour
             PlayerPrefs.SetFloat(CLE_SENSIBILITE, valeur);
             MettreAJourPourcentage(sliderSensibilite,
                 pourcentageSensibilite, sensibiliteMin, sensibiliteMax);
+            AppliquerParametres();
             MarquerModification();
         });
 
@@ -93,6 +98,7 @@ public class gestionOptionsControle : MonoBehaviour
         {
             if (enChargement) return;
             PlayerPrefs.SetInt(CLE_INVERSER_V, actif ? 1 : 0);
+            AppliquerParametres();
             MarquerModification();
         });
 
@@ -100,6 +106,7 @@ public class gestionOptionsControle : MonoBehaviour
         {
             if (enChargement) return;
             PlayerPrefs.SetInt(CLE_INVERSER_H, actif ? 1 : 0);
+            AppliquerParametres();
             MarquerModification();
         });
 
@@ -109,6 +116,7 @@ public class gestionOptionsControle : MonoBehaviour
             PlayerPrefs.SetFloat(CLE_FOV, valeur);
             MettreAJourPourcentage(sliderChampVision,
                 pourcentageChampVision, fovMin, fovMax);
+            AppliquerParametres();
             MarquerModification();
         });
     }
@@ -153,9 +161,15 @@ public class gestionOptionsControle : MonoBehaviour
 
     private void AppliquerParametres()
     {
-        Camera cam = Camera.main;
-        if (cam != null)
-            cam.fieldOfView = sliderChampVision.value;
+        // Applique sensibilite / inversion / FOV au rig camera Cinemachine
+        // via appliqueOptionsControleCamera (le composant pose sur le rig).
+        // Avant, on ecrivait Camera.main.fieldOfView, ecrase chaque frame
+        // par Cinemachine -> sans effet. On delegue donc au bon endroit.
+        var applier =
+            FindFirstObjectByType<appliqueOptionsControleCamera>(
+                FindObjectsInactive.Include);
+        if (applier != null)
+            applier.AppliquerDepuisPrefs();
     }
 
     public static float ObtenirSensibilite()

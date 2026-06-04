@@ -58,6 +58,16 @@ public class gestionEcranChargement : MonoBehaviour
     private CanvasGroup _groupeCanvas;
     private bool _chargementEnCours = false;
 
+    // Pre-chargement en arriere-plan : si une scene est demarree en
+    // pre-load (typiquement pendant qu'une cinematique joue), ChargerScene
+    // utilise cette AsyncOperation au lieu d'un LoadScene synchrone.
+    // Resultat : sur skip de cinematique, la scene est deja en memoire,
+    // l'activation est quasi-instantanee (pas de freeze main thread).
+    // Fallback : si aucune scene pre-chargee ou si la scene demandee ne
+    // correspond pas, on retombe sur LoadScene synchrone comme avant.
+    private AsyncOperation _opPrechargement;
+    private string _scenePrechargee;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -101,6 +111,49 @@ public class gestionEcranChargement : MonoBehaviour
         StartCoroutine(SequenceChargement(nomScene, onSceneChargee));
     }
 
+    /// <summary>
+    /// Demarre le chargement d'une scene EN ARRIERE-PLAN sans l'activer.
+    /// A appeler typiquement quand une cinematique commence : pendant que
+    /// la video joue, Unity streame les assets de la prochaine scene. Au
+    /// moment du ChargerScene (skip ou fin naturelle), l'activation est
+    /// quasi-instantanee, le LoadScene synchrone n'a presque rien a faire.
+    ///
+    /// Si une autre scene est deja pre-chargee, l'ancienne pre-load est
+    /// abandonnee (laissee se finir sans activation puis ecrasee).
+    /// </summary>
+    /// <param name="nomScene">Nom exact de la scene a pre-charger.</param>
+    public void PrechargerScene(string nomScene)
+    {
+        if (string.IsNullOrEmpty(nomScene)) return;
+
+        // Si on a deja la meme scene en pre-load, ne rien faire.
+        if (_scenePrechargee == nomScene && _opPrechargement != null)
+        {
+            Debug.Log($"[EcranChargement] '{nomScene}' deja en pre-load, " +
+                "appel ignore.");
+            return;
+        }
+
+        Debug.Log($"[EcranChargement] Pre-chargement de '{nomScene}' " +
+            "demarre en arriere-plan.");
+
+        _opPrechargement = SceneManager.LoadSceneAsync(
+            nomScene, LoadSceneMode.Single);
+        if (_opPrechargement != null)
+        {
+            // CLE : empeche l'activation automatique a 90%. La scene
+            // reste chargee en memoire jusqu'a ce qu'on bascule ce flag.
+            _opPrechargement.allowSceneActivation = false;
+            _scenePrechargee = nomScene;
+        }
+        else
+        {
+            Debug.LogWarning($"[EcranChargement] LoadSceneAsync('{nomScene}') " +
+                "a retourne null. Scene introuvable dans BuildSettings ?");
+            _scenePrechargee = null;
+        }
+    }
+
     // ── Coroutines ────────────────────────────────────────────
 
     private IEnumerator SequenceChargement(string nomScene,
@@ -128,7 +181,51 @@ public class gestionEcranChargement : MonoBehaviour
         yield return new WaitForSecondsRealtime(dureeMinimale);
 
         // 4. Charger la scène (le loading screen reste visible par-dessus)
-        SceneManager.LoadScene(nomScene);
+        // Deux chemins :
+        //   a) Si la scene a ete pre-chargee (PrechargerScene appele plus
+        //      tot, typiquement au demarrage de la cinematique), on attend
+        //      qu'elle finisse de charger en arriere-plan PUIS on l'active.
+        //      L'activation est quasi-instantanee parce que la scene est
+        //      deja en memoire — pas de freeze main thread.
+        //   b) Sinon, fallback LoadScene synchrone comme avant (freeze
+        //      possible sur les grosses scenes, mais ordre Awake/Start
+        //      preserve a 100%).
+        if (_opPrechargement != null
+            && _scenePrechargee == nomScene)
+        {
+            Debug.Log($"[EcranChargement] Activation de '{nomScene}' " +
+                $"pre-chargee (progress={_opPrechargement.progress:F2}).");
+
+            // LoadSceneAsync se bloque a 0.9 (90%) tant que allowSceneActivation
+            // est false. On attend juste ce palier avant de basculer.
+            while (_opPrechargement.progress < 0.9f)
+                yield return null;
+
+            _opPrechargement.allowSceneActivation = true;
+
+            // Attend que la scene soit effectivement activee.
+            while (!_opPrechargement.isDone)
+                yield return null;
+
+            _opPrechargement = null;
+            _scenePrechargee = null;
+        }
+        else
+        {
+            // Si une scene differente etait pre-chargee, on l'abandonne
+            // (on laisse l'AsyncOperation tomber, GC s'en charge).
+            if (_opPrechargement != null)
+            {
+                Debug.LogWarning($"[EcranChargement] Pre-load '{_scenePrechargee}' " +
+                    $"abandonnee (chargement demande pour '{nomScene}').");
+                _opPrechargement = null;
+                _scenePrechargee = null;
+            }
+
+            // Fallback synchrone. Peut geler le thread principal sur grosses
+            // scenes mais preserve a 100% l'ordre Awake/Start.
+            SceneManager.LoadScene(nomScene);
+        }
 
         // 5. Attendre une frame pour que la scène soit initialisée
         yield return null;

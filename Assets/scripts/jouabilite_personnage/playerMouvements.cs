@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
+    public float speed = 18f;
     public float gravity = -20f;
 
     [Header("Sons de pas")]
@@ -17,6 +17,20 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private Animator animator;
+
+    void Awake()
+    {
+        // Force la vitesse a 18 dans TOUTES les scenes, peu importe la
+        // valeur serialisee de l'instance. C'est la cause du probleme
+        // "la meme vitesse ne se comporte pas pareil d'une scene a
+        // l'autre" : le joueur etant un prefab (ou un objet distinct)
+        // par scene, chaque scene avait sa propre valeur via un override
+        // d'instance — scene0=12, scene1=12, scene2_usine=24, scene3=12,
+        // scene4=12, environnement_manoir=7.5, prefab joueur=7.5. En
+        // forcant ici, plus besoin de regler la vitesse scene par scene.
+        // Meme approche que mouseLook qui force mouseSensitivity au Awake.
+        speed = 18f;
+    }
 
     void Start()
     {
@@ -93,6 +107,10 @@ public class PlayerMovement : MonoBehaviour
         {
             if (doitJouerPas && !audioSourcePas.isPlaying)
             {
+                // Volume des pas : suit la preference de l'onglet audio
+                // (avant, le slider "sons de pas" n'etait lu par personne).
+                audioSourcePas.volume =
+                    PlayerPrefs.GetFloat("volumeSonsPas", 1f);
                 audioSourcePas.Play();
             }
             else if (!doitJouerPas && audioSourcePas.isPlaying)

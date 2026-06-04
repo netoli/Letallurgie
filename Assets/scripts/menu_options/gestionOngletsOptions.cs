@@ -24,7 +24,11 @@ public class gestionOngletsOptions : MonoBehaviour
 
     void Update()
     {
-        if (boutonActif != null && EventSystem.current != null)
+        // Ne re-selectionne que si la selection a change : evite de
+        // forcer SetSelectedGameObject a chaque frame pour rien.
+        if (boutonActif != null && EventSystem.current != null
+            && EventSystem.current.currentSelectedGameObject
+                != boutonActif.gameObject)
             EventSystem.current.SetSelectedGameObject(
                 boutonActif.gameObject);
     }

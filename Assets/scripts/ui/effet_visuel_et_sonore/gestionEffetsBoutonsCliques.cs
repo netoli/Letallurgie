@@ -133,13 +133,23 @@ public class gestionEffetsBoutonsCliques : MonoBehaviour,
         }
     }
 
+    // Cache statique partage par tous les boutons (un seul find par
+    // scene). IMPORTANT : Include les INACTIFS — gestionOptionsAudio vit
+    // sur le panneau Audio, ferme 99% du temps. Avant, des que le
+    // panneau etait inactif le find retournait null -> volume 1 -> les
+    // toggles "effets sonores bouton" etaient ignores (cas observe : le
+    // bouton de l'onglet Audio sonnait malgre le toggle decoche).
+    private static gestionOptionsAudio optionsAudioCache;
+
     private float ObtenirVolumeBouton()
     {
-        gestionOptionsAudio options =
-            FindFirstObjectByType<gestionOptionsAudio>();
+        if (optionsAudioCache == null)
+            optionsAudioCache =
+                FindFirstObjectByType<gestionOptionsAudio>(
+                    FindObjectsInactive.Include);
 
-        if (options != null)
-            return options.ObtenirVolumeBouton();
+        if (optionsAudioCache != null)
+            return optionsAudioCache.ObtenirVolumeBouton();
 
         return 1f;
     }

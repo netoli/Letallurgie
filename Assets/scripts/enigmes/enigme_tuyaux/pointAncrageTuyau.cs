@@ -58,11 +58,19 @@ public class pointAncrageTuyau : MonoBehaviour
 
         if (ghostInstancie == null)
         {
-            ghostInstancie = Instantiate(
-                piece.prefabModele3D,
-                transform.position,
-                Quaternion.Euler(0f, 0f, orientation.EnDegres()),
-                transform);
+            // FIX rotation : on instancie le ghost comme ENFANT du snap
+            // puis on applique la rotation du joueur en LOCAL (relatif
+            // au snap_point). Avant, la rotation etait posee en espace
+            // MONDE (le Quaternion.Euler passe a Instantiate est une
+            // rotation monde), si bien que l'orientation propre du
+            // snap_point se melangeait a celle choisie par le joueur :
+            // le tuyau apparaissait de travers selon l'orientation du
+            // snap. En local, le tuyau s'aligne sur le snap et ne tourne
+            // que de l'angle choisi par le joueur.
+            ghostInstancie = Instantiate(piece.prefabModele3D, transform);
+            ghostInstancie.transform.localPosition = Vector3.zero;
+            ghostInstancie.transform.localRotation =
+                Quaternion.Euler(0f, 0f, orientation.EnDegres());
 
             // Applique l'echelle definie sur l'asset objetInventaire,
             // tout en compensant la scale du parent (le snap). Ainsi
@@ -75,7 +83,9 @@ public class pointAncrageTuyau : MonoBehaviour
         }
         else
         {
-            ghostInstancie.transform.rotation =
+            // Rotation en LOCAL ici aussi (cf. commentaire ci-dessus) :
+            // on ne touche plus a .rotation (monde) mais a .localRotation.
+            ghostInstancie.transform.localRotation =
                 Quaternion.Euler(0f, 0f, orientation.EnDegres());
         }
 
@@ -236,16 +246,16 @@ public class pointAncrageTuyau : MonoBehaviour
         estRempli = true;
         CacherGhost();
 
-        Quaternion rotation = Quaternion.Euler(
-            0f, 0f, orientation.EnDegres());
-
         if (piece.prefabModele3D != null)
         {
-            pieceInstanciee = Instantiate(
-                piece.prefabModele3D,
-                transform.position,
-                rotation,
-                transform);
+            // FIX rotation : meme correctif que pour le ghost. On
+            // instancie comme enfant du snap et on applique la rotation
+            // en LOCAL, pour que l'orientation du snap_point ne fausse
+            // plus l'orientation finale du tuyau place.
+            pieceInstanciee = Instantiate(piece.prefabModele3D, transform);
+            pieceInstanciee.transform.localPosition = Vector3.zero;
+            pieceInstanciee.transform.localRotation =
+                Quaternion.Euler(0f, 0f, orientation.EnDegres());
 
             AppliquerEchelleAuPlacement(pieceInstanciee, piece);
             DesactiverCamerasEtLights(pieceInstanciee);

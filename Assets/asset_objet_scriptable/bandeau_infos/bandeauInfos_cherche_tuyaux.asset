@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: bandeauInfos_cherche_tuyaux
   m_EditorClassIdentifier: Assembly-CSharp::DonneesBandeauInfo
   idBandeau: cherche_tuyaux
-  texte: "Recherche et ramasse les tuyaux manquants."
+  texte: "Trouver les 9 tuyaux caches dans l'usine."
   dureeAffichage: 4
   idActionDeclenchement: joueur_a_atteint_enigme
   delaiAvantApparition: 1.2

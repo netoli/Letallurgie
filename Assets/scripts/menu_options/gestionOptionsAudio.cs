@@ -59,14 +59,19 @@ public class gestionOptionsAudio : MonoBehaviour
         return null;
     }
 
+    private gestionConfirmationOptions confirmationCache;
+
     private void MarquerModification()
     {
         if (enChargement) return;
 
-        gestionConfirmationOptions confirmation =
-            FindFirstObjectByType<gestionConfirmationOptions>();
-        if (confirmation != null)
-            confirmation.MarquerModification();
+        // Cache : avant, chaque drag de slider relancait un
+        // FindFirstObjectByType (scan de scene a chaque frame de drag).
+        if (confirmationCache == null)
+            confirmationCache =
+                FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmationCache != null)
+            confirmationCache.MarquerModification();
     }
 
     private void ConfigurerListeners()
@@ -79,8 +84,9 @@ public class gestionOptionsAudio : MonoBehaviour
             v => OnSliderChange("volumeBouton", v, sliderVolumeBouton));
         sliderVolumeScroll.onValueChanged.AddListener(
             v => OnSliderChange("volumeScroll", v, sliderVolumeScroll));
-        sliderVolumeEnvironnant.onValueChanged.AddListener(
-            v => OnSliderChange("volumeEnvironnant", v, sliderVolumeEnvironnant));
+        if (sliderVolumeEnvironnant != null)
+            sliderVolumeEnvironnant.onValueChanged.AddListener(
+                v => OnSliderChange("volumeEnvironnant", v, sliderVolumeEnvironnant));
         sliderVolumeDialogues.onValueChanged.AddListener(
             v => OnSliderChange("volumeDialogues", v, sliderVolumeDialogues));
         sliderVolumeCinematiques.onValueChanged.AddListener(
@@ -94,9 +100,10 @@ public class gestionOptionsAudio : MonoBehaviour
         toggleEffetsScroll.onValueChanged.AddListener(
             actif => OnToggleChange("effetsScroll", actif,
                 sliderVolumeScroll));
-        toggleEffetsEnvironnant.onValueChanged.AddListener(
-            actif => OnToggleChange("effetsEnvironnant", actif,
-                sliderVolumeEnvironnant));
+        if (toggleEffetsEnvironnant != null)
+            toggleEffetsEnvironnant.onValueChanged.AddListener(
+                actif => OnToggleChange("effetsEnvironnant", actif,
+                    sliderVolumeEnvironnant));
     }
 
     private void OnSliderChange(string cle, float valeur, Slider slider)
@@ -125,6 +132,7 @@ public class gestionOptionsAudio : MonoBehaviour
 
     private void ActiverDesactiverSlider(Slider slider, bool actif)
     {
+        if (slider == null) return;
         slider.interactable = actif;
 
         CanvasGroup groupeSlider = slider.GetComponent<CanvasGroup>();
@@ -146,29 +154,34 @@ public class gestionOptionsAudio : MonoBehaviour
     {
         enChargement = true;
 
-        sliderVolumeGeneral.value =
-            PlayerPrefs.GetFloat("volumeGeneral", 1f);
-        sliderMusiqueAmbiance.value =
-            PlayerPrefs.GetFloat("musiqueAmbiance", 1f);
-        sliderVolumeBouton.value =
-            PlayerPrefs.GetFloat("volumeBouton", 1f);
-        sliderVolumeScroll.value =
-            PlayerPrefs.GetFloat("volumeScroll", 1f);
-        sliderVolumeEnvironnant.value =
-            PlayerPrefs.GetFloat("volumeEnvironnant", 1f);
-        sliderVolumeDialogues.value =
-            PlayerPrefs.GetFloat("volumeDialogues", 1f);
-        sliderVolumeCinematiques.value =
-            PlayerPrefs.GetFloat("volumeCinematiques", 1f);
-        sliderVolumeSonsPas.value =
-            PlayerPrefs.GetFloat("volumeSonsPas", 1f);
+        // SetValueWithoutNotify : ne declenche aucun listener (ni les
+        // notres, ni d'eventuels effets sonores accroches aux widgets)
+        // quand on ne fait que REFLETER les prefs dans l'UI.
+        sliderVolumeGeneral.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeGeneral", 1f));
+        sliderMusiqueAmbiance.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("musiqueAmbiance", 1f));
+        sliderVolumeBouton.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeBouton", 1f));
+        sliderVolumeScroll.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeScroll", 1f));
+        if (sliderVolumeEnvironnant != null)
+            sliderVolumeEnvironnant.SetValueWithoutNotify(
+                PlayerPrefs.GetFloat("volumeEnvironnant", 1f));
+        sliderVolumeDialogues.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeDialogues", 1f));
+        sliderVolumeCinematiques.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeCinematiques", 1f));
+        sliderVolumeSonsPas.SetValueWithoutNotify(
+            PlayerPrefs.GetFloat("volumeSonsPas", 1f));
 
-        toggleEffetsBouton.isOn =
-            PlayerPrefs.GetInt("effetsBouton", 1) == 1;
-        toggleEffetsScroll.isOn =
-            PlayerPrefs.GetInt("effetsScroll", 1) == 1;
-        toggleEffetsEnvironnant.isOn =
-            PlayerPrefs.GetInt("effetsEnvironnant", 1) == 1;
+        toggleEffetsBouton.SetIsOnWithoutNotify(
+            PlayerPrefs.GetInt("effetsBouton", 1) == 1);
+        toggleEffetsScroll.SetIsOnWithoutNotify(
+            PlayerPrefs.GetInt("effetsScroll", 1) == 1);
+        if (toggleEffetsEnvironnant != null)
+            toggleEffetsEnvironnant.SetIsOnWithoutNotify(
+                PlayerPrefs.GetInt("effetsEnvironnant", 1) == 1);
 
         enChargement = false;
     }
@@ -181,14 +194,16 @@ public class gestionOptionsAudio : MonoBehaviour
         sliderMusiqueAmbiance.value = 1f;
         sliderVolumeBouton.value = 1f;
         sliderVolumeScroll.value = 1f;
-        sliderVolumeEnvironnant.value = 1f;
+        if (sliderVolumeEnvironnant != null)
+            sliderVolumeEnvironnant.value = 1f;
         sliderVolumeDialogues.value = 1f;
         sliderVolumeCinematiques.value = 1f;
         sliderVolumeSonsPas.value = 1f;
 
         toggleEffetsBouton.isOn = true;
         toggleEffetsScroll.isOn = true;
-        toggleEffetsEnvironnant.isOn = true;
+        if (toggleEffetsEnvironnant != null)
+            toggleEffetsEnvironnant.isOn = true;
 
         enChargement = false;
 
@@ -233,6 +248,7 @@ public class gestionOptionsAudio : MonoBehaviour
 
     private void MettreAJourTexte(Slider slider)
     {
+        if (slider == null) return;
         TMP_Text texte = TrouverTexte(slider);
         if (texte != null)
             texte.text = Mathf.RoundToInt(slider.value * 100) + "%";
@@ -244,21 +260,19 @@ public class gestionOptionsAudio : MonoBehaviour
             toggleEffetsBouton.isOn);
         ActiverDesactiverSlider(sliderVolumeScroll,
             toggleEffetsScroll.isOn);
-        ActiverDesactiverSlider(sliderVolumeEnvironnant,
-            toggleEffetsEnvironnant.isOn);
+        if (toggleEffetsEnvironnant != null)
+            ActiverDesactiverSlider(sliderVolumeEnvironnant,
+                toggleEffetsEnvironnant.isOn);
     }
 
     private void AppliquerVolumes()
     {
-        float general = sliderVolumeGeneral.value;
-        if (GameObject.FindGameObjectWithTag("volumePersonnalise") == null)
-        {
-            AudioListener.volume = general;
-        }
-
-        // Notifier la musique d'ambiance en cours de lecture pour qu'elle
-        // applique immédiatement le nouveau volume (sinon il faudrait
-        // attendre la prochaine transition de piste).
+        // "Bande son" (volumeGeneral) ne controle PLUS le volume maitre :
+        // il pilote uniquement la musique des scenes, appliquee par
+        // gestionAudio (qui lit la cle volumeGeneral). On ne touche donc
+        // plus a AudioListener.volume ici. "Musique d'ambiance"
+        // (musiqueAmbiance) pilote l'ambiance de piece, aussi via
+        // gestionAudio (ObtenirSliderAmbiance).
         if (gestionAudio.Instance != null)
             gestionAudio.Instance.MettreAJourVolume();
     }

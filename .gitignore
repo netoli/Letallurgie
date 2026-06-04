@@ -73,6 +73,14 @@ mono_crash.*
 *.unitypackage.meta
 *.app
 
+# Dossiers de build et archives (artefacts generes : ne vont JAMAIS
+# dans le repo — GitHub refuse les fichiers >100 Mo. Pour distribuer
+# le jeu : GitHub Releases ou itch.io.)
+/[Bb]uild/
+/[Bb]uilds/
+/build2/
+/builds.zip
+
 # Crashlytics generated file
 crashlytics-build.properties
 

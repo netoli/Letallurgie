@@ -35,13 +35,36 @@ public class gestionEcranReprise : MonoBehaviour
     public void LancerErreur()
     {
         if (estActif) return;
+        ActiverSoiEtAncetres();
         StartCoroutine(SequenceErreur());
     }
 
     public void LancerReprise()
     {
         if (estActif) return;
+        ActiverSoiEtAncetres();
         StartCoroutine(SequenceReprise());
+    }
+
+    // Active ce GameObject ET tous ses ancetres inactifs AVANT de
+    // demarrer la coroutine. CRITIQUE : StartCoroutine echoue quand le
+    // GameObject est inactif — or le canvas reprise est desactive par
+    // defaut (c'est un popup). C'est la cause du bug "le canvas ne
+    // s'affiche ni en echec ni en reussite" : LancerErreur/LancerReprise
+    // ne demarraient jamais leur coroutine. De plus, LancerReprise est
+    // branche sur l'event onVictoire ; l'exception levee par
+    // StartCoroutine sur GameObject inactif coupait la chaine des
+    // listeners onVictoire, empechant le son de reussite (joue par
+    // sonsEnigmeTuyauterie, abonne au meme event) de se declencher.
+    // Activer le GameObject avant regle les deux symptomes d'un coup.
+    private void ActiverSoiEtAncetres()
+    {
+        Transform t = transform;
+        while (t != null)
+        {
+            if (!t.gameObject.activeSelf) t.gameObject.SetActive(true);
+            t = t.parent;
+        }
     }
 
     private IEnumerator SequenceErreur()

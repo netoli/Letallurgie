@@ -138,6 +138,13 @@ public class gestionAudio : MonoBehaviour
     // prochaine transition de piste.
     void Update()
     {
+        // Ambiance de piece (machinerie usine / chuchotements manoir) :
+        // pilotee par le MEME slider "musique d'ambiance" que la musique,
+        // pour que tout le volume d'ambiance se regle au meme endroit.
+        // volumeAmbiance sert de base/max; le slider (0..1) le module.
+        if (sourceAmbiance != null && sourceAmbiance.isPlaying)
+            sourceAmbiance.volume = volumeAmbiance * ObtenirSliderAmbiance();
+
         if (sourceMusique == null || pisteActuelle == null) return;
 
         volumeCible = CalculerVolumeCible(pisteActuelle);
@@ -152,15 +159,20 @@ public class gestionAudio : MonoBehaviour
     // Volume de base partagé : slider utilisateur * volumeMax global.
     private float ObtenirVolumeBase()
     {
-        gestionOptionsAudio options =
-            FindFirstObjectByType<gestionOptionsAudio>();
-        float slider = 1f;
-        if (options != null)
-            slider = options.ObtenirVolumeMusiqueAmbiance();
-        else
-            slider = PlayerPrefs.GetFloat("musiqueAmbiance", 1f);
-
+        // "Bande son" (renomme depuis "musique general", cle volumeGeneral)
+        // controle UNIQUEMENT la musique des scenes. Avant, la musique
+        // suivait "musiqueAmbiance"; cette cle pilote desormais l'ambiance
+        // de piece (cf. ObtenirSliderAmbiance).
+        float slider = PlayerPrefs.GetFloat("volumeGeneral", 1f);
         return slider * volumeMax;
+    }
+
+    // Valeur du slider "musique d'ambiance" (0..1). Module a la fois la
+    // musique de fond ET l'ambiance de piece, pour que tout le volume
+    // d'ambiance se regle au meme endroit (un seul slider).
+    private float ObtenirSliderAmbiance()
+    {
+        return PlayerPrefs.GetFloat("musiqueAmbiance", 1f);
     }
 
     // Volume cible pour une piste spécifique (applique le multiplicateur de la piste).
@@ -312,7 +324,7 @@ public class gestionAudio : MonoBehaviour
 
         sourceAmbiance.clip = clip;
         sourceAmbiance.loop = true;
-        sourceAmbiance.volume = volumeAmbiance;
+        sourceAmbiance.volume = volumeAmbiance * ObtenirSliderAmbiance();
         sourceAmbiance.Play();
     }
 

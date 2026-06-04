@@ -33,6 +33,36 @@ public class gestionChapitres : MonoBehaviour
     // le deplacement WASD pendant la banniere/intro.
     public bool MouvementAutorise { get; private set; } = true;
 
+    /// <summary>
+    /// Permet d'autoriser uniquement le mouvement lateral (A/D) en
+    /// bloquant l'axe avant/arriere (W/S). Utilise pour confiner le
+    /// joueur dans la zone d'enigme tout en lui laissant la possibilite
+    /// de se decaler lateralement pour interagir.
+    /// True par defaut.
+    /// </summary>
+    public bool MouvementAxeZAutorise { get; private set; } = true;
+
+    /// <summary>
+    /// API publique pour bloquer / debloquer le mouvement WASD du joueur
+    /// depuis l'exterieur (ex : zoneLancementEnigme verrouille le joueur
+    /// dans la zone pendant l'enigme, le libere a l'Esc).
+    /// </summary>
+    public void DefinirMouvementAutorise(bool valeur)
+    {
+        MouvementAutorise = valeur;
+        Debug.Log($"[Chapitre] MouvementAutorise = {valeur}");
+    }
+
+    /// <summary>
+    /// Bloque ou autorise uniquement l'axe Z (W/S = avancer/reculer).
+    /// L'axe X (A/D = lateral) reste libre.
+    /// </summary>
+    public void DefinirMouvementAxeZAutorise(bool valeur)
+    {
+        MouvementAxeZAutorise = valeur;
+        Debug.Log($"[Chapitre] MouvementAxeZAutorise = {valeur}");
+    }
+
     // idActionRequise de la tuile actuellement affichee, ou chaine vide
     // si aucune tuile n'est en cours. Utilise par objetRamassable et
     // autres scripts d'interaction pour bloquer une action prematuree
@@ -909,8 +939,27 @@ public class gestionChapitres : MonoBehaviour
             // Appliquer le volume configuré sur la piste audio 0 du VideoPlayer.
             // SetDirectAudioVolume fonctionne si le VideoPlayer est en mode Direct ;
             // si le son passe par un AudioSource, régler le volume sur cet AudioSource.
-            playerCinematiques.SetDirectAudioVolume(0, _volumeCinematique);
+            // Volume cinematique = base Inspector x preference du slider
+            // "cinematiques" de l'onglet audio (avant, ce slider n'etait
+            // lu par personne).
+            playerCinematiques.SetDirectAudioVolume(0,
+                _volumeCinematique
+                * PlayerPrefs.GetFloat("volumeCinematiques", 1f));
             playerCinematiques.Play();
+
+            // PRE-LOAD scene1_taverne1 EN ARRIERE-PLAN pendant la cinematique.
+            // Sans ca, le LoadScene synchrone declenche au skip ou a la fin
+            // gele le main thread (scene a charger d'un coup). En pre-chargeant
+            // pendant la lecture video, l'activation devient quasi-instantanee.
+            // Limitation : la pre-load n'est faite QUE pour la cinematique de
+            // fin de tutoriel (scene0 -> scene1). Pour d'autres cinematiques
+            // dans d'autres scenes, modifier ce hardcoding ou exposer un champ
+            // [SerializeField] string scenePrechargee sur DonneesChapitre.
+            if (SceneManager.GetActiveScene().name == "scene0_tuto"
+                && gestionEcranChargement.Instance != null)
+            {
+                gestionEcranChargement.Instance.PrechargerScene("scene1_taverne1");
+            }
 
             // Afficher le bouton "Passer la cinematique" pendant la
             // lecture. Le bouton est cache au demarrage de la scene et

@@ -65,12 +65,18 @@ public class gestionEffetsTouchesClavier : MonoBehaviour
         }
     }
 
+    // Include les INACTIFS (panneau audio ferme la plupart du temps;
+    // le find actif-seulement ignorait les toggles). Cache statique.
+    private static gestionOptionsAudio optionsAudioCache;
+
     private float ObtenirVolumeBouton()
     {
-        gestionOptionsAudio options =
-            FindFirstObjectByType<gestionOptionsAudio>();
-        if (options != null)
-            return options.ObtenirVolumeBouton();
+        if (optionsAudioCache == null)
+            optionsAudioCache =
+                FindFirstObjectByType<gestionOptionsAudio>(
+                    FindObjectsInactive.Include);
+        if (optionsAudioCache != null)
+            return optionsAudioCache.ObtenirVolumeBouton();
         return 1f;
     }
 

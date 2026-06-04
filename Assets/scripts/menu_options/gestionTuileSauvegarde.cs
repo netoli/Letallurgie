@@ -3,12 +3,44 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+// ============================================================
+// gestionTuileSauvegarde.cs
+// ------------------------------------------------------------
+// Gere les tuiles de sauvegarde du menu options.
+//
+// AUTO-RESOLUTION (refonte Oli, basee sur la vraie hierarchie) :
+//   Cause du bug "les boutons n'apparaissent pas au clic" : la liste
+//   'tuiles' du composant avait toutes ses references vides (fileID 0).
+//   Le clic appelait bien SelectionnerTuile, mais sans references aucun
+//   bouton ne pouvait s'afficher.
+//
+//   Correctif : au OnEnable, le script DECOUVRE les regroupements
+//   (regroupement_contenus_et_bouton_sauvegarde*) sous lui-meme, et pour
+//   chaque tuile resout AUTOMATIQUEMENT, par nom, ce qui n'est pas deja
+//   assigne dans l'Inspector :
+//     - ensembleImageEtDonnees : 'ensemble_image_et_donnees_sauvegarde'
+//     - boutonCharger          : 'bouton_telecharger_sauvegarde' ou
+//                                'bouton_charger_sauvegarde'
+//     - boutonSauvegarder      : 'bouton_sauvegarder' ou 'bouton_sauvegarde'
+//     - boutonSupprimer        : 'prefab_bouton_supprimer' ou 'bouton_supprimer'
+//   (Les noms varient selon les scenes/prefabs, d'ou les candidats.)
+//
+//   Non destructif : une reference deja assignee dans l'Inspector est
+//   conservee; on ne remplit que ce qui est vide.
+//
+// HYPOTHESE : l'ordre des regroupements dans la hierarchie correspond a
+// l'index passe par chaque bouton (SelectionnerTuile(0), (1), ...). C'est
+// le cas si les tuiles ont ete dupliquees dans l'ordre. Si une tuile
+// affiche les boutons d'une autre, c'est que l'ordre ne correspond pas :
+// dis-le-moi et on ajustera.
+// ============================================================
+
 public class gestionTuileSauvegarde : MonoBehaviour
 {
     [Header("Prefab")]
     [SerializeField] private GameObject prefabContenusSauvegarde;
 
-    [Header("Tuiles")]
+    [Header("Tuiles (références optionnelles — auto-résolues si vides)")]
     [SerializeField] private List<TuileSauvegarde> tuiles;
 
     [System.Serializable]
@@ -17,15 +49,32 @@ public class gestionTuileSauvegarde : MonoBehaviour
         public Transform ensembleImageEtDonnees;
         public GameObject boutonCharger;
         public GameObject boutonSauvegarder;
+        public GameObject boutonSupprimer;
         [HideInInspector] public int indexSlot;
         [HideInInspector] public bool contientSauvegarde;
         [HideInInspector] public GameObject contenuInstancie;
+        [HideInInspector] public GameObject libelleVide;
     }
 
+    // Noms candidats (couvre les variations observees entre scenes/prefabs).
+    private static readonly string[] NOMS_ENSEMBLE =
+        { "ensemble_image_et_donnees_sauvegarde" };
+    private static readonly string[] NOMS_CHARGER =
+        { "bouton_telecharger_sauvegarde", "bouton_charger_sauvegarde" };
+    private static readonly string[] NOMS_SAUVEGARDER =
+        { "bouton_sauvegarder", "bouton_sauvegarde" };
+    private static readonly string[] NOMS_SUPPRIMER =
+        { "prefab_bouton_supprimer", "bouton_supprimer" };
+
+    private const string PREFIXE_REGROUPEMENT =
+        "regroupement_contenus_et_bouton_sauvegarde";
+
     private int tuileSelectionnee = -1;
+    private bool dejaResolu = false;
 
     void OnEnable()
     {
+        AutoResoudreTuiles();
         StartCoroutine(RafraichirAvecDelai());
     }
 
@@ -36,8 +85,160 @@ public class gestionTuileSauvegarde : MonoBehaviour
             RafraichirTuiles();
     }
 
+    // ── Auto-résolution des références ────────────────────────
+
+    private void AutoResoudreTuiles()
+    {
+        // Découvrir les regroupements de tuiles sous ce GameObject, dans
+        // l'ordre de hiérarchie.
+        List<Transform> groupements = new List<Transform>();
+        CollecterGroupements(transform, groupements);
+
+        if (groupements.Count == 0)
+        {
+            // Pas de regroupement trouvé sous le manager : on garde la
+            // liste de l'Inspector telle quelle (cas d'un setup manuel
+            // différent).
+            return;
+        }
+
+        if (tuiles == null) tuiles = new List<TuileSauvegarde>();
+        while (tuiles.Count < groupements.Count)
+            tuiles.Add(new TuileSauvegarde());
+
+        for (int i = 0; i < groupements.Count; i++)
+        {
+            Transform g = groupements[i];
+            if (tuiles[i] == null) tuiles[i] = new TuileSauvegarde();
+            TuileSauvegarde t = tuiles[i];
+
+            if (t.ensembleImageEtDonnees == null)
+            {
+                Transform e = TrouverEnfantParNoms(g, NOMS_ENSEMBLE);
+                t.ensembleImageEtDonnees = e != null ? e : g;
+            }
+            if (t.boutonCharger == null)
+                t.boutonCharger = TrouverEnfantGO(g, NOMS_CHARGER);
+            if (t.boutonSauvegarder == null)
+                t.boutonSauvegarder = TrouverEnfantGO(g, NOMS_SAUVEGARDER);
+            if (t.boutonSupprimer == null)
+                t.boutonSupprimer = TrouverEnfantGO(g, NOMS_SUPPRIMER);
+
+            // CORRECTIF "seule la 1re tuile reagit" : dans le prefab
+            // prefab_ensemble_image_et_donnees_sauvegarde, le onClick
+            // SelectionnerTuile a une CIBLE VIDE (m_Target: 0) et un index
+            // fige a 0. Seule la tuile 1 a ete recablee a la main dans une
+            // instance. On cable donc TOUTES les tuiles au runtime avec le
+            // bon index, et on coupe l'appel persistant defaillant.
+            CablerSelectionTuile(t, i);
+
+            // CORRECTIF "slot fantome" : certains de ces boutons portent
+            // (via prefab ou rebind) des appels qui sauvegardent SANS slot
+            // (SauvegarderPartie -> prochain slot libre, max 15 -> ecrit
+            // dans le slot 4 que l'UI n'affiche jamais). On coupe ces
+            // appels persistants; seuls nos listeners avec slot explicite
+            // (CablerBouton) restent actifs.
+            CouperPersistentsDangereux(t.boutonCharger);
+            CouperPersistentsDangereux(t.boutonSauvegarder);
+            CouperPersistentsDangereux(t.boutonSupprimer);
+        }
+
+        dejaResolu = true;
+    }
+
+    // Methodes persistantes (cablees dans l'Inspector/prefab) a desactiver
+    // sur les boutons des tuiles : elles court-circuitent la logique de
+    // slot. On garde tout le reste (ex. LancerEffetClic pour le son).
+    private static readonly string[] METHODES_PERSISTANTES_A_COUPER =
+    {
+        "SelectionnerTuile", "SauvegarderPartie", "Sauvegarder",
+        "SupprimerSauvegarde", "SupprimerToutesSauvegardes",
+        "ChargerEtAppliquer", "ChargerPartie"
+    };
+
+    private void CouperPersistentsDangereux(GameObject boutonGO)
+    {
+        if (boutonGO == null) return;
+        Button btn = boutonGO.GetComponent<Button>();
+        if (btn == null) return;
+        CouperPersistentsDangereux(btn);
+    }
+
+    private void CouperPersistentsDangereux(Button btn)
+    {
+        if (btn == null) return;
+        int n = btn.onClick.GetPersistentEventCount();
+        for (int i = 0; i < n; i++)
+        {
+            string methode = btn.onClick.GetPersistentMethodName(i);
+            for (int j = 0; j < METHODES_PERSISTANTES_A_COUPER.Length; j++)
+            {
+                if (methode == METHODES_PERSISTANTES_A_COUPER[j])
+                {
+                    btn.onClick.SetPersistentListenerState(i,
+                        UnityEngine.Events.UnityEventCallState.Off);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void CablerSelectionTuile(TuileSauvegarde t, int index)
+    {
+        if (t == null || t.ensembleImageEtDonnees == null) return;
+
+        Button btn = t.ensembleImageEtDonnees.GetComponent<Button>();
+        if (btn == null)
+            btn = t.ensembleImageEtDonnees
+                .GetComponentInChildren<Button>(true);
+        if (btn == null) return;
+
+        // Coupe le SelectionnerTuile persistant (cible vide / index 0).
+        CouperPersistentsDangereux(btn);
+
+        int indexCapture = index;
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(() => SelectionnerTuile(indexCapture));
+    }
+
+    // Collecte les regroupements (par prefixe de nom) sous 'parent', sans
+    // descendre DANS un regroupement trouve (les boutons sont a l'interieur).
+    private void CollecterGroupements(Transform parent, List<Transform> liste)
+    {
+        foreach (Transform enfant in parent)
+        {
+            if (enfant.name.StartsWith(PREFIXE_REGROUPEMENT))
+                liste.Add(enfant);
+            else
+                CollecterGroupements(enfant, liste);
+        }
+    }
+
+    private Transform TrouverEnfantParNoms(Transform racine, string[] noms)
+    {
+        foreach (Transform enfant in racine)
+        {
+            for (int i = 0; i < noms.Length; i++)
+                if (enfant.name == noms[i]) return enfant;
+
+            Transform r = TrouverEnfantParNoms(enfant, noms);
+            if (r != null) return r;
+        }
+        return null;
+    }
+
+    private GameObject TrouverEnfantGO(Transform racine, string[] noms)
+    {
+        Transform t = TrouverEnfantParNoms(racine, noms);
+        return t != null ? t.gameObject : null;
+    }
+
+    // ── Rafraichissement ──────────────────────────────────────
+
     public void RafraichirTuiles()
     {
+        if (!dejaResolu) AutoResoudreTuiles();
+
         List<gestionPartie.DonneesSauvegarde> sauvegardes =
             gestionPartie.Instance.ObtenirToutesSauvegardes();
 
@@ -51,7 +252,6 @@ public class gestionTuileSauvegarde : MonoBehaviour
 
             tuile.indexSlot = i;
 
-            // Reset couleur via gestionEffetsBoutonsCliques
             gestionEffetsBoutonsCliques effet =
                 tuile.ensembleImageEtDonnees
                     .GetComponent<gestionEffetsBoutonsCliques>();
@@ -67,11 +267,7 @@ public class gestionTuileSauvegarde : MonoBehaviour
             gestionPartie.DonneesSauvegarde donnees = null;
             foreach (var s in sauvegardes)
             {
-                if (s.indexSlot == i)
-                {
-                    donnees = s;
-                    break;
-                }
+                if (s.indexSlot == i) { donnees = s; break; }
             }
 
             if (donnees != null)
@@ -84,62 +280,96 @@ public class gestionTuileSauvegarde : MonoBehaviour
                 tuile.contenuInstancie = contenu;
 
                 RemplirContenu(contenu, donnees);
+
+                if (tuile.libelleVide != null)
+                    tuile.libelleVide.SetActive(false);
             }
             else
             {
                 tuile.contientSauvegarde = false;
+
+                // Slot vide : libelle clair plutot qu'un cadre nu
+                // (retour de test : la tuile videe semblait cassee).
+                AfficherLibelleVide(tuile);
             }
 
+            // Tous les boutons caches par defaut.
             if (tuile.boutonCharger != null)
                 tuile.boutonCharger.SetActive(false);
             if (tuile.boutonSauvegarder != null)
                 tuile.boutonSauvegarder.SetActive(false);
+            if (tuile.boutonSupprimer != null)
+                tuile.boutonSupprimer.SetActive(false);
         }
     }
+
+    // ── Sélection (clic sur une tuile) ────────────────────────
 
     public void SelectionnerTuile(int index)
     {
         if (index < 0 || index >= tuiles.Count) return;
 
-        // Désélectionne l'ancienne tuile
-        if (tuileSelectionnee >= 0
-            && tuileSelectionnee < tuiles.Count)
+        // Désélectionne l'ancienne tuile : cache ses boutons + couleur.
+        if (tuileSelectionnee >= 0 && tuileSelectionnee < tuiles.Count)
         {
             TuileSauvegarde ancienne = tuiles[tuileSelectionnee];
+            if (ancienne != null)
+            {
+                if (ancienne.boutonCharger != null)
+                    ancienne.boutonCharger.SetActive(false);
+                if (ancienne.boutonSauvegarder != null)
+                    ancienne.boutonSauvegarder.SetActive(false);
+                if (ancienne.boutonSupprimer != null)
+                    ancienne.boutonSupprimer.SetActive(false);
 
-            if (ancienne.boutonCharger != null)
-                ancienne.boutonCharger.SetActive(false);
-            if (ancienne.boutonSauvegarder != null)
-                ancienne.boutonSauvegarder.SetActive(false);
-
-            gestionEffetsBoutonsCliques effetAncien =
-                ancienne.ensembleImageEtDonnees
-                    .GetComponent<gestionEffetsBoutonsCliques>();
-            if (effetAncien != null)
-                effetAncien.AppliquerCouleurNormale();
+                if (ancienne.ensembleImageEtDonnees != null)
+                {
+                    gestionEffetsBoutonsCliques effetAncien =
+                        ancienne.ensembleImageEtDonnees
+                            .GetComponent<gestionEffetsBoutonsCliques>();
+                    if (effetAncien != null)
+                        effetAncien.AppliquerCouleurNormale();
+                }
+            }
         }
 
         tuileSelectionnee = index;
         TuileSauvegarde tuile = tuiles[index];
+        if (tuile == null) return;
 
-        // Sélectionne la nouvelle tuile
-        gestionEffetsBoutonsCliques effetNouvel =
-            tuile.ensembleImageEtDonnees
-                .GetComponent<gestionEffetsBoutonsCliques>();
-        if (effetNouvel != null)
-            effetNouvel.AppliquerCouleurSelectionne();
+        if (tuile.ensembleImageEtDonnees != null)
+        {
+            gestionEffetsBoutonsCliques effetNouvel =
+                tuile.ensembleImageEtDonnees
+                    .GetComponent<gestionEffetsBoutonsCliques>();
+            if (effetNouvel != null)
+                effetNouvel.AppliquerCouleurSelectionne();
+        }
+
+        int slot = index;
+
+        // SAUVEGARDER : TOUJOURS visible (demande d'Oli) — il sert aussi
+        // a ECRASER une sauvegarde existante. Attention : depuis le menu
+        // principal, aucune partie n'est en cours -> Sauvegarder() ne
+        // peut rien ecrire (partieEnCours null, warning en console). En
+        // jeu (pause -> options), il ecrase le fichier du slot.
+        if (tuile.boutonSauvegarder != null)
+        {
+            tuile.boutonSauvegarder.SetActive(true);
+            CablerBouton(tuile.boutonSauvegarder, () =>
+            {
+                gestionPartie.Instance.Sauvegarder(slot);
+                RafraichirTuiles();
+            });
+        }
 
         if (tuile.contientSauvegarde)
         {
+            // CHARGER : seulement si la tuile contient une sauvegarde.
             if (tuile.boutonCharger != null)
             {
                 tuile.boutonCharger.SetActive(true);
-
-                int slot = index;
-                Button btnCharger = tuile.boutonCharger
-                    .GetComponent<Button>();
-                btnCharger.onClick.RemoveAllListeners();
-                btnCharger.onClick.AddListener(() =>
+                CablerBouton(tuile.boutonCharger, () =>
                 {
                     gestionPartie.Instance.ChargerEtAppliquer(slot);
 
@@ -157,17 +387,13 @@ public class gestionTuileSauvegarde : MonoBehaviour
                 });
             }
 
-            if (tuile.boutonSauvegarder != null)
+            // SUPPRIMER : seulement si la tuile contient une sauvegarde.
+            if (tuile.boutonSupprimer != null)
             {
-                tuile.boutonSauvegarder.SetActive(true);
-
-                int slot = index;
-                Button btnSauvegarder = tuile.boutonSauvegarder
-                    .GetComponent<Button>();
-                btnSauvegarder.onClick.RemoveAllListeners();
-                btnSauvegarder.onClick.AddListener(() =>
+                tuile.boutonSupprimer.SetActive(true);
+                CablerBouton(tuile.boutonSupprimer, () =>
                 {
-                    gestionPartie.Instance.Sauvegarder(slot);
+                    gestionPartie.Instance.SupprimerSauvegarde(slot);
                     RafraichirTuiles();
                 });
             }
@@ -176,23 +402,58 @@ public class gestionTuileSauvegarde : MonoBehaviour
         {
             if (tuile.boutonCharger != null)
                 tuile.boutonCharger.SetActive(false);
-
-            if (tuile.boutonSauvegarder != null)
-            {
-                tuile.boutonSauvegarder.SetActive(true);
-
-                int slot = index;
-                Button btnSauvegarder = tuile.boutonSauvegarder
-                    .GetComponent<Button>();
-                btnSauvegarder.onClick.RemoveAllListeners();
-                btnSauvegarder.onClick.AddListener(() =>
-                {
-                    gestionPartie.Instance.Sauvegarder(slot);
-                    RafraichirTuiles();
-                });
-            }
+            if (tuile.boutonSupprimer != null)
+                tuile.boutonSupprimer.SetActive(false);
         }
     }
+
+    // Cree (une fois) et affiche le libelle "Emplacement vide" centre
+    // dans la tuile. Couleur parchemin discrete, pas de raycast (le clic
+    // atteint le Button de la tuile en dessous).
+    private void AfficherLibelleVide(TuileSauvegarde tuile)
+    {
+        if (tuile == null || tuile.ensembleImageEtDonnees == null)
+            return;
+
+        if (tuile.libelleVide == null)
+        {
+            GameObject go = new GameObject("libelle_emplacement_vide",
+                typeof(RectTransform));
+            go.layer = tuile.ensembleImageEtDonnees.gameObject.layer;
+            go.transform.SetParent(
+                tuile.ensembleImageEtDonnees, false);
+
+            RectTransform rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI texte =
+                go.AddComponent<TextMeshProUGUI>();
+            texte.text = "Emplacement vide";
+            texte.fontSize = 30f;
+            texte.alignment = TextAlignmentOptions.Center;
+            texte.color = new Color(0.92f, 0.85f, 0.74f, 0.55f);
+            texte.raycastTarget = false;
+
+            tuile.libelleVide = go;
+        }
+
+        tuile.libelleVide.SetActive(true);
+    }
+
+    private void CablerBouton(GameObject boutonGO,
+        UnityEngine.Events.UnityAction action)
+    {
+        if (boutonGO == null) return;
+        Button btn = boutonGO.GetComponent<Button>();
+        if (btn == null) return;
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(action);
+    }
+
+    // ── Remplissage du contenu (inchangé) ─────────────────────
 
     private void RemplirContenu(
         GameObject contenu,

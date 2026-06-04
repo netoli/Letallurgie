@@ -374,6 +374,8 @@ public class gestionGlowIndices : MonoBehaviour
         //    gestion_journal) est desactive, SetActive(true) sur la cle
         //    individuelle ne suffit pas a la rendre visible.
         var parentsActives = new HashSet<GameObject>();
+        int totalEnfantsReactives = 0;
+        int totalRenderersReactives = 0;
         foreach (var indice in indicesACacherEtReveler)
         {
             if (indice == null) continue;
@@ -395,6 +397,94 @@ public class gestionGlowIndices : MonoBehaviour
                 }
                 parent = parent.parent;
             }
+
+            // FIX BUG SCENE1 : reactiver aussi recursivement les ENFANTS
+            // desactives. Si l'indice est un GameObject parent qui contient
+            // son mesh visuel comme enfant desactive (ex : modele 3D, light,
+            // collider), SetActive(true) sur le parent ne reactive PAS les
+            // enfants. L'indice reste donc invisible meme s'il est techni-
+            // quement "actif". On exclut nomEnfantGlow car il a son propre
+            // traitement plus bas (etape 2) et certains glow doivent rester
+            // desactives jusqu'au declencheur.
+            var descendants = indice.GetComponentsInChildren<Transform>(true);
+            foreach (var t in descendants)
+            {
+                if (t == null || t.gameObject == indice) continue;
+                if (t.gameObject.name == nomEnfantGlow) continue;
+                if (!t.gameObject.activeSelf)
+                {
+                    t.gameObject.SetActive(true);
+                    totalEnfantsReactives++;
+                }
+            }
+
+            // SAFETY NET CRITIQUE (analogue strategie tuyaux scene2) :
+            // SetActive(true) sur le GameObject ne suffit PAS si un
+            // composant Renderer ou Collider a son .enabled = false au
+            // niveau Component. Forcer .enabled = true sur tous les
+            // Renderer + Collider descendants (mesh, skinned, etc.).
+            // L'indice + ses parents + ses enfants peuvent tous etre
+            // GameObject-actifs mais avec un MeshRenderer.enabled=false
+            // → invisible. C'etait le pattern dans les tuyaux scene2.
+            var renderers = indice.GetComponentsInChildren<Renderer>(true);
+            int nbRenderersReactives = 0;
+            foreach (var r in renderers)
+            {
+                if (r == null) continue;
+                // Ne pas reactiver les Renderer DU glow (geres ailleurs).
+                if (r.gameObject.name == nomEnfantGlow) continue;
+                if (r.transform.parent != null
+                    && r.transform.parent.name == nomEnfantGlow) continue;
+                if (!r.enabled)
+                {
+                    r.enabled = true;
+                    nbRenderersReactives++;
+                }
+            }
+            if (nbRenderersReactives > 0)
+            {
+                totalRenderersReactives += nbRenderersReactives;
+                Debug.Log($"[GlowIndices] '{indice.name}' : " +
+                    $"{nbRenderersReactives} Renderer(s) reactives au " +
+                    "niveau Component.");
+            }
+
+            // Idem pour les Collider (sans quoi le raycast de ramassage
+            // pourrait ne pas detecter l'indice meme s'il est visible).
+            var colliders = indice.GetComponentsInChildren<Collider>(true);
+            foreach (var c in colliders)
+            {
+                if (c == null) continue;
+                if (!c.enabled) c.enabled = true;
+            }
+
+            // Idem pour les Light (sans quoi le HighlightObjet ne brille
+            // pas au survol meme si gestionHighlightHover.Highlighter(true)
+            // modifie son intensite — l'intensite a beau changer, si le
+            // Component Light est desactive, aucune lumiere n'est emise).
+            // CAUSE OBSERVEE : certains indices ramasses n'avaient PAS
+            // d'effet de highlight au survol → Light.enabled = false au
+            // niveau Component sur l'enfant HighlightObjet.
+            var lights = indice.GetComponentsInChildren<Light>(true);
+            foreach (var l in lights)
+            {
+                if (l == null) continue;
+                if (l.gameObject.name == nomEnfantGlow) continue;
+                if (l.transform.parent != null
+                    && l.transform.parent.name == nomEnfantGlow) continue;
+                if (!l.enabled) l.enabled = true;
+            }
+        }
+        if (totalEnfantsReactives > 0)
+        {
+            Debug.Log($"[GlowIndices] {totalEnfantsReactives} enfant(s) " +
+                "GameObject reactives sous les indices.");
+        }
+        if (totalRenderersReactives > 0)
+        {
+            Debug.Log($"[GlowIndices] {totalRenderersReactives} Renderer(s) " +
+                "reactives au niveau Component sous les indices " +
+                "(safety net analogue tuyaux scene2).");
         }
         // 2. Activer tous les glow
         foreach (var glow in glowObjets)

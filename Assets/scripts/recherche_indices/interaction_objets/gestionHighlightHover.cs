@@ -36,6 +36,23 @@ public class gestionHighlightHover : MonoBehaviour
 
     private Coroutine _coroutineLumiere;
 
+    void Awake()
+    {
+        // Fallback (ajout Oli) : si les references n'ont pas ete glissees
+        // dans l'Inspector — oubli frequent sur certains indices, d'ou
+        // leur highlight qui ne s'allumait pas — on les retrouve parmi
+        // les enfants. Couvre le cas "composant present mais refs vides".
+        // Si un indice n'a PAS du tout le composant gestionHighlightHover
+        // (ou pas d'enfant particule/lumiere), ce fallback ne peut rien :
+        // il faut alors ajouter le composant + l'enfant highlight a cet
+        // objet dans l'Inspector.
+        if (_particulesHighlight == null)
+            _particulesHighlight =
+                GetComponentInChildren<ParticleSystem>(true);
+        if (_lumiereHighlight == null)
+            _lumiereHighlight = GetComponentInChildren<Light>(true);
+    }
+
     // ===================== MÉTHODE PUBLIQUE =====================
 
     public void Highlighter(bool actif)

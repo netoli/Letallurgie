@@ -193,7 +193,15 @@ public class gestionInteractionClic : MonoBehaviour
                 SetPointeur(indiceEstPnj
                     ? gestionPointeur.EtatPointeur.PNJ
                     : gestionPointeur.EtatPointeur.Interactif);
-                _highlightVise?.Highlighter(true);
+                // Note : NE PAS utiliser ?.Highlighter() ici. L'opérateur
+                // null-conditional C# vérifie uniquement la référence,
+                // PAS si l'objet Unity a été détruit. Si _highlightVise
+                // pointe vers un composant dont le GameObject a été
+                // Destroy(), l'appel via ?. lancerait une
+                // MissingReferenceException. Le check explicite
+                // `!= null` utilise l'overload Unity qui retourne false
+                // pour les objets détruits.
+                if (_highlightVise != null) _highlightVise.Highlighter(true);
             }
             else if (tag == "obj_int")
             {
@@ -214,7 +222,15 @@ public class gestionInteractionClic : MonoBehaviour
                 // un indice dans le journal (RamasserIndice).
                 _ramasserPnjVise  = impact.collider.GetComponentInParent<RamasserIndice>();
                 SetPointeur(gestionPointeur.EtatPointeur.PNJ);
-                _highlightVise?.Highlighter(true);
+                // Note : NE PAS utiliser ?.Highlighter() ici. L'opérateur
+                // null-conditional C# vérifie uniquement la référence,
+                // PAS si l'objet Unity a été détruit. Si _highlightVise
+                // pointe vers un composant dont le GameObject a été
+                // Destroy(), l'appel via ?. lancerait une
+                // MissingReferenceException. Le check explicite
+                // `!= null` utilise l'overload Unity qui retourne false
+                // pour les objets détruits.
+                if (_highlightVise != null) _highlightVise.Highlighter(true);
             }
             else
             {

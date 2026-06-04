@@ -239,6 +239,11 @@ public class DialogueTuto : MonoBehaviour
             }
         }
 
+        // Volume des dialogues : suit la preference de l'onglet audio
+        // (avant, le slider "dialogues" n'etait lu par personne).
+        if (audioSourceVoix != null)
+            audioSourceVoix.volume = VolumeDialoguesPref();
+
         // Trouver le Player si refPlayer n'est pas assigne
         if (gestionDistanceActive && refPlayer == null)
         {
@@ -259,6 +264,14 @@ public class DialogueTuto : MonoBehaviour
             audioSourceRappel.playOnAwake = false;
             audioSourceRappel.spatialBlend = 0f; // 2D pour entendre partout
         }
+    }
+
+    // Preference "volume dialogues" de l'onglet audio. Lue a CHAQUE
+    // ecriture de volume (le systeme de distance ecrit chaque frame),
+    // donc le slider agit en TEMPS REEL meme pendant une replique.
+    private float VolumeDialoguesPref()
+    {
+        return PlayerPrefs.GetFloat("volumeDialogues", 1f);
     }
 
     void Update()
@@ -288,12 +301,16 @@ public class DialogueTuto : MonoBehaviour
             {
                 // Encore loin du PNJ : on garde le volume max et on
                 // attend que le joueur s'approche.
-                if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
+                if (audioSourceVoix != null)
+                    audioSourceVoix.volume = VolumeDialoguesPref();
                 return;
             }
         }
 
-        // 1) Ajuster le volume de la voix selon la distance.
+        // 1) Ajuster le volume de la voix selon la distance, MULTIPLIE
+        //    par la preference "volume dialogues" de l'onglet audio
+        //    (ce systeme ecrit volume a chaque frame : sans le facteur,
+        //    il ecrasait l'option -> slider dialogues sans effet).
         //    - distance <= distanceVolumeMax : volume 100%
         //    - distance >= distanceVolumeMin : volume 0%
         //    - entre les deux : decroissance lineaire
@@ -310,7 +327,7 @@ public class DialogueTuto : MonoBehaviour
                     / (distanceVolumeMin - distanceVolumeMax);
                 volume = 1f - t;
             }
-            audioSourceVoix.volume = volume;
+            audioSourceVoix.volume = volume * VolumeDialoguesPref();
         }
 
         // 2) Pause distance : declenchement et reprise automatique
@@ -432,7 +449,8 @@ public class DialogueTuto : MonoBehaviour
         dialoguePauseDistance = false;
         distanceLorsDePauseDistance = 0f;
         joueurDejaProche = false;
-        if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
+        if (audioSourceVoix != null)
+            audioSourceVoix.volume = VolumeDialoguesPref();
 
         // Signal du debut : ferme la tuile "Parler avec le tavernier".
         if (!string.IsNullOrEmpty(etape.idActionAuDebut)
@@ -587,9 +605,10 @@ public class DialogueTuto : MonoBehaviour
             gestionDistanceDesactiveeParSkip = true;
             if (dialoguePauseDistance)
                 SortiePauseDistance();
-            // Remettre le volume a 100% pour que le joueur entende
-            // la fin du dialogue meme s'il s'eloigne.
-            if (audioSourceVoix != null) audioSourceVoix.volume = 1f;
+            // Remettre le volume au max (pondere par l'option) pour que
+            // le joueur entende la fin du dialogue meme s'il s'eloigne.
+            if (audioSourceVoix != null)
+                audioSourceVoix.volume = VolumeDialoguesPref();
             Debug.Log("[DialogueTuto] gestion distance desactivee " +
                 "pour le reste de la session (joueur a skippe).");
         }

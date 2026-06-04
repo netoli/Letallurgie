@@ -66,6 +66,15 @@ public class gestionPartie : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // Force a 4 : l'UI des options affiche exactement 4 tuiles. La
+        // valeur serialisee dans les scenes etait 15 -> une sauvegarde
+        // "prochain slot libre" (menu pause) pouvait ecrire dans le slot 4
+        // et plus, invisibles dans l'UI ("slot fantome"). Avec 4, quand
+        // tout est plein, le prochain slot libre retombe sur 0 (ecrase la
+        // plus ancienne position). Meme precedent que speed=18 : la valeur
+        // scene etait incoherente d'une scene a l'autre.
+        nombreMaxSauvegardes = 4;
+
         cheminDossierSauvegardes = Path.Combine(
             Application.persistentDataPath, "sauvegardes");
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   idBandeau: tu_peux_placer
   texte: "Tu peux commencer \xE0 placer les tuyaux !"
   dureeAffichage: 2
-  idActionDeclenchement: joueur_a_4_tuyaux
+  idActionDeclenchement: DESACTIVE_remplace_par_bandeauTuyauxRestants
   delaiAvantApparition: 0
   idActionAnnulation:
   autoriserMultipleAffichages: 0

@@ -50,12 +50,33 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private bool enChargement = false;
 
+    private bool initialise = false;
+
     void Start()
     {
-        SauvegarderTaillesOriginales();
-        ConfigurerDropdowns();
+        InitialiserEtAppliquer();
+    }
+
+    /// <summary>
+    /// Initialise une seule fois (capture des tailles ORIGINALES de
+    /// texte, dropdowns, listeners) puis charge et applique les reglages
+    /// d'accessibilite sauvegardes. Appele par Start, ET par
+    /// appliqueOptionsAuChargement a chaque chargement de scene — pour
+    /// que tailles de texte / glitch / corrosion s'appliquent partout
+    /// SANS avoir a ouvrir le menu options. Le flag 'initialise' evite
+    /// surtout de recapturer des tailles deja agrandies (sinon
+    /// double-echelle a chaque application).
+    /// </summary>
+    public void InitialiserEtAppliquer()
+    {
+        if (!initialise)
+        {
+            SauvegarderTaillesOriginales();
+            ConfigurerDropdowns();
+            ConfigurerListeners();
+            initialise = true;
+        }
         ChargerPreferences();
-        ConfigurerListeners();
         AppliquerToutesLesOptions();
     }
 
@@ -65,26 +86,54 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         AppliquerToutesLesOptions();
     }
 
+    private gestionConfirmationOptions confirmationCache;
+
     private void MarquerModification()
     {
         if (enChargement) return;
 
-        gestionConfirmationOptions confirmation =
-            FindFirstObjectByType<gestionConfirmationOptions>();
-        if (confirmation != null)
-            confirmation.MarquerModification();
+        // Cache : evite un FindFirstObjectByType a chaque drag de slider.
+        if (confirmationCache == null)
+            confirmationCache =
+                FindFirstObjectByType<gestionConfirmationOptions>();
+        if (confirmationCache != null)
+            confirmationCache.MarquerModification();
     }
 
     private void SauvegarderTaillesOriginales()
     {
-        TMP_Text[] tousLesTextes =
-            FindObjectsByType<TMP_Text>(FindObjectsSortMode.None);
+        // Inclut les INACTIFS : avant, les textes des canvas fermes au
+        // chargement (menu options, menu principal en scenes 1-4)
+        // n'etaient jamais captures -> ContainsKey les sautait ensuite
+        // et leur taille ne changeait jamais.
+        TMP_Text[] tousLesTextes = FindObjectsByType<TMP_Text>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         foreach (TMP_Text texte in tousLesTextes)
         {
-            if (texte != null)
+            if (texte != null && !taillesOriginales.ContainsKey(texte))
                 taillesOriginales[texte] = texte.fontSize;
         }
+    }
+
+    // ── Classification des textes ─────────────────────────────
+    // Les tags (texte_ui / texte_bouton / texte_glitch) n'existent que
+    // sur ~13 objets par scene (libelles de menus, tous texte_bouton).
+    // On garde le tag comme signal PRIORITAIRE quand il est pose, et on
+    // classe tout le reste automatiquement : texte sous un Button =
+    // texte de bouton, sinon texte d'UI. Les textes de sous-titres sont
+    // exclus (ils ont leur propre option de taille via gestionSousTitre).
+
+    private bool EstTexteBouton(TMP_Text texte)
+    {
+        if (texte.CompareTag("texte_bouton")) return true;
+        if (texte.CompareTag("texte_ui")) return false;
+        return texte.GetComponentInParent<Button>(true) != null;
+    }
+
+    private bool EstTexteSousTitre(TMP_Text texte)
+    {
+        return texte.GetComponentInParent<gestionSousTitre>(true) != null;
     }
 
     private TMP_Text[] TrouverTextesParTag(string tag)
@@ -102,42 +151,38 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         return textes.ToArray();
     }
 
+    // Null-guards partout : certaines scenes ont des references UI
+    // non assignees sur ce composant (cas observe : NRE sur
+    // dropdownVitesseCorrosion au chargement). Les reglages restent
+    // appliques via les prefs meme si le widget est absent.
+    private void RemplirDropdown(TMP_Dropdown dd, List<string> options)
+    {
+        if (dd == null) return;
+        dd.ClearOptions();
+        dd.AddOptions(options);
+    }
+
     private void ConfigurerDropdowns()
     {
-        dropdownTailleTexteUI.ClearOptions();
-        dropdownTailleTexteUI.AddOptions(new List<string>
+        List<string> tailles = new List<string>
         {
             "Petit",
             "Normal",
             "Grand"
-        });
+        };
 
-        dropdownTailleTexteBouton.ClearOptions();
-        dropdownTailleTexteBouton.AddOptions(new List<string>
-        {
-            "Petit",
-            "Normal",
-            "Grand"
-        });
-
-        dropdownTailleSousTitre.ClearOptions();
-        dropdownTailleSousTitre.AddOptions(new List<string>
-        {
-            "Petit",
-            "Normal",
-            "Grand"
-        });
-
-        dropdownCouleurSousTitre.ClearOptions();
-        dropdownCouleurSousTitre.AddOptions(new List<string>
+        RemplirDropdown(dropdownTailleTexteUI, tailles);
+        RemplirDropdown(dropdownTailleTexteBouton,
+            new List<string>(tailles));
+        RemplirDropdown(dropdownTailleSousTitre,
+            new List<string>(tailles));
+        RemplirDropdown(dropdownCouleurSousTitre, new List<string>
         {
             "Blanc",
             "Jaune",
             "Cyan"
         });
-
-        dropdownVitesseCorrosion.ClearOptions();
-        dropdownVitesseCorrosion.AddOptions(new List<string>
+        RemplirDropdown(dropdownVitesseCorrosion, new List<string>
         {
             "Lente",
             "Normale",
@@ -147,24 +192,32 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void ConfigurerListeners()
     {
-        toggleGlitchTexte.onValueChanged.AddListener(OnGlitchChange);
+        if (toggleGlitchTexte != null)
+            toggleGlitchTexte.onValueChanged.AddListener(OnGlitchChange);
 
-        dropdownTailleTexteUI.onValueChanged.AddListener(
-            OnTailleTexteUIChange);
-        dropdownTailleTexteBouton.onValueChanged.AddListener(
-            OnTailleTexteBoutonChange);
-        dropdownTailleSousTitre.onValueChanged.AddListener(
-            OnTailleSousTitreChange);
-        dropdownCouleurSousTitre.onValueChanged.AddListener(
-            OnCouleurSousTitreChange);
+        if (dropdownTailleTexteUI != null)
+            dropdownTailleTexteUI.onValueChanged.AddListener(
+                OnTailleTexteUIChange);
+        if (dropdownTailleTexteBouton != null)
+            dropdownTailleTexteBouton.onValueChanged.AddListener(
+                OnTailleTexteBoutonChange);
+        if (dropdownTailleSousTitre != null)
+            dropdownTailleSousTitre.onValueChanged.AddListener(
+                OnTailleSousTitreChange);
+        if (dropdownCouleurSousTitre != null)
+            dropdownCouleurSousTitre.onValueChanged.AddListener(
+                OnCouleurSousTitreChange);
 
-        toggleIndicateurCorrosion.onValueChanged.AddListener(
-            OnIndicateurCorrosionChange);
-        dropdownVitesseCorrosion.onValueChanged.AddListener(
-            OnVitesseCorrosionChange);
+        if (toggleIndicateurCorrosion != null)
+            toggleIndicateurCorrosion.onValueChanged.AddListener(
+                OnIndicateurCorrosionChange);
+        if (dropdownVitesseCorrosion != null)
+            dropdownVitesseCorrosion.onValueChanged.AddListener(
+                OnVitesseCorrosionChange);
 
-        toggleDescriptionAudio.onValueChanged.AddListener(
-            OnDescriptionAudioChange);
+        if (toggleDescriptionAudio != null)
+            toggleDescriptionAudio.onValueChanged.AddListener(
+                OnDescriptionAudioChange);
     }
 
     // ===== GLITCH =====
@@ -179,20 +232,31 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void AppliquerGlitch(bool actif)
     {
-        TMP_Text[] textes = TrouverTextesParTag("texte_glitch");
+        // AVANT : cherchait des textes tagues "texte_glitch" (il n'y en
+        // a AUCUN dans le projet) portant un composant *Glitch* (qui
+        // n'existait pas non plus) -> le toggle ne faisait rien.
+        // MAINTENANT : on pose notre effetGlitchTexte sur les textes du
+        // jeu et on bascule son enabled. Sous-titres inclus (thematique
+        // corrosion). On ne CREE les composants que si l'option est
+        // activee; pour desactiver, on eteint ceux qui existent.
+        TMP_Text[] tous = FindObjectsByType<TMP_Text>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        foreach (TMP_Text texte in textes)
+        foreach (TMP_Text texte in tous)
         {
-            MonoBehaviour[] effets = texte.GetComponents<MonoBehaviour>();
+            if (texte == null) continue;
 
-            foreach (var effet in effets)
+            effetGlitchTexte effet =
+                texte.GetComponent<effetGlitchTexte>();
+
+            if (effet == null)
             {
-                if (effet.GetType().Name.Contains("Glitch")
-                    || effet.GetType().Name.Contains("glitch"))
-                {
-                    effet.enabled = actif;
-                }
+                if (!actif) continue;
+                effet = texte.gameObject
+                    .AddComponent<effetGlitchTexte>();
             }
+
+            effet.enabled = actif;
         }
     }
 
@@ -208,16 +272,42 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void AppliquerTailleTexteUI(int index)
     {
-        if (index < 0 || index >= multiplicateursTaille.Length) return;
+        AppliquerTailles();
+    }
 
-        float multiplicateur = multiplicateursTaille[index];
-        TMP_Text[] textes = TrouverTextesParTag("texte_ui");
+    // Une seule passe pour les DEUX tailles (UI et bouton) : on lit les
+    // deux dropdowns, on classe chaque texte, on applique le bon
+    // multiplicateur. Capture PARESSEUSE des tailles originales : un
+    // texte jamais vu (instancie apres le chargement, ex. contenu des
+    // tuiles de sauvegarde) est capture a sa taille actuelle = sa taille
+    // prefab, donc jamais de double-echelle.
+    private void AppliquerTailles()
+    {
+        // Source de verite : les PREFS (les listeners des dropdowns les
+        // ecrivent avant d'appeler ici). Fonctionne meme sans widgets.
+        int indexUI = Mathf.Clamp(
+            PlayerPrefs.GetInt("tailleTexteUI", 1),
+            0, multiplicateursTaille.Length - 1);
+        int indexBouton = Mathf.Clamp(
+            PlayerPrefs.GetInt("tailleTexteBouton", 1),
+            0, multiplicateursTaille.Length - 1);
 
-        foreach (TMP_Text texte in textes)
+        float multUI = multiplicateursTaille[indexUI];
+        float multBouton = multiplicateursTaille[indexBouton];
+
+        TMP_Text[] tous = FindObjectsByType<TMP_Text>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (TMP_Text texte in tous)
         {
-            if (taillesOriginales.ContainsKey(texte))
-                texte.fontSize =
-                    taillesOriginales[texte] * multiplicateur;
+            if (texte == null) continue;
+            if (EstTexteSousTitre(texte)) continue;
+
+            if (!taillesOriginales.ContainsKey(texte))
+                taillesOriginales[texte] = texte.fontSize;
+
+            float mult = EstTexteBouton(texte) ? multBouton : multUI;
+            texte.fontSize = taillesOriginales[texte] * mult;
         }
     }
 
@@ -233,17 +323,7 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void AppliquerTailleTexteBouton(int index)
     {
-        if (index < 0 || index >= multiplicateursTaille.Length) return;
-
-        float multiplicateur = multiplicateursTaille[index];
-        TMP_Text[] textes = TrouverTextesParTag("texte_bouton");
-
-        foreach (TMP_Text texte in textes)
-        {
-            if (taillesOriginales.ContainsKey(texte))
-                texte.fontSize =
-                    taillesOriginales[texte] * multiplicateur;
-        }
+        AppliquerTailles();
     }
 
     // ===== TAILLE SOUS-TITRE =====
@@ -351,57 +431,42 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     // ===== CHARGER PREFERENCES =====
 
+    // SetValueWithoutNotify / SetIsOnWithoutNotify : ne declenche NI nos
+    // listeners NI ceux des composants d'effets sonores poses sur ces
+    // widgets (sinon, ouvrir l'onglet jouait des sons parasites).
+    private void ChargerDropdown(TMP_Dropdown dd, string cle, int defaut)
+    {
+        if (dd == null) return;
+        dd.SetValueWithoutNotify(PlayerPrefs.GetInt(cle, defaut));
+        dd.RefreshShownValue();
+    }
+
+    private void ChargerToggle(Toggle t, string cle, int defaut)
+    {
+        if (t == null) return;
+        t.SetIsOnWithoutNotify(PlayerPrefs.GetInt(cle, defaut) == 1);
+    }
+
     private void ChargerPreferences()
     {
         enChargement = true;
 
-        toggleGlitchTexte.isOn =
-            PlayerPrefs.GetInt("glitchTexte", 0) == 1;
-
-        dropdownTailleTexteUI.value =
-            PlayerPrefs.GetInt("tailleTexteUI", 1);
-        dropdownTailleTexteUI.RefreshShownValue();
-
-        dropdownTailleTexteBouton.value =
-            PlayerPrefs.GetInt("tailleTexteBouton", 1);
-        dropdownTailleTexteBouton.RefreshShownValue();
-
-        dropdownTailleSousTitre.value =
-            PlayerPrefs.GetInt("tailleSousTitre", 1);
-        dropdownTailleSousTitre.RefreshShownValue();
-
-        dropdownCouleurSousTitre.value =
-            PlayerPrefs.GetInt("couleurSousTitre", 0);
-        dropdownCouleurSousTitre.RefreshShownValue();
-
-        toggleIndicateurCorrosion.isOn =
-            PlayerPrefs.GetInt("indicateurCorrosion", 0) == 1;
-
-        dropdownVitesseCorrosion.value =
-            PlayerPrefs.GetInt("vitesseCorrosion", 1);
-        dropdownVitesseCorrosion.RefreshShownValue();
-
-        toggleDescriptionAudio.isOn =
-            PlayerPrefs.GetInt("descriptionAudio", 0) == 1;
+        ChargerToggle(toggleGlitchTexte, "glitchTexte", 0);
+        ChargerDropdown(dropdownTailleTexteUI, "tailleTexteUI", 1);
+        ChargerDropdown(dropdownTailleTexteBouton,
+            "tailleTexteBouton", 1);
+        ChargerDropdown(dropdownTailleSousTitre, "tailleSousTitre", 1);
+        ChargerDropdown(dropdownCouleurSousTitre, "couleurSousTitre", 0);
+        ChargerToggle(toggleIndicateurCorrosion,
+            "indicateurCorrosion", 0);
+        ChargerDropdown(dropdownVitesseCorrosion, "vitesseCorrosion", 1);
+        ChargerToggle(toggleDescriptionAudio, "descriptionAudio", 0);
 
         enChargement = false;
     }
 
     public void Reinitialiser()
     {
-        enChargement = true;
-
-        toggleGlitchTexte.isOn = false;
-        dropdownTailleTexteUI.value = 1;
-        dropdownTailleTexteBouton.value = 1;
-        dropdownTailleSousTitre.value = 1;
-        dropdownCouleurSousTitre.value = 0;
-        toggleIndicateurCorrosion.isOn = false;
-        dropdownVitesseCorrosion.value = 1;
-        toggleDescriptionAudio.isOn = false;
-
-        enChargement = false;
-
         PlayerPrefs.SetInt("glitchTexte", 0);
         PlayerPrefs.SetInt("tailleTexteUI", 1);
         PlayerPrefs.SetInt("tailleTexteBouton", 1);
@@ -411,12 +476,9 @@ public class gestionOptionsAccessibilite : MonoBehaviour
         PlayerPrefs.SetInt("vitesseCorrosion", 1);
         PlayerPrefs.SetInt("descriptionAudio", 0);
 
-        dropdownTailleTexteUI.RefreshShownValue();
-        dropdownTailleTexteBouton.RefreshShownValue();
-        dropdownTailleSousTitre.RefreshShownValue();
-        dropdownCouleurSousTitre.RefreshShownValue();
-        dropdownVitesseCorrosion.RefreshShownValue();
-
+        // Recharge l'UI depuis les prefs (null-safe, sans notification)
+        // puis applique.
+        ChargerPreferences();
         AppliquerToutesLesOptions();
 
         Debug.Log("Options accessibilite reinitialisees");
@@ -430,10 +492,13 @@ public class gestionOptionsAccessibilite : MonoBehaviour
 
     private void AppliquerToutesLesOptions()
     {
-        AppliquerGlitch(toggleGlitchTexte.isOn);
-        AppliquerTailleTexteUI(dropdownTailleTexteUI.value);
-        AppliquerTailleTexteBouton(dropdownTailleTexteBouton.value);
-        AppliquerIndicateurCorrosion(toggleIndicateurCorrosion.isOn);
+        // Pilote par les PREFS (pas par l'etat des widgets) : les
+        // reglages s'appliquent meme dans une scene dont le panneau a
+        // des references UI manquantes.
+        AppliquerGlitch(PlayerPrefs.GetInt("glitchTexte", 0) == 1);
+        AppliquerTailles();
+        AppliquerIndicateurCorrosion(
+            PlayerPrefs.GetInt("indicateurCorrosion", 0) == 1);
     }
 
     public bool GlitchActif()
