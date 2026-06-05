@@ -34,7 +34,8 @@ public class appliqueOptionsControleCamera : MonoBehaviour
     [Tooltip("La vcam de jeu (pour le FOV). Auto-trouvee par nom si vide.")]
     [SerializeField] private CinemachineCamera vcam;
 
-    [Tooltip("Nom de la vcam de jeu a trouver si 'vcam' est vide.")]
+    [Tooltip("Nom (ou debut de nom) de la vcam de jeu. Match par " +
+        "Contains : couvre camera_virtuelle_premiere_personne_joueur.")]
     [SerializeField] private string nomVcamJeu =
         "camera_virtuelle_premiere_personne";
 
@@ -74,7 +75,7 @@ public class appliqueOptionsControleCamera : MonoBehaviour
         AppliquerDepuisPrefs();
     }
 
-    private bool referencesLoggees = false;
+    private string vcamLoggee = "";
 
     private void ResoudreReferences()
     {
@@ -83,17 +84,28 @@ public class appliqueOptionsControleCamera : MonoBehaviour
                 FindFirstObjectByType<CinemachineInputAxisController>(
                     FindObjectsInactive.Include);
 
-        if (vcam == null)
+        // CORRECTIF FOV : la vcam de jeu s'appelle
+        // "camera_virtuelle_premiere_personne_joueur" — l'ancienne
+        // comparaison par egalite stricte ne la trouvait JAMAIS, et le
+        // fallback ecrivait le FOV sur la vcam du MENU. On matche par
+        // Contains (tolere les suffixes), et on RE-tente tant que la
+        // vcam tenue n'est pas celle du joueur (cas : fallback menu
+        // memorise au boot).
+        bool vcamEstLaBonne = vcam != null
+            && !string.IsNullOrEmpty(nomVcamJeu)
+            && vcam.name.Contains(nomVcamJeu);
+
+        if (vcam == null || !vcamEstLaBonne)
         {
             var cams = FindObjectsByType<CinemachineCamera>(
                 FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-            // 1) Par nom (camera_virtuelle_premiere_personne).
+            // 1) Par nom (Contains).
             if (!string.IsNullOrEmpty(nomVcamJeu))
             {
                 foreach (var c in cams)
                 {
-                    if (c != null && c.name == nomVcamJeu)
+                    if (c != null && c.name.Contains(nomVcamJeu))
                     {
                         vcam = c;
                         break;
@@ -101,8 +113,8 @@ public class appliqueOptionsControleCamera : MonoBehaviour
                 }
             }
 
-            // 2) Fallback : la vcam ACTIVE la plus prioritaire (si la
-            //    scene nomme sa camera de jeu autrement).
+            // 2) Fallback : la vcam ACTIVE la plus prioritaire,
+            //    seulement si on n'a encore rien.
             if (vcam == null)
             {
                 int meilleure = int.MinValue;
@@ -118,18 +130,16 @@ public class appliqueOptionsControleCamera : MonoBehaviour
             }
         }
 
-        // Log unique pour diagnostiquer "rien ne se passe" : dit
-        // exactement ce qui a ete trouve (ou pas) dans cette scene.
-        if (!referencesLoggees)
+        // Log a chaque CHANGEMENT de vcam visee (diagnostic).
+        string nomActuel = vcam != null ? vcam.name : "INTROUVABLE";
+        if (nomActuel != vcamLoggee)
         {
-            referencesLoggees = true;
+            vcamLoggee = nomActuel;
             Debug.Log("[appliqueOptionsControleCamera] axis="
                 + (inputAxisController != null
                     ? inputAxisController.name : "INTROUVABLE")
-                + " | vcam="
-                + (vcam != null ? vcam.name : "INTROUVABLE")
-                + " (FOV/inversion sans effet si INTROUVABLE -> "
-                + "donne-moi ce log).");
+                + " | vcam=" + nomActuel
+                + " (FOV/inversion appliques sur cette camera).");
         }
     }
 

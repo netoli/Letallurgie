@@ -39015,6 +39015,7 @@ MonoBehaviour:
   idActionActivation: pointeur_comptoir_visible
   objetAActiver: {fileID: 1083449670}
   delaiAvantActivation: 0
+  activerEnfantsAussi: 0
   autoReset: 0
 --- !u!1001 &1087739286
 PrefabInstance:
@@ -40898,8 +40899,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::gestionFlou
   volumeGlobal: {fileID: 832575518}
-  distanceFocus: 0.1
-  longueurFocale: 9
+  distanceFocus: 12
+  longueurFocale: 120
   ouverture: 1
 --- !u!114 &1133173524
 MonoBehaviour:
@@ -74033,27 +74034,35 @@ MonoBehaviour:
   - ensembleImageEtDonnees: {fileID: 6037285}
     boutonCharger: {fileID: 1226738578}
     boutonSauvegarder: {fileID: 1896608068}
+    boutonSupprimer: {fileID: 0}
     indexSlot: 0
     contientSauvegarde: 0
     contenuInstancie: {fileID: 0}
+    libelleVide: {fileID: 0}
   - ensembleImageEtDonnees: {fileID: 0}
     boutonCharger: {fileID: 0}
     boutonSauvegarder: {fileID: 0}
+    boutonSupprimer: {fileID: 0}
     indexSlot: 0
     contientSauvegarde: 0
     contenuInstancie: {fileID: 0}
+    libelleVide: {fileID: 0}
   - ensembleImageEtDonnees: {fileID: 0}
     boutonCharger: {fileID: 0}
     boutonSauvegarder: {fileID: 0}
+    boutonSupprimer: {fileID: 0}
     indexSlot: 0
     contientSauvegarde: 0
     contenuInstancie: {fileID: 0}
+    libelleVide: {fileID: 0}
   - ensembleImageEtDonnees: {fileID: 0}
     boutonCharger: {fileID: 0}
     boutonSauvegarder: {fileID: 0}
+    boutonSupprimer: {fileID: 0}
     indexSlot: 0
     contientSauvegarde: 0
     contenuInstancie: {fileID: 0}
+    libelleVide: {fileID: 0}
 --- !u!1 &2091426041
 GameObject:
   m_ObjectHideFlags: 0

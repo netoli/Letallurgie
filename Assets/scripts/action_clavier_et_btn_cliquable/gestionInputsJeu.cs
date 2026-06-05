@@ -1867,6 +1867,19 @@ public class gestionInputsJeu : MonoBehaviour
 
     public void ConfirmerQuitter()
     {
+        // Sauvegarde automatique a la fermeture du jeu (demande
+        // d'Oli) : on capture la partie en cours avant de quitter.
+        // Slot : prochain libre (ou ecrase le slot 0 si tout est
+        // plein). Depuis le menu principal sans partie lancee, il n'y
+        // a rien a sauvegarder -> on quitte simplement.
+        if (gestionPartie.Instance != null
+            && gestionPartie.Instance.ObtenirPartieEnCours() != null)
+        {
+            gestionPartie.Instance.Sauvegarder();
+            Debug.Log("[gestionInputsJeu] Sauvegarde automatique "
+                + "avant de quitter le jeu.");
+        }
+
         Application.Quit();
 
 #if UNITY_EDITOR

@@ -53,7 +53,7 @@ public class gestionTuileSauvegarde : MonoBehaviour
         [HideInInspector] public int indexSlot;
         [HideInInspector] public bool contientSauvegarde;
         [HideInInspector] public GameObject contenuInstancie;
-        [HideInInspector] public GameObject libelleVide;
+        [HideInInspector] public GameObject groupementRacine;
     }
 
     // Noms candidats (couvre les variations observees entre scenes/prefabs).
@@ -111,6 +111,10 @@ public class gestionTuileSauvegarde : MonoBehaviour
             Transform g = groupements[i];
             if (tuiles[i] == null) tuiles[i] = new TuileSauvegarde();
             TuileSauvegarde t = tuiles[i];
+
+            // Racine de la tuile : cachee entierement quand le slot
+            // est vide (RafraichirTuiles).
+            t.groupementRacine = g.gameObject;
 
             if (t.ensembleImageEtDonnees == null)
             {
@@ -270,6 +274,14 @@ public class gestionTuileSauvegarde : MonoBehaviour
                 if (s.indexSlot == i) { donnees = s; break; }
             }
 
+            // Slot vide : la tuile ENTIERE disparait de la liste
+            // (demande d'Oli). Consequence assumee : on ne peut plus
+            // creer une sauvegarde en cliquant un slot vide — la
+            // creation passe par K, le bouton du menu pause, ou la
+            // sauvegarde automatique en quittant le jeu.
+            if (tuile.groupementRacine != null)
+                tuile.groupementRacine.SetActive(donnees != null);
+
             if (donnees != null)
             {
                 tuile.contientSauvegarde = true;
@@ -280,17 +292,10 @@ public class gestionTuileSauvegarde : MonoBehaviour
                 tuile.contenuInstancie = contenu;
 
                 RemplirContenu(contenu, donnees);
-
-                if (tuile.libelleVide != null)
-                    tuile.libelleVide.SetActive(false);
             }
             else
             {
                 tuile.contientSauvegarde = false;
-
-                // Slot vide : libelle clair plutot qu'un cadre nu
-                // (retour de test : la tuile videe semblait cassee).
-                AfficherLibelleVide(tuile);
             }
 
             // Tous les boutons caches par defaut.
@@ -395,6 +400,14 @@ public class gestionTuileSauvegarde : MonoBehaviour
                 {
                     gestionPartie.Instance.SupprimerSauvegarde(slot);
                     RafraichirTuiles();
+
+                    // Le bouton Continuer du menu principal suit en
+                    // direct (cache si plus aucune sauvegarde).
+                    var transitions =
+                        FindFirstObjectByType<gestionsTransitions>(
+                            FindObjectsInactive.Include);
+                    if (transitions != null)
+                        transitions.MettreAJourBoutonContinuer();
                 });
             }
         }
@@ -405,42 +418,6 @@ public class gestionTuileSauvegarde : MonoBehaviour
             if (tuile.boutonSupprimer != null)
                 tuile.boutonSupprimer.SetActive(false);
         }
-    }
-
-    // Cree (une fois) et affiche le libelle "Emplacement vide" centre
-    // dans la tuile. Couleur parchemin discrete, pas de raycast (le clic
-    // atteint le Button de la tuile en dessous).
-    private void AfficherLibelleVide(TuileSauvegarde tuile)
-    {
-        if (tuile == null || tuile.ensembleImageEtDonnees == null)
-            return;
-
-        if (tuile.libelleVide == null)
-        {
-            GameObject go = new GameObject("libelle_emplacement_vide",
-                typeof(RectTransform));
-            go.layer = tuile.ensembleImageEtDonnees.gameObject.layer;
-            go.transform.SetParent(
-                tuile.ensembleImageEtDonnees, false);
-
-            RectTransform rect = go.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-
-            TextMeshProUGUI texte =
-                go.AddComponent<TextMeshProUGUI>();
-            texte.text = "Emplacement vide";
-            texte.fontSize = 30f;
-            texte.alignment = TextAlignmentOptions.Center;
-            texte.color = new Color(0.92f, 0.85f, 0.74f, 0.55f);
-            texte.raycastTarget = false;
-
-            tuile.libelleVide = go;
-        }
-
-        tuile.libelleVide.SetActive(true);
     }
 
     private void CablerBouton(GameObject boutonGO,

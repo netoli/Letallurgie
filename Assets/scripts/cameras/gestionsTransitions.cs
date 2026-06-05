@@ -247,9 +247,24 @@ public class gestionsTransitions : MonoBehaviour
             groupeCredits = canvasCredits.GetComponent<CanvasGroup>();
 
         // Bouton Continuer (peut s'appeler bouton_continuer ou btn_continuer)
+        MettreAJourBoutonContinuer();
+    }
+
+    /// <summary>
+    /// Affiche le bouton Continuer seulement s'il existe au moins une
+    /// sauvegarde (demande d'Oli). Appele a la resolution des
+    /// references, et apres une suppression de sauvegarde par
+    /// gestionTuileSauvegarde (pour que le menu reagisse en direct).
+    /// </summary>
+    public void MettreAJourBoutonContinuer()
+    {
         if (btnContinuer == null)
             btnContinuer = TrouverGameObject("bouton_continuer", true)
                 ?? TrouverGameObject("btn_continuer", true);
+
+        if (btnContinuer != null && gestionPartie.Instance != null)
+            btnContinuer.SetActive(
+                gestionPartie.Instance.SauvegardeExiste());
     }
 
     /// <summary>
@@ -319,13 +334,6 @@ public class gestionsTransitions : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-    }
-
-    public void MettreAJourBoutonContinuer()
-    {
-        if (btnContinuer != null)
-            btnContinuer.SetActive(
-                gestionPartie.Instance.SauvegardeExiste());
     }
 
     private void DemarrerMonteeBrouillard1()

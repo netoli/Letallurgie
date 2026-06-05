@@ -90,21 +90,54 @@ public class gestionBanniere : MonoBehaviour
                 FindObjectsInactive.Include);
         }
 
-        // Initialisation de la vignette (ajoute le override au
-        // profil URP s'il n'existe pas deja, et le laisse desactive).
-        // On configure aussi smoothness, roundness et couleur pour
-        // que la vignette occupe tout l'ecran (sans le grand cercle
-        // clair au centre dû au smoothness par defaut de 0.2).
+        // Initialisation de la vignette : on CAPTURE l'etat configure
+        // dans le profil partage (la base Inspector de l'equipe) SANS
+        // rien ecraser. Avant, ce bloc forcait active=false, intensite
+        // 0 et la couleur banniere a chaque Awake -> la vignette du
+        // Global Volume "changeait a chaque lancement". Le style
+        // banniere n'est applique qu'au moment de l'effet, et la base
+        // est restauree apres (RestaurerVignetteBase).
         if (volumeGlobal != null && volumeGlobal.profile != null)
         {
             if (!volumeGlobal.profile.TryGet(out vignette))
                 vignette = volumeGlobal.profile.Add<Vignette>(true);
-            vignette.active = false;
-            vignette.intensity.Override(0f);
-            vignette.smoothness.Override(vignetteSmoothness);
-            vignette.rounded.Override(vignetteRounded);
-            vignette.color.Override(vignetteCouleur);
+
+            vignetteBaseActive = vignette.active;
+            vignetteBaseIntensite = vignette.intensity.value;
+            vignetteBaseSmoothness = vignette.smoothness.value;
+            vignetteBaseRounded = vignette.rounded.value;
+            vignetteBaseCouleur = vignette.color.value;
         }
+    }
+
+    // Etat Inspector de la vignette (capture a l'Awake, restaure apres
+    // chaque banniere).
+    private bool vignetteBaseActive;
+    private float vignetteBaseIntensite;
+    private float vignetteBaseSmoothness;
+    private bool vignetteBaseRounded;
+    private Color vignetteBaseCouleur;
+
+    // Intensite a viser quand la banniere se retire : la preference du
+    // joueur si elle existe (slider vignette des options), sinon la
+    // base Inspector (ou 0 si l'equipe a laisse la vignette inactive).
+    private float ObtenirIntensiteRetour()
+    {
+        if (PlayerPrefs.HasKey("intensiteVignette"))
+            return PlayerPrefs.GetFloat(
+                "intensiteVignette", vignetteBaseIntensite);
+        return vignetteBaseActive ? vignetteBaseIntensite : 0f;
+    }
+
+    private void RestaurerVignetteBase()
+    {
+        if (vignette == null) return;
+        vignette.smoothness.Override(vignetteBaseSmoothness);
+        vignette.rounded.Override(vignetteBaseRounded);
+        vignette.color.Override(vignetteBaseCouleur);
+        vignette.intensity.Override(ObtenirIntensiteRetour());
+        vignette.active = vignetteBaseActive
+            || PlayerPrefs.HasKey("intensiteVignette");
     }
 
     private IEnumerator FadeVignette(float cible, float duree)
@@ -125,9 +158,9 @@ public class gestionBanniere : MonoBehaviour
         }
 
         vignette.intensity.Override(cible);
-        // Si on fade jusqu'a 0, on desactive completement pour
-        // libérer le post-processing.
-        if (cible <= 0.001f) vignette.active = false;
+        // Fin de l'effet : on rend la vignette de base du jeu
+        // (Inspector ou preference joueur) au lieu de tout couper.
+        if (cible <= 0.001f) RestaurerVignetteBase();
 
         vignetteCoroutineActive = null;
     }
@@ -137,6 +170,15 @@ public class gestionBanniere : MonoBehaviour
         if (vignette == null) return;
         if (vignetteCoroutineActive != null)
             StopCoroutine(vignetteCoroutineActive);
+        // Style banniere applique au moment de l'effet seulement (et
+        // plus a l'Awake) : hors bannieres, la vignette du Global
+        // Volume reste exactement celle de l'Inspector.
+        if (cible > 0.001f)
+        {
+            vignette.smoothness.Override(vignetteSmoothness);
+            vignette.rounded.Override(vignetteRounded);
+            vignette.color.Override(vignetteCouleur);
+        }
         vignetteCoroutineActive = StartCoroutine(
             FadeVignette(cible, vignetteFadeDuree));
     }
@@ -311,8 +353,8 @@ public IEnumerator AfficherBanniere(
                 groupeBanniere.alpha = Mathf.Lerp(1f, 0f, ratio);
 
             if (vignette != null && activerVignettePourCetteBanniere)
-                vignette.intensity.Override(
-                    Mathf.Lerp(departVignette, 0f, ratio));
+                vignette.intensity.Override(Mathf.Lerp(
+                    departVignette, ObtenirIntensiteRetour(), ratio));
 
             yield return null;
         }
@@ -325,12 +367,10 @@ public IEnumerator AfficherBanniere(
             audioSource.volume = volumeAudioMax;
         }
 
-        // S'assurer que la vignette est bien a 0 et desactivee.
+        // Rendre la vignette de BASE du jeu (Inspector / preference
+        // joueur) au lieu de la couper a zero.
         if (vignette != null && activerVignettePourCetteBanniere)
-        {
-            vignette.intensity.Override(0f);
-            vignette.active = false;
-        }
+            RestaurerVignetteBase();
 
         Debug.Log("[Banniere] Fade out termine");
 

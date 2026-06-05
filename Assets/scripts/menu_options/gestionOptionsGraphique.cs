@@ -87,19 +87,14 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void RecupererEffetsPostProcessing()
     {
-        // CORRECTIF "vignette visible en scene0 mais pas ailleurs" :
-        // camera_principale a 'Post Processing' DECOCHE dans toutes les
-        // scenes -> le Volume (vignette, luminosite) n'etait pas rendu
-        // par la camera de jeu. On force le rendu post-processing sur
-        // toutes les cameras de la scene pour un look uniforme.
-        var cameras = FindObjectsByType<Camera>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var cam in cameras)
-        {
-            var dataCam = cam.GetUniversalAdditionalCameraData();
-            if (dataCam != null)
-                dataCam.renderPostProcessing = true;
-        }
+        // ARCHITECTURE CAMERA DU JEU (NE PAS forcer le post-processing
+        // sur toutes les cameras!) : camera_capture = Base URP
+        // (environnement, post-proc ON serialise — vignette/DoF/color
+        // adjustments rendus par elle) + camera_principale = Overlay
+        // dans sa stack (UI seulement, post-proc OFF serialise — les
+        // canvas restent NETS par construction). Un ancien correctif
+        // forcait renderPostProcessing=true partout : il appliquait le
+        // DoF a la camera UI et floutait les menus. Retire.
 
         // Auto-find du Volume global si non assigne dans l'Inspector
         // (cas observe : scene2_usine n'a pas le champ globalVolume
@@ -123,24 +118,33 @@ public class gestionOptionsGraphiques : MonoBehaviour
         if (!globalVolume.profile.TryGet(out colorAdjustments))
             colorAdjustments = globalVolume.profile.Add<ColorAdjustments>(true);
 
+        // L'INSPECTOR fait foi : le profil PARTAGE (SampleSceneProfile,
+        // maintenant reference par TOUTES les scenes, usine et manoir
+        // inclus) porte vignette, depth of field et color adjustments
+        // regles par l'equipe. Le script ne force plus ni couleur ni
+        // intensite : il applique seulement le delta des options joueur
+        // (et uniquement si le joueur a touche au reglage — voir
+        // AppliquerEffets). Modifier le profil dans scene0 se repercute
+        // donc partout, en Inspector comme en jeu.
+        bool vignetteAjoutee = false;
         if (!globalVolume.profile.TryGet(out vignette))
+        {
             vignette = globalVolume.profile.Add<Vignette>(true);
+            vignetteAjoutee = true;
+        }
 
         if (vignette != null)
         {
+            // Filet : profil sans vignette -> defauts du jeu. Ne touche
+            // JAMAIS un profil qui a deja sa vignette configuree.
+            if (vignetteAjoutee)
+            {
+                vignette.intensity.Override(0.21f);
+                vignette.color.Override(COULEUR_VIGNETTE);
+            }
+
             vignetteOriginale = vignette.intensity.value;
-
-            // Si le profil de la scene n'a pas de vignette configuree
-            // (intensite 0), on aligne sur la valeur designer des autres
-            // scenes (0.21 dans SampleSceneProfile) pour un defaut
-            // coherent partout.
-            if (vignetteOriginale <= 0.01f)
-                vignetteOriginale = 0.21f;
-
             vignetteSliderDefaut = vignetteOriginale;
-
-            // Couleur de vignette du jeu (sinon : noir par defaut URP).
-            vignette.color.Override(COULEUR_VIGNETTE);
         }
 
         if (colorAdjustments != null)
@@ -149,7 +153,60 @@ public class gestionOptionsGraphiques : MonoBehaviour
             luminositeSliderDefaut =
                 0.5f + (luminositeOriginale / 4f);
         }
+
+        // BASE de la scene pour le brouillard (restauration au R).
+        fogSceneActif = RenderSettings.fog;
+        fogSceneMode = RenderSettings.fogMode;
+        fogSceneDensite = RenderSettings.fogDensity;
+        fogSceneFin = RenderSettings.fogEndDistance;
+
+        // Log diagnostic UNIQUE : dit exactement ce que ce composant a
+        // trouve. Si "vignette/slider INTROUVABLE" apparait, c'est la
+        // cause directe d'un slider sans effet — me donner cette ligne.
+        int nbComposants = FindObjectsByType<gestionOptionsGraphiques>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+        // Etat des prefs joueur : explique en un coup d'oeil pourquoi
+        // l'Instance Profile differe de l'asset en mode Play.
+        string prefs = "";
+        if (PlayerPrefs.HasKey("luminosite"))
+            prefs += " luminosite="
+                + PlayerPrefs.GetFloat("luminosite").ToString("F2");
+        if (PlayerPrefs.HasKey("intensiteVignette"))
+            prefs += " vignette="
+                + PlayerPrefs.GetFloat("intensiteVignette")
+                    .ToString("F2");
+        if (PlayerPrefs.HasKey("intensiteBrouillard"))
+            prefs += " brouillard="
+                + PlayerPrefs.GetFloat("intensiteBrouillard")
+                    .ToString("F2");
+        if (prefs == "")
+            prefs = " AUCUNE (valeurs Inspector pures)";
+        else
+            prefs += " -> R dans l'onglet Graphique pour purger";
+
+        Debug.Log("[gestionOptionsGraphiques] volume="
+            + (globalVolume != null ? globalVolume.name : "INTROUVABLE")
+            + " | vignette="
+            + (vignette != null
+                ? "ok (base " + vignetteOriginale.ToString("F2") + ")"
+                : "INTROUVABLE")
+            + " | colorAdj="
+            + (colorAdjustments != null ? "ok" : "INTROUVABLE")
+            + " | sliders lum/vig/brouillard="
+            + (sliderLuminosite != null ? "ok" : "NULL") + "/"
+            + (sliderIntensiteVignette != null ? "ok" : "NULL") + "/"
+            + (sliderIntensiteBrouillard != null ? "ok" : "NULL")
+            + " | instances=" + nbComposants
+            + (nbComposants > 1 ? " (DOUBLON dans la scene!)" : "")
+            + " | prefs joueur :" + prefs);
     }
+
+    // Valeurs designer du brouillard de LA scene courante (capturees a
+    // l'init, restaurees quand le joueur reinitialise les options).
+    private bool fogSceneActif;
+    private FogMode fogSceneMode;
+    private float fogSceneDensite;
+    private float fogSceneFin;
 
     private gestionConfirmationOptions confirmationCache;
 
@@ -167,6 +224,7 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void ConfigurerDropdownResolution()
     {
+        if (dropdownResolution == null) return;
         dropdownResolution.ClearOptions();
 
         List<string> options = new List<string>
@@ -185,6 +243,7 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void ConfigurerDropdownModeAffichage()
     {
+        if (dropdownModeAffichage == null) return;
         dropdownModeAffichage.ClearOptions();
 
         List<string> options = new List<string>
@@ -203,18 +262,28 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void ConfigurerListeners()
     {
-        dropdownResolution.onValueChanged.AddListener(OnResolutionChange);
-        dropdownModeAffichage.onValueChanged.AddListener(
-            OnModeAffichageChange);
+        // Null-guards : une reference morte ici interrompait TOUTE la
+        // suite de l'initialisation (NRE) — les widgets suivants ne
+        // recevaient jamais leur listener. Cas observe : luminosite
+        // fonctionnelle mais vignette et brouillard muets.
+        if (dropdownResolution != null)
+            dropdownResolution.onValueChanged.AddListener(
+                OnResolutionChange);
+        if (dropdownModeAffichage != null)
+            dropdownModeAffichage.onValueChanged.AddListener(
+                OnModeAffichageChange);
 
-        sliderLuminosite.onValueChanged.AddListener(
-            v => OnSliderChange("luminosite", v, sliderLuminosite));
-        sliderIntensiteVignette.onValueChanged.AddListener(
-            v => OnSliderChange("intensiteVignette", v,
-                sliderIntensiteVignette));
-        sliderIntensiteBrouillard.onValueChanged.AddListener(
-            v => OnSliderChange("intensiteBrouillard", v,
-                sliderIntensiteBrouillard));
+        if (sliderLuminosite != null)
+            sliderLuminosite.onValueChanged.AddListener(
+                v => OnSliderChange("luminosite", v, sliderLuminosite));
+        if (sliderIntensiteVignette != null)
+            sliderIntensiteVignette.onValueChanged.AddListener(
+                v => OnSliderChange("intensiteVignette", v,
+                    sliderIntensiteVignette));
+        if (sliderIntensiteBrouillard != null)
+            sliderIntensiteBrouillard.onValueChanged.AddListener(
+                v => OnSliderChange("intensiteBrouillard", v,
+                    sliderIntensiteBrouillard));
     }
 
     private void OnResolutionChange(int index)
@@ -275,18 +344,49 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void AppliquerEffets()
     {
-        if (colorAdjustments != null)
+        // Le script n'ecrase l'Inspector QUE si le joueur a deja touche
+        // au reglage (pref existante). Sinon, la base du profil partage
+        // et les RenderSettings de la scene restent intacts — l'equipe
+        // garde le controle artistique, les options ne sont qu'un delta.
+        // (Les listeners ecrivent la pref AVANT d'appeler ici, donc le
+        // premier mouvement de slider prend effet immediatement.)
+        // Source de verite : les PREFS, pas les sliders (les listeners
+        // ecrivent la pref avant d'appeler ici, et l'application
+        // fonctionne meme dans une scene aux references UI mortes).
+        if (colorAdjustments != null
+            && PlayerPrefs.HasKey("luminosite"))
         {
-            float lum = sliderLuminosite.value;
+            float lum = PlayerPrefs.GetFloat("luminosite", 0.5f);
             colorAdjustments.postExposure.Override((lum - 0.5f) * 4f);
         }
 
-        if (vignette != null)
+        if (vignette != null
+            && PlayerPrefs.HasKey("intensiteVignette"))
         {
-            vignette.intensity.Override(sliderIntensiteVignette.value);
+            // Le joueur a explicitement demande une vignette : on
+            // s'assure que l'effet est actif meme si la base Inspector
+            // le laisse desactive.
+            vignette.active = true;
+            vignette.intensity.Override(
+                PlayerPrefs.GetFloat("intensiteVignette", 0.21f));
         }
 
-        AppliquerIntensiteBrouillard(sliderIntensiteBrouillard.value);
+        if (PlayerPrefs.HasKey("intensiteBrouillard"))
+            AppliquerIntensiteBrouillard(PlayerPrefs.GetFloat(
+                "intensiteBrouillard", DEFAUT_BROUILLARD));
+    }
+
+    // Position de slider equivalente au brouillard ACTUEL de la scene
+    // (utilisee quand le joueur n'a encore rien regle).
+    private float IntensiteBrouillardDeLaScene()
+    {
+        if (!RenderSettings.fog) return 0f;
+        if (RenderSettings.fogMode == FogMode.Linear)
+            return Mathf.Clamp01(Mathf.InverseLerp(
+                FIN_LINEAIRE_MAX, FIN_LINEAIRE_MIN,
+                RenderSettings.fogEndDistance));
+        return Mathf.Clamp01(
+            RenderSettings.fogDensity / DENSITE_BROUILLARD_MAX);
     }
 
     private void AppliquerIntensiteBrouillard(float intensite)
@@ -307,82 +407,94 @@ public class gestionOptionsGraphiques : MonoBehaviour
                 intensite * DENSITE_BROUILLARD_MAX;
         }
 
-        // 2) Bonus : d'eventuels fx particules de brume (aucun dans les
-        //    scenes actuelles). Insensible a la casse + objets inactifs.
-        ParticleSystem[] brouillards =
-            FindObjectsByType<ParticleSystem>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-        foreach (ParticleSystem ps in brouillards)
-        {
-            string nom = ps.gameObject.name.ToLowerInvariant();
-            if (nom.Contains("brouillard") || nom.Contains("brume"))
-            {
-                var emission = ps.emission;
-                emission.rateOverTimeMultiplier = intensite;
-            }
-        }
+        // (Le scan des ParticleSystem nommes *brouillard* a ete RETIRE :
+        // il etouffait les fx decoratifs du jeu — ex. fx_brouillard des
+        // canvas — avec la pref du slider. Le slider ne pilote que le
+        // fog de scene; les fx particules appartiennent aux scenes.)
     }
 
     private void ChargerPreferences()
     {
         enChargement = true;
 
-        float lum = PlayerPrefs.GetFloat("luminosite", -1f);
-        float vig = PlayerPrefs.GetFloat("intensiteVignette", -1f);
+        // Sans pref : les sliders REFLETENT la base Inspector (profil
+        // partage / RenderSettings de la scene). SetValueWithoutNotify
+        // + null-guards : pas de listeners parasites, pas de NRE sur
+        // les copies de scene aux references mortes.
+        if (sliderLuminosite != null)
+        {
+            float lum = PlayerPrefs.GetFloat("luminosite", -1f);
+            sliderLuminosite.SetValueWithoutNotify(
+                lum < 0 ? luminositeSliderDefaut : lum);
+        }
 
-        if (lum < 0)
-            sliderLuminosite.value = luminositeSliderDefaut;
-        else
-            sliderLuminosite.value = lum;
+        if (sliderIntensiteVignette != null)
+        {
+            float vig = PlayerPrefs.GetFloat("intensiteVignette", -1f);
+            sliderIntensiteVignette.SetValueWithoutNotify(
+                vig < 0 ? vignetteSliderDefaut : vig);
+        }
 
-        if (vig < 0)
-            sliderIntensiteVignette.value = vignetteSliderDefaut;
-        else
-            sliderIntensiteVignette.value = vig;
+        if (sliderIntensiteBrouillard != null)
+        {
+            sliderIntensiteBrouillard.SetValueWithoutNotify(
+                PlayerPrefs.HasKey("intensiteBrouillard")
+                    ? PlayerPrefs.GetFloat("intensiteBrouillard",
+                        DEFAUT_BROUILLARD)
+                    : IntensiteBrouillardDeLaScene());
+        }
 
-        sliderIntensiteBrouillard.value =
-            PlayerPrefs.GetFloat("intensiteBrouillard",
-                DEFAUT_BROUILLARD);
+        if (dropdownResolution != null)
+        {
+            dropdownResolution.SetValueWithoutNotify(
+                PlayerPrefs.GetInt("resolution", 2));
+            dropdownResolution.RefreshShownValue();
+        }
 
-        dropdownResolution.value =
-            PlayerPrefs.GetInt("resolution", 2);
-        dropdownResolution.RefreshShownValue();
-
-        dropdownModeAffichage.value =
-            PlayerPrefs.GetInt("modeAffichage", 0);
-        dropdownModeAffichage.RefreshShownValue();
+        if (dropdownModeAffichage != null)
+        {
+            dropdownModeAffichage.SetValueWithoutNotify(
+                PlayerPrefs.GetInt("modeAffichage", 0));
+            dropdownModeAffichage.RefreshShownValue();
+        }
 
         enChargement = false;
     }
 
     public void Reinitialiser()
     {
-        enChargement = true;
+        // REINITIALISER = revenir aux valeurs INSPECTOR (le profil
+        // partage et les RenderSettings de la scene sont LA reference,
+        // configuree par l'equipe). On efface donc les prefs visuelles
+        // (le jeu repasse en mode "l'Inspector fait foi") et on restaure
+        // explicitement la base sur le profil runtime + le fog de scene.
+        PlayerPrefs.DeleteKey("luminosite");
+        PlayerPrefs.DeleteKey("intensiteVignette");
+        PlayerPrefs.DeleteKey("intensiteBrouillard");
 
-        dropdownResolution.value = 2;
-        dropdownModeAffichage.value = 0;
-        sliderLuminosite.value = luminositeSliderDefaut;
-        sliderIntensiteVignette.value = vignetteSliderDefaut;
-        sliderIntensiteBrouillard.value = DEFAUT_BROUILLARD;
+        if (colorAdjustments != null)
+            colorAdjustments.postExposure.Override(luminositeOriginale);
+        if (vignette != null)
+            vignette.intensity.Override(vignetteOriginale);
 
-        enChargement = false;
+        RenderSettings.fog = fogSceneActif;
+        RenderSettings.fogMode = fogSceneMode;
+        RenderSettings.fogDensity = fogSceneDensite;
+        RenderSettings.fogEndDistance = fogSceneFin;
 
+        // Resolution / affichage : defauts du jeu (sans effet dans
+        // l'editeur — Game view a taille fixe; visible en build).
         PlayerPrefs.SetInt("resolution", 2);
         PlayerPrefs.SetInt("modeAffichage", 0);
-        PlayerPrefs.SetFloat("luminosite", luminositeSliderDefaut);
-        PlayerPrefs.SetFloat("intensiteVignette", vignetteSliderDefaut);
-        PlayerPrefs.SetFloat("intensiteBrouillard", DEFAUT_BROUILLARD);
-
         Screen.SetResolution(1920, 1080,
             FullScreenMode.ExclusiveFullScreen);
 
-        dropdownResolution.RefreshShownValue();
-        dropdownModeAffichage.RefreshShownValue();
+        // Recharge l'UI depuis ce nouvel etat (sliders -> bases).
+        ChargerPreferences();
         MettreAJourTousLesTextes();
-        AppliquerEffets();
 
-        Debug.Log("Options graphiques reinitialisees");
+        Debug.Log("Options graphiques reinitialisees "
+            + "(retour aux valeurs Inspector)");
     }
 
     public void RechargerPreferences()
@@ -401,6 +513,7 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private void MettreAJourTexte(Slider slider)
     {
+        if (slider == null) return;
         TMP_Text texte = TrouverTexte(slider);
         if (texte != null)
             texte.text = Mathf.RoundToInt(slider.value * 100) + "%";
@@ -408,6 +521,7 @@ public class gestionOptionsGraphiques : MonoBehaviour
 
     private TMP_Text TrouverTexte(Slider slider)
     {
+        if (slider == null) return null;
         Transform t = slider.transform.Find("pourcentage");
         if (t != null)
             return t.GetComponent<TMP_Text>();

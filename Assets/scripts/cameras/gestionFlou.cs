@@ -51,19 +51,44 @@ public class gestionFlou : MonoBehaviour
         else
             dof = volumeGlobal.profile.Add<DepthOfField>(true);
 
-        dof.mode.Override(DepthOfFieldMode.Bokeh);
+        // Capture de l'etat INSPECTOR du DoF (la base configuree par
+        // l'equipe dans le profil partage) AVANT toute modification.
+        // Avant : on forcait Bokeh ici puis DesactiverFlou ecrasait
+        // tout avec des valeurs en dur (100/1/32) -> les reglages DoF
+        // du Global Volume "changeaient a chaque lancement".
+        dofBaseActive = dof.active;
+        dofBaseMode = dof.mode.value;
+        dofBaseFocusDistance = dof.focusDistance.value;
+        dofBaseFocalLength = dof.focalLength.value;
+        dofBaseAperture = dof.aperture.value;
 
-        // D�sactiver par d�faut, sauf dans la sc�ne principale
-        if (SceneManager.GetActiveScene().name != "scene0_tuto")
-        {
+        // scene0 demarre sur le MENU PRINCIPAL : on active le flou de
+        // menu explicitement (champs distanceFocus/longueurFocale/
+        // ouverture du composant). Le look "menu floute" vient donc de
+        // cet effet, PAS de la base du profil — la base doit etre
+        // l'etat EN JEU. Hors scene0 : on part de la base.
+        if (SceneManager.GetActiveScene().name == "scene0_tuto")
+            ActiverFlou();
+        else
             DesactiverFlou();
-        }
     }
+
+    // Etat Inspector du DoF, restaure a chaque DesactiverFlou.
+    private bool dofBaseActive;
+    private DepthOfFieldMode dofBaseMode;
+    private float dofBaseFocusDistance;
+    private float dofBaseFocalLength;
+    private float dofBaseAperture;
 
     public void ActiverFlou()
     {
         if (dof == null) return;
 
+        // Flou de menu/pause : les valeurs viennent des champs de CE
+        // composant (distanceFocus / longueurFocale / ouverture) —
+        // comportement d'origine du jeu. Astuce reglage : pour un
+        // panneau d'UI world-space NET sur fond flou, mettre
+        // distanceFocus = distance camera->panneau.
         dof.active = true;
         dof.mode.Override(DepthOfFieldMode.Bokeh);
         dof.focusDistance.Override(distanceFocus);
@@ -75,10 +100,13 @@ public class gestionFlou : MonoBehaviour
     {
         if (dof == null) return;
 
-        dof.active = true;
-        dof.mode.Override(DepthOfFieldMode.Bokeh);
-        dof.focusDistance.Override(100f);
-        dof.focalLength.Override(1f);
-        dof.aperture.Override(32f);
+        // Restaure l'etat INSPECTOR du DoF (la base du profil partage)
+        // au lieu des anciennes valeurs en dur qui ecrasaient le
+        // reglage de l'equipe a chaque fermeture de menu.
+        dof.active = dofBaseActive;
+        dof.mode.Override(dofBaseMode);
+        dof.focusDistance.Override(dofBaseFocusDistance);
+        dof.focalLength.Override(dofBaseFocalLength);
+        dof.aperture.Override(dofBaseAperture);
     }
 }

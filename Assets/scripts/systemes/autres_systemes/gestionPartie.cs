@@ -193,10 +193,21 @@ public class gestionPartie : MonoBehaviour
         if (!Directory.Exists(cheminDossierSauvegardes))
             return false;
 
-        string[] fichiers = Directory.GetFiles(
-            cheminDossierSauvegardes, "sauvegarde_*.json");
+        // Ne compte QUE les slots geres par l'UI (0..nombreMax-1).
+        // Avant : wildcard sauvegarde_*.json -> un vieux fichier
+        // "fantome" (ex. sauvegarde_4.json, cree par un ancien bug,
+        // invisible dans la liste donc insupprimable en jeu) gardait
+        // le bouton Continuer affiche apres suppression de tout.
+        for (int i = 0; i < nombreMaxSauvegardes; i++)
+        {
+            string chemin = Path.Combine(
+                cheminDossierSauvegardes,
+                "sauvegarde_" + i + ".json");
+            if (File.Exists(chemin))
+                return true;
+        }
 
-        return fichiers.Length > 0;
+        return false;
     }
 
     public void Sauvegarder(int indexSlot = -1)
@@ -300,22 +311,24 @@ public class gestionPartie : MonoBehaviour
         if (!Directory.Exists(cheminDossierSauvegardes))
             return null;
 
-        string[] fichiers = Directory.GetFiles(
-            cheminDossierSauvegardes, "sauvegarde_*.json");
-
-        if (fichiers.Length == 0)
-            return null;
-
+        // Meme regle que SauvegardeExiste : seuls les slots geres par
+        // l'UI comptent (un fichier fantome hors plage ne doit pas
+        // etre charge par Continuer).
         string fichierRecent = null;
         DateTime dateRecente = DateTime.MinValue;
 
-        foreach (string fichier in fichiers)
+        for (int i = 0; i < nombreMaxSauvegardes; i++)
         {
-            DateTime dateModification = File.GetLastWriteTime(fichier);
+            string chemin = Path.Combine(
+                cheminDossierSauvegardes,
+                "sauvegarde_" + i + ".json");
+            if (!File.Exists(chemin)) continue;
+
+            DateTime dateModification = File.GetLastWriteTime(chemin);
             if (dateModification > dateRecente)
             {
                 dateRecente = dateModification;
-                fichierRecent = fichier;
+                fichierRecent = chemin;
             }
         }
 

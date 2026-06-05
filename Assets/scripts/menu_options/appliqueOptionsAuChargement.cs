@@ -84,6 +84,16 @@ public class appliqueOptionsAuChargement : MonoBehaviour
             resolutionAppliquee = true;
         }
 
+        // ARCHITECTURE CAMERA (assumee, voulue par l'equipe) : le
+        // CinemachineBrain vit sur camera_capture (parent) qui REND
+        // l'ecran; camera_principale (enfant, tag MainCamera) suit par
+        // parentage et sert aux raycasts (Camera.main). On ne touche
+        // PAS a cet equilibre (le desactiver cassait le menu world-
+        // space). On synchronise seulement le FOV de camera_principale
+        // sur celui du rendu, pour que les raycasts restent alignes
+        // quand le joueur change le champ de vision.
+        SynchroniserCamerasCapture();
+
         // Graphique : luminosite, vignette, brouillard.
         var graphique = FindFirstObjectByType<gestionOptionsGraphiques>(
             FindObjectsInactive.Include);
@@ -132,6 +142,39 @@ public class appliqueOptionsAuChargement : MonoBehaviour
 
         Debug.Log("[appliqueOptionsAuChargement] Options appliquees " +
             $"dans '{SceneManager.GetActiveScene().name}'.");
+    }
+
+    // NE DESACTIVE PLUS camera_capture (lecon apprise : l'eteindre
+    // gelait le CinemachineBrain qu'elle porte -> la transition d'intro
+    // ne finissait jamais -> gestionsTransitions ne remettait jamais
+    // Interactable=true sur le CanvasGroup du menu -> "menu fige").
+    // On se contente d'aligner le FOV de camera_principale (tag
+    // MainCamera, base des raycasts) sur celui du rendu, pour que la
+    // visee reste juste quand le joueur change le champ de vision.
+    private void SynchroniserCamerasCapture()
+    {
+        Camera capture = null;
+        Camera principale = null;
+
+        var cameras = FindObjectsByType<Camera>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var cam in cameras)
+        {
+            if (cam == null) continue;
+            if (cam.name == "camera_capture") capture = cam;
+            else if (cam.name == "camera_principale") principale = cam;
+        }
+
+        if (capture != null && principale != null)
+        {
+            var copie = principale
+                .GetComponent<copieLensCameraRendu>();
+            if (copie == null)
+                copie = principale.gameObject
+                    .AddComponent<copieLensCameraRendu>();
+            copie.source = capture;
+            copie.Copier();
+        }
     }
 
     // Canvas qui doivent flouter l'arriere-plan quand ils s'ouvrent.
